@@ -10,10 +10,11 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME || 'snailmarket',
   password: process.env.DB_PASSWORD || 'snailmarket_password',
   database: process.env.DB_DATABASE || 'snailmarket',
-  entities: ['dist/**/*.entity{.ts,.js}'],
-  migrations: ['dist/database/migrations/*{.ts,.js}'],
+  entities: [__dirname + '/entities/*.entity{.ts,.js}', 'dist/database/entities/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/migrations/*{.ts,.js}', 'dist/database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+  migrationsRun: false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);
