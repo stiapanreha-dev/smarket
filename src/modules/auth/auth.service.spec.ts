@@ -81,7 +81,9 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     _userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    _refreshTokenRepository = module.get<Repository<RefreshToken>>(getRepositoryToken(RefreshToken));
+    _refreshTokenRepository = module.get<Repository<RefreshToken>>(
+      getRepositoryToken(RefreshToken),
+    );
     _jwtService = module.get<JwtService>(JwtService);
     _configService = module.get<ConfigService>(ConfigService);
   });
