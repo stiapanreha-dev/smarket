@@ -102,6 +102,21 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   last_login_at: Date | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email_verification_token: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  email_verification_expires: Date | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password_reset_token: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  password_reset_expires: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  password_changed_at: Date | null;
+
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any> | null;
 
