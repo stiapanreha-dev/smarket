@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TerminusModule } from '@nestjs/terminus';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthController } from './health.controller';
@@ -13,6 +15,7 @@ import { BookingModule } from '@modules/booking/booking.module';
 import { OrderModule } from '@modules/order/order.module';
 import { PaymentModule } from '@modules/payment/payment.module';
 import { NotificationModule } from '@modules/notification/notification.module';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -21,6 +24,14 @@ import { NotificationModule } from '@modules/notification/notification.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+
+    // Rate limiting
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds
+        limit: 100, // 100 requests per TTL
+      },
+    ]),
 
     // Database
     TypeOrmModule.forRootAsync({
@@ -53,6 +64,12 @@ import { NotificationModule } from '@modules/notification/notification.module';
     NotificationModule,
   ],
   controllers: [AppController, HealthController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
