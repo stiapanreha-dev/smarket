@@ -37,13 +37,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     // Check if password was changed after token was issued
     if (user.password_changed_at && payload.iat) {
-      const passwordChangedTimestamp = Math.floor(
-        user.password_changed_at.getTime() / 1000,
-      );
+      const passwordChangedTimestamp = Math.floor(user.password_changed_at.getTime() / 1000);
       if (payload.iat < passwordChangedTimestamp) {
-        throw new UnauthorizedException(
-          'Password was changed. Please login again',
-        );
+        throw new UnauthorizedException('Password was changed. Please login again');
       }
     }
 

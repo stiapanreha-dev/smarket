@@ -49,10 +49,6 @@ export class RefreshToken {
 
   // Check if token is valid
   isValid(): boolean {
-    return (
-      !this.used &&
-      !this.revoked &&
-      new Date() < this.expires_at
-    );
+    return !this.used && !this.revoked && new Date() < this.expires_at;
   }
 }

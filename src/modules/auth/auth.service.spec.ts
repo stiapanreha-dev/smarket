@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import * as argon2 from 'argon2';
 import { AuthService } from './auth.service';
 import { User, UserRole } from '@/database/entities/user.entity';
 import { RefreshToken } from '@/database/entities/refresh-token.entity';
@@ -12,10 +13,10 @@ import { LoginDto } from './dto/login.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userRepository: Repository<User>;
-  let refreshTokenRepository: Repository<RefreshToken>;
-  let jwtService: JwtService;
-  let configService: ConfigService;
+  let _userRepository: Repository<User>;
+  let _refreshTokenRepository: Repository<RefreshToken>;
+  let _jwtService: JwtService;
+  let _configService: ConfigService;
 
   const mockUser: Partial<User> = {
     id: '123',
@@ -45,7 +46,7 @@ describe('AuthService', () => {
 
   const mockConfigService = {
     get: jest.fn((key: string, defaultValue?: any) => {
-      const config = {
+      const config: Record<string, string> = {
         JWT_SECRET: 'test-secret',
         JWT_REFRESH_SECRET: 'test-refresh-secret',
         JWT_ACCESS_EXPIRATION: '15m',
@@ -79,12 +80,12 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    refreshTokenRepository = module.get<Repository<RefreshToken>>(
+    _userRepository = module.get<Repository<User>>(getRepositoryToken(User));
+    _refreshTokenRepository = module.get<Repository<RefreshToken>>(
       getRepositoryToken(RefreshToken),
     );
-    jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
+    _jwtService = module.get<JwtService>(JwtService);
+    _configService = module.get<ConfigService>(ConfigService);
   });
 
   afterEach(() => {
@@ -126,9 +127,7 @@ describe('AuthService', () => {
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
 
-      await expect(service.register(registerDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         where: { email: registerDto.email },
       });
@@ -151,7 +150,7 @@ describe('AuthService', () => {
       mockRefreshTokenRepository.save.mockResolvedValue({});
 
       // Mock argon2.verify - we'll need to mock this in actual implementation
-      jest.spyOn(require('argon2'), 'verify').mockResolvedValue(true);
+      jest.spyOn(argon2, 'verify').mockResolvedValue(true);
 
       const result = await service.login(loginDto);
 
@@ -170,9 +169,7 @@ describe('AuthService', () => {
 
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
   });
 

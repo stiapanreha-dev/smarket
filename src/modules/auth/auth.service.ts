@@ -83,11 +83,7 @@ export class AuthService {
   /**
    * Login user
    */
-  async login(
-    loginDto: LoginDto,
-    userAgent?: string,
-    ipAddress?: string,
-  ): Promise<AuthResponse> {
+  async login(loginDto: LoginDto, userAgent?: string, ipAddress?: string): Promise<AuthResponse> {
     // Find user by email
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
@@ -98,10 +94,7 @@ export class AuthService {
     }
 
     // Verify password
-    const isPasswordValid = await argon2.verify(
-      user.password_hash,
-      loginDto.password,
-    );
+    const isPasswordValid = await argon2.verify(user.password_hash, loginDto.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
@@ -135,12 +128,9 @@ export class AuthService {
   ): Promise<TokenPair> {
     try {
       // Verify refresh token
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(
-        refreshToken,
-        {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        },
-      );
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
 
       // Find refresh token in database
       const storedToken = await this.refreshTokenRepository.findOne({
@@ -281,12 +271,7 @@ export class AuthService {
     });
 
     // Save refresh token to database
-    await this.saveRefreshToken(
-      user.id,
-      refreshToken,
-      userAgent,
-      ipAddress,
-    );
+    await this.saveRefreshToken(user.id, refreshToken, userAgent, ipAddress);
 
     return {
       accessToken,
@@ -338,12 +323,8 @@ export class AuthService {
    * Remove sensitive data from user object
    */
   private sanitizeUser(user: User): Partial<User> {
-    const {
-      password_hash,
-      email_verification_token,
-      password_reset_token,
-      ...sanitized
-    } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password_hash, email_verification_token, password_reset_token, ...sanitized } = user;
     return sanitized;
   }
 }
