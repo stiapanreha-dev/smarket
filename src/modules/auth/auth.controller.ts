@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
@@ -65,11 +56,7 @@ export class AuthController {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip || req.connection.remoteAddress;
 
-    return this.authService.refreshTokens(
-      refreshTokenDto.refreshToken,
-      userAgent,
-      ipAddress,
-    );
+    return this.authService.refreshTokens(refreshTokenDto.refreshToken, userAgent, ipAddress);
   }
 
   @Post('logout')
