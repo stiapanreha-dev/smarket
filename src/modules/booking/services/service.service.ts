@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Service, ServiceStatus } from '@database/entities';
@@ -60,10 +55,7 @@ export class ServiceService {
   /**
    * Get all services for a merchant
    */
-  async getMerchantServices(
-    merchantId: string,
-    includeInactive = false,
-  ): Promise<Service[]> {
+  async getMerchantServices(merchantId: string, includeInactive = false): Promise<Service[]> {
     const where: any = { merchant_id: merchantId };
 
     if (!includeInactive) {
@@ -111,10 +103,7 @@ export class ServiceService {
   /**
    * Update service
    */
-  async updateService(
-    serviceId: string,
-    dto: UpdateServiceDto,
-  ): Promise<Service> {
+  async updateService(serviceId: string, dto: UpdateServiceDto): Promise<Service> {
     const service = await this.getService(serviceId);
 
     // Update fields
@@ -122,8 +111,7 @@ export class ServiceService {
     if (dto.description !== undefined) service.description = dto.description;
     if (dto.category) service.category = dto.category;
     if (dto.duration_minutes) service.duration_minutes = dto.duration_minutes;
-    if (dto.buffer_minutes !== undefined)
-      service.buffer_minutes = dto.buffer_minutes;
+    if (dto.buffer_minutes !== undefined) service.buffer_minutes = dto.buffer_minutes;
     if (dto.price_minor) service.price_minor = dto.price_minor;
     if (dto.currency) service.currency = dto.currency;
     if (dto.status) service.status = dto.status;

@@ -73,11 +73,7 @@ export class ServiceController {
     @Query() query: GetAvailableSlotsDto,
   ) {
     const date = parseISO(query.date);
-    const slots = await this.slotAvailabilityService.getAvailableSlots(
-      id,
-      date,
-      query.provider_id,
-    );
+    const slots = await this.slotAvailabilityService.getAvailableSlots(id, date, query.provider_id);
 
     return {
       success: true,
@@ -107,10 +103,7 @@ export class ServiceController {
   @ApiParam({ name: 'id', description: 'Service ID' })
   @ApiResponse({ status: 200, description: 'Service updated successfully' })
   @ApiResponse({ status: 404, description: 'Service not found' })
-  async updateService(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateServiceDto,
-  ) {
+  async updateService(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateServiceDto) {
     const service = await this.serviceService.updateService(id, dto);
 
     return {

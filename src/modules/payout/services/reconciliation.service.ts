@@ -39,10 +39,7 @@ export class ReconciliationService {
   /**
    * Generate daily reconciliation report
    */
-  async generateDailyReport(
-    date: Date,
-    merchantId?: string,
-  ): Promise<ReconciliationResult> {
+  async generateDailyReport(date: Date, merchantId?: string): Promise<ReconciliationResult> {
     this.logger.log(
       `Generating daily reconciliation report for ${date.toISOString()}${
         merchantId ? ` (merchant: ${merchantId})` : ''
@@ -67,10 +64,7 @@ export class ReconciliationService {
   /**
    * Generate weekly reconciliation report
    */
-  async generateWeeklyReport(
-    weekStart: Date,
-    merchantId?: string,
-  ): Promise<ReconciliationResult> {
+  async generateWeeklyReport(weekStart: Date, merchantId?: string): Promise<ReconciliationResult> {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
 
@@ -92,10 +86,7 @@ export class ReconciliationService {
   /**
    * Generate monthly reconciliation report
    */
-  async generateMonthlyReport(
-    month: Date,
-    merchantId?: string,
-  ): Promise<ReconciliationResult> {
+  async generateMonthlyReport(month: Date, merchantId?: string): Promise<ReconciliationResult> {
     const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
     const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
     endOfMonth.setHours(23, 59, 59, 999);
@@ -208,14 +199,9 @@ export class ReconciliationService {
       }
 
       // Verify splits total matches payout amount
-      const payoutSplits = splits.filter((s) =>
-        payout.splits_included!.includes(s.id),
-      );
+      const payoutSplits = splits.filter((s) => payout.splits_included!.includes(s.id));
 
-      const payoutSplitsTotal = payoutSplits.reduce(
-        (sum, s) => sum + s.net_amount,
-        0,
-      );
+      const payoutSplitsTotal = payoutSplits.reduce((sum, s) => sum + s.net_amount, 0);
 
       if (Math.abs(payoutSplitsTotal - payout.amount_minor) > 1) {
         // Allow 1 minor unit variance for rounding
@@ -287,10 +273,7 @@ export class ReconciliationService {
     );
 
     if (discrepancies.length > 0) {
-      this.logger.warn(
-        `Reconciliation report ${report.id} found discrepancies:`,
-        discrepancies,
-      );
+      this.logger.warn(`Reconciliation report ${report.id} found discrepancies:`, discrepancies);
     }
 
     return {
@@ -326,12 +309,14 @@ export class ReconciliationService {
   /**
    * Get all reports
    */
-  async getReports(options: {
-    merchantId?: string;
-    type?: ReconciliationReportType;
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<{ reports: ReconciliationReport[]; total: number }> {
+  async getReports(
+    options: {
+      merchantId?: string;
+      type?: ReconciliationReportType;
+      limit?: number;
+      offset?: number;
+    } = {},
+  ): Promise<{ reports: ReconciliationReport[]; total: number }> {
     const qb = this.reportRepository
       .createQueryBuilder('report')
       .orderBy('report.report_date', 'DESC');

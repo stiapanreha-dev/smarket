@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -45,10 +51,7 @@ export class PaymentService {
   /**
    * Authorize payment (create payment intent)
    */
-  async authorizePayment(
-    orderId: string,
-    idempotencyKey?: string,
-  ): Promise<Payment> {
+  async authorizePayment(orderId: string, idempotencyKey?: string): Promise<Payment> {
     // Generate idempotency key if not provided
     const idemKey = idempotencyKey || this.generateIdempotencyKey(orderId);
 
@@ -194,9 +197,7 @@ export class PaymentService {
       }
 
       if (payment.status !== PaymentStatusEnum.AUTHORIZED) {
-        throw new BadRequestException(
-          `Cannot capture payment in status ${payment.status}`,
-        );
+        throw new BadRequestException(`Cannot capture payment in status ${payment.status}`);
       }
 
       // Call provider to capture
@@ -274,9 +275,7 @@ export class PaymentService {
       }
 
       if (payment.status !== PaymentStatusEnum.CAPTURED) {
-        throw new BadRequestException(
-          `Cannot refund payment in status ${payment.status}`,
-        );
+        throw new BadRequestException(`Cannot refund payment in status ${payment.status}`);
       }
 
       // Check refund amount
@@ -306,11 +305,7 @@ export class PaymentService {
         throw new Error(`Payment provider ${payment.provider} not found`);
       }
 
-      const result = await provider.refundPayment(
-        payment.provider_payment_id!,
-        amount,
-        reason,
-      );
+      const result = await provider.refundPayment(payment.provider_payment_id!, amount, reason);
 
       if (!result.success) {
         refund.status = RefundStatus.FAILED;

@@ -1,19 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  Index,
-} from 'typeorm';
-import {
-  IsEnum,
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-  IsInt,
-  Min,
-} from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import { IsEnum, IsOptional, IsObject, IsString, IsUUID, IsInt, Min } from 'class-validator';
 
 export enum OutboxStatus {
   PENDING = 'pending',

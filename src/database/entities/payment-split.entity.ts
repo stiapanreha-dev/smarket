@@ -84,11 +84,7 @@ export class PaymentSplit {
 
   // Virtual properties
   get is_ready_for_payout(): boolean {
-    return (
-      this.status === PaymentSplitStatus.RELEASED &&
-      this.escrow_released &&
-      !this.payout_id
-    );
+    return this.status === PaymentSplitStatus.RELEASED && this.escrow_released && !this.payout_id;
   }
 
   get days_until_release(): number | null {

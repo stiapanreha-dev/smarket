@@ -49,9 +49,7 @@ export class MerchantPayoutController {
       throw new Error('Merchant not found for user');
     }
 
-    const balance = await this.payoutService.calculateMerchantBalance(
-      merchant.id,
-    );
+    const balance = await this.payoutService.calculateMerchantBalance(merchant.id);
 
     return BalanceResponseDto.create(balance);
   }
@@ -85,14 +83,11 @@ export class MerchantPayoutController {
       throw new Error('Merchant not found for user');
     }
 
-    const { payouts, total } = await this.payoutService.getMerchantPayouts(
-      merchant.id,
-      {
-        status: status as any,
-        limit: Math.min(limit, 100), // Max 100
-        offset,
-      },
-    );
+    const { payouts, total } = await this.payoutService.getMerchantPayouts(merchant.id, {
+      status: status as any,
+      limit: Math.min(limit, 100), // Max 100
+      offset,
+    });
 
     return {
       payouts: payouts.map(PayoutResponseDto.fromEntity),
@@ -109,10 +104,7 @@ export class MerchantPayoutController {
   @Get('payouts/:id')
   @Roles('merchant', 'admin')
   @HttpCode(HttpStatus.OK)
-  async getPayout(
-    @Request() req,
-    @Param('id') payoutId: string,
-  ): Promise<PayoutResponseDto> {
+  async getPayout(@Request() req, @Param('id') payoutId: string): Promise<PayoutResponseDto> {
     const userId = req.user.id;
 
     // Get merchant for user
@@ -175,10 +167,7 @@ export class MerchantPayoutController {
 
     const total = await qb.getCount();
 
-    const splits = await qb
-      .limit(Math.min(limit, 100))
-      .offset(offset)
-      .getMany();
+    const splits = await qb.limit(Math.min(limit, 100)).offset(offset).getMany();
 
     const transactions = splits.map((split) => ({
       id: split.id,

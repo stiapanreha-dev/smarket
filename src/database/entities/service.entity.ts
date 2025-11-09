@@ -9,16 +9,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import {
-  IsEnum,
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-  IsInt,
-  Min,
-  IsIn,
-} from 'class-validator';
+import { IsEnum, IsOptional, IsObject, IsString, IsUUID, IsInt, Min, IsIn } from 'class-validator';
 import { Merchant } from './merchant.entity';
 import { User } from './user.entity';
 import { Schedule } from './schedule.entity';

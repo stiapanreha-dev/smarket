@@ -168,9 +168,7 @@ export class PayoutService {
       }
 
       if (merchant.status !== MerchantStatus.ACTIVE) {
-        throw new BadRequestException(
-          `Merchant ${options.merchantId} is not active`,
-        );
+        throw new BadRequestException(`Merchant ${options.merchantId} is not active`);
       }
 
       // Check minimum payout amount
@@ -191,9 +189,7 @@ export class PayoutService {
       });
 
       if (splits.length !== options.splitsIncluded.length) {
-        throw new BadRequestException(
-          `Some splits are not available for payout`,
-        );
+        throw new BadRequestException(`Some splits are not available for payout`);
       }
 
       // Create payout
@@ -309,9 +305,7 @@ export class PayoutService {
       }
 
       if (payout.status !== PayoutStatus.PENDING) {
-        throw new BadRequestException(
-          `Cannot process payout in status ${payout.status}`,
-        );
+        throw new BadRequestException(`Cannot process payout in status ${payout.status}`);
       }
 
       try {
@@ -443,9 +437,7 @@ export class PayoutService {
    * Get week number of year
    */
   private getWeekNumber(date: Date): number {
-    const d = new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-    );
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));

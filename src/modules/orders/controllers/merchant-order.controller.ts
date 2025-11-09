@@ -9,13 +9,7 @@ import {
   ForbiddenException,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -80,10 +74,7 @@ export class MerchantOrderController {
   @ApiOperation({ summary: 'Get merchant items in order' })
   @ApiParam({ name: 'orderId', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'Items retrieved successfully' })
-  async getMerchantOrderItems(
-    @Param('orderId', ParseUUIDPipe) orderId: string,
-    @Request() req,
-  ) {
+  async getMerchantOrderItems(@Param('orderId', ParseUUIDPipe) orderId: string, @Request() req) {
     const merchant = await this.getMerchantByUserId(req.user.id);
 
     const items = await this.lineItemRepository.find({
@@ -165,15 +156,10 @@ export class MerchantOrderController {
       nextStatus = 'booking_confirmed';
     }
 
-    const updatedItem = await this.orderService.updateLineItemStatus(
-      orderId,
-      itemId,
-      nextStatus,
-      {
-        reason: 'Merchant fulfilled item',
-        user_id: req.user.id,
-      },
-    );
+    const updatedItem = await this.orderService.updateLineItemStatus(orderId, itemId, nextStatus, {
+      reason: 'Merchant fulfilled item',
+      user_id: req.user.id,
+    });
 
     return {
       success: true,
@@ -196,18 +182,13 @@ export class MerchantOrderController {
     const merchant = await this.getMerchantByUserId(req.user.id);
     await this.verifyMerchantOwnership(itemId, merchant.id);
 
-    const updatedItem = await this.orderService.updateLineItemStatus(
-      orderId,
-      itemId,
-      'shipped',
-      {
-        reason: 'Item shipped',
-        user_id: req.user.id,
-        tracking_number: shippingDto.tracking_number,
-        carrier: shippingDto.carrier,
-        estimated_delivery: shippingDto.estimated_delivery,
-      },
-    );
+    const updatedItem = await this.orderService.updateLineItemStatus(orderId, itemId, 'shipped', {
+      reason: 'Item shipped',
+      user_id: req.user.id,
+      tracking_number: shippingDto.tracking_number,
+      carrier: shippingDto.carrier,
+      estimated_delivery: shippingDto.estimated_delivery,
+    });
 
     return {
       success: true,
@@ -231,10 +212,7 @@ export class MerchantOrderController {
     return merchant;
   }
 
-  private async verifyMerchantOwnership(
-    itemId: string,
-    merchantId: string,
-  ): Promise<void> {
+  private async verifyMerchantOwnership(itemId: string, merchantId: string): Promise<void> {
     const item = await this.lineItemRepository.findOne({
       where: { id: itemId, merchant_id: merchantId },
     });

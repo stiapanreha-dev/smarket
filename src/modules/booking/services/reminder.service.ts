@@ -69,17 +69,12 @@ export class ReminderService {
             successCount++;
           }
         } catch (error) {
-          this.logger.error(
-            `Failed to send reminder for booking ${booking.id}:`,
-            error,
-          );
+          this.logger.error(`Failed to send reminder for booking ${booking.id}:`, error);
           failureCount++;
         }
       }
 
-      this.logger.log(
-        `Reminder job completed: ${successCount} sent, ${failureCount} failed`,
-      );
+      this.logger.log(`Reminder job completed: ${successCount} sent, ${failureCount} failed`);
     } catch (error) {
       this.logger.error('Error in reminder job:', error);
     } finally {
@@ -113,9 +108,7 @@ export class ReminderService {
     */
 
     // For now, just log
-    this.logger.log(
-      `Reminder notification would be sent for booking ${booking.id}`,
-    );
+    this.logger.log(`Reminder notification would be sent for booking ${booking.id}`);
   }
 
   /**
@@ -131,13 +124,8 @@ export class ReminderService {
       throw new Error(`Booking ${bookingId} not found`);
     }
 
-    if (
-      booking.status !== BookingStatus.PENDING &&
-      booking.status !== BookingStatus.CONFIRMED
-    ) {
-      throw new Error(
-        `Cannot send reminder for booking in status: ${booking.status}`,
-      );
+    if (booking.status !== BookingStatus.PENDING && booking.status !== BookingStatus.CONFIRMED) {
+      throw new Error(`Cannot send reminder for booking in status: ${booking.status}`);
     }
 
     await this.sendReminderNotification(booking);

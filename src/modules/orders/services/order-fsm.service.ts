@@ -38,22 +38,14 @@ export class OrderFSMService {
         PhysicalItemStatus.READY_TO_SHIP,
         PhysicalItemStatus.CANCELLED,
       ],
-      [PhysicalItemStatus.READY_TO_SHIP]: [
-        PhysicalItemStatus.SHIPPED,
-      ],
+      [PhysicalItemStatus.READY_TO_SHIP]: [PhysicalItemStatus.SHIPPED],
       [PhysicalItemStatus.SHIPPED]: [
         PhysicalItemStatus.OUT_FOR_DELIVERY,
         PhysicalItemStatus.DELIVERED,
       ],
-      [PhysicalItemStatus.OUT_FOR_DELIVERY]: [
-        PhysicalItemStatus.DELIVERED,
-      ],
-      [PhysicalItemStatus.DELIVERED]: [
-        PhysicalItemStatus.REFUND_REQUESTED,
-      ],
-      [PhysicalItemStatus.REFUND_REQUESTED]: [
-        PhysicalItemStatus.REFUNDED,
-      ],
+      [PhysicalItemStatus.OUT_FOR_DELIVERY]: [PhysicalItemStatus.DELIVERED],
+      [PhysicalItemStatus.DELIVERED]: [PhysicalItemStatus.REFUND_REQUESTED],
+      [PhysicalItemStatus.REFUND_REQUESTED]: [PhysicalItemStatus.REFUNDED],
       [PhysicalItemStatus.CANCELLED]: [],
       [PhysicalItemStatus.REFUNDED]: [],
     },
@@ -70,12 +62,8 @@ export class OrderFSMService {
         DigitalItemStatus.DOWNLOADED,
         DigitalItemStatus.REFUND_REQUESTED,
       ],
-      [DigitalItemStatus.DOWNLOADED]: [
-        DigitalItemStatus.REFUND_REQUESTED,
-      ],
-      [DigitalItemStatus.REFUND_REQUESTED]: [
-        DigitalItemStatus.REFUNDED,
-      ],
+      [DigitalItemStatus.DOWNLOADED]: [DigitalItemStatus.REFUND_REQUESTED],
+      [DigitalItemStatus.REFUND_REQUESTED]: [DigitalItemStatus.REFUNDED],
       [DigitalItemStatus.CANCELLED]: [],
       [DigitalItemStatus.REFUNDED]: [],
     },
@@ -92,22 +80,11 @@ export class OrderFSMService {
         ServiceItemStatus.REMINDER_SENT,
         ServiceItemStatus.CANCELLED,
       ],
-      [ServiceItemStatus.REMINDER_SENT]: [
-        ServiceItemStatus.IN_PROGRESS,
-        ServiceItemStatus.NO_SHOW,
-      ],
-      [ServiceItemStatus.IN_PROGRESS]: [
-        ServiceItemStatus.COMPLETED,
-      ],
-      [ServiceItemStatus.COMPLETED]: [
-        ServiceItemStatus.REFUND_REQUESTED,
-      ],
-      [ServiceItemStatus.NO_SHOW]: [
-        ServiceItemStatus.REFUND_REQUESTED,
-      ],
-      [ServiceItemStatus.REFUND_REQUESTED]: [
-        ServiceItemStatus.REFUNDED,
-      ],
+      [ServiceItemStatus.REMINDER_SENT]: [ServiceItemStatus.IN_PROGRESS, ServiceItemStatus.NO_SHOW],
+      [ServiceItemStatus.IN_PROGRESS]: [ServiceItemStatus.COMPLETED],
+      [ServiceItemStatus.COMPLETED]: [ServiceItemStatus.REFUND_REQUESTED],
+      [ServiceItemStatus.NO_SHOW]: [ServiceItemStatus.REFUND_REQUESTED],
+      [ServiceItemStatus.REFUND_REQUESTED]: [ServiceItemStatus.REFUNDED],
       [ServiceItemStatus.CANCELLED]: [],
       [ServiceItemStatus.REFUNDED]: [],
     },
@@ -124,11 +101,7 @@ export class OrderFSMService {
   /**
    * Check if transition is allowed
    */
-  canTransition(
-    itemType: LineItemType,
-    fromStatus: string,
-    toStatus: string,
-  ): boolean {
+  canTransition(itemType: LineItemType, fromStatus: string, toStatus: string): boolean {
     const allowedTransitions = this.transitions[itemType]?.[fromStatus];
     if (!allowedTransitions) {
       return false;
@@ -172,7 +145,7 @@ export class OrderFSMService {
         const allowed = this.getAllowedTransitions(lineItem.type, fromStatus);
         throw new BadRequestException(
           `Invalid transition from ${fromStatus} to ${toStatus} for ${lineItem.type} item. ` +
-          `Allowed transitions: ${allowed.join(', ') || 'none'}`,
+            `Allowed transitions: ${allowed.join(', ') || 'none'}`,
         );
       }
 
@@ -207,9 +180,7 @@ export class OrderFSMService {
 
       await txManager.save(transition);
 
-      this.logger.log(
-        `Line item ${lineItemId} transitioned from ${fromStatus} to ${toStatus}`,
-      );
+      this.logger.log(`Line item ${lineItemId} transitioned from ${fromStatus} to ${toStatus}`);
 
       return lineItem;
     };
@@ -432,8 +403,9 @@ export class OrderFSMService {
   }
 
   private generateAccessKey(): string {
-    return Math.random().toString(36).substring(2, 15) +
-           Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    );
   }
 
   /**
@@ -457,7 +429,8 @@ export class OrderFSMService {
         return { allowed: false, reason: 'Item not yet delivered' };
       }
 
-      const daysSinceDelivery = (Date.now() - new Date(deliveredAt).getTime()) / (1000 * 60 * 60 * 24);
+      const daysSinceDelivery =
+        (Date.now() - new Date(deliveredAt).getTime()) / (1000 * 60 * 60 * 24);
       if (daysSinceDelivery > 14) {
         return { allowed: false, reason: 'Refund period expired (14 days)' };
       }

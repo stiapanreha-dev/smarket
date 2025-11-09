@@ -1,16 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
-import {
-  Service,
-  Schedule,
-  Booking,
-  BookingStatus,
-} from '@database/entities';
-import {
-  TimeSlot,
-  AvailableSlot,
-} from '../interfaces/time-slot.interface';
+import { Service, Schedule, Booking, BookingStatus } from '@database/entities';
+import { TimeSlot, AvailableSlot } from '../interfaces/time-slot.interface';
 import {
   startOfDay,
   endOfDay,
@@ -109,15 +101,9 @@ export class SlotAvailabilityService {
     );
 
     // 6. Filter out already booked slots
-    const bookedSlots = await this.getBookedSlots(
-      serviceId,
-      date,
-      providerId,
-    );
+    const bookedSlots = await this.getBookedSlots(serviceId, date, providerId);
 
-    const availableSlots = possibleSlots.filter(
-      (slot) => !this.hasConflict(slot, bookedSlots),
-    );
+    const availableSlots = possibleSlots.filter((slot) => !this.hasConflict(slot, bookedSlots));
 
     this.logger.log(
       `Found ${availableSlots.length} available slots out of ${possibleSlots.length} possible slots`,
@@ -215,11 +201,7 @@ export class SlotAvailabilityService {
   /**
    * Check if a specific time slot is available
    */
-  async isSlotAvailable(
-    serviceId: string,
-    startAt: Date,
-    providerId?: string,
-  ): Promise<boolean> {
+  async isSlotAvailable(serviceId: string, startAt: Date, providerId?: string): Promise<boolean> {
     const service = await this.serviceRepository.findOne({
       where: { id: serviceId },
     });
@@ -232,11 +214,7 @@ export class SlotAvailabilityService {
     const slot: TimeSlot = { start: startAt, end: endAt };
 
     // Get all booked slots for this day
-    const bookedSlots = await this.getBookedSlots(
-      serviceId,
-      startAt,
-      providerId,
-    );
+    const bookedSlots = await this.getBookedSlots(serviceId, startAt, providerId);
 
     return !this.hasConflict(slot, bookedSlots);
   }

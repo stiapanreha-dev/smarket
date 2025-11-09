@@ -9,19 +9,9 @@ import {
   Request,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
-import {
-  BookingService,
-  ServiceService,
-  SlotAvailabilityService,
-} from '../services';
+import { BookingService, ServiceService, SlotAvailabilityService } from '../services';
 import {
   CreateBookingDto,
   CancelBookingDto,
@@ -48,10 +38,7 @@ export class BookingController {
   @ApiResponse({ status: 404, description: 'Service not found' })
   @ApiResponse({ status: 409, description: 'Slot not available' })
   async createBooking(@Body() dto: CreateBookingDto, @Request() req: any) {
-    const booking = await this.bookingService.createBooking(
-      req.user.userId,
-      dto,
-    );
+    const booking = await this.bookingService.createBooking(req.user.userId, dto);
 
     return {
       success: true,
@@ -65,9 +52,7 @@ export class BookingController {
   @ApiOperation({ summary: 'Get user bookings' })
   @ApiResponse({ status: 200, description: 'Bookings retrieved successfully' })
   async getUserBookings(@Request() req: any) {
-    const bookings = await this.bookingService.getCustomerBookings(
-      req.user.userId,
-    );
+    const bookings = await this.bookingService.getCustomerBookings(req.user.userId);
 
     return {
       success: true,
@@ -82,10 +67,7 @@ export class BookingController {
   @ApiParam({ name: 'id', description: 'Booking ID' })
   @ApiResponse({ status: 200, description: 'Booking retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  async getBooking(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: any,
-  ) {
+  async getBooking(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
     const booking = await this.bookingService.getBooking(id, req.user.userId);
 
     return {
@@ -107,11 +89,7 @@ export class BookingController {
     @Body() dto: CancelBookingDto,
     @Request() req: any,
   ) {
-    const booking = await this.bookingService.cancelBooking(
-      id,
-      req.user.userId,
-      dto,
-    );
+    const booking = await this.bookingService.cancelBooking(id, req.user.userId, dto);
 
     return {
       success: true,
@@ -138,11 +116,9 @@ export class BookingController {
   ) {
     // Reschedule = cancel + create new
     // First cancel the old booking
-    await this.bookingService.cancelBooking(
-      id,
-      req.user.userId,
-      { reason: 'Rescheduled to new time' },
-    );
+    await this.bookingService.cancelBooking(id, req.user.userId, {
+      reason: 'Rescheduled to new time',
+    });
 
     // Get original booking details
     const oldBooking = await this.bookingService.getBooking(id);

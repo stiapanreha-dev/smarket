@@ -145,9 +145,7 @@ export class NetworkIntlProvider implements PaymentProvider {
       // They use HMAC-SHA256 signature
       return true; // Simplified for mock
     } catch (error) {
-      this.logger.error(
-        `Network International webhook verification failed: ${error.message}`,
-      );
+      this.logger.error(`Network International webhook verification failed: ${error.message}`);
       return false;
     }
   }
@@ -165,7 +163,8 @@ export class NetworkIntlProvider implements PaymentProvider {
   }
 
   private generateId(): string {
-    return Math.random().toString(36).substring(2, 15) +
-           Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    );
   }
 }

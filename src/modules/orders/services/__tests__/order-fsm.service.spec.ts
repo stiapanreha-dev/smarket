@@ -63,9 +63,7 @@ describe('OrderFSMService', () => {
     }).compile();
 
     service = module.get<OrderFSMService>(OrderFSMService);
-    lineItemRepository = module.get<Repository<OrderLineItem>>(
-      getRepositoryToken(OrderLineItem),
-    );
+    lineItemRepository = module.get<Repository<OrderLineItem>>(getRepositoryToken(OrderLineItem));
     transitionRepository = module.get<Repository<OrderStatusTransition>>(
       getRepositoryToken(OrderStatusTransition),
     );

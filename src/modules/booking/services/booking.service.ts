@@ -7,12 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import {
-  Service,
-  Booking,
-  BookingStatus,
-  OrderLineItem,
-} from '@database/entities';
+import { Service, Booking, BookingStatus, OrderLineItem } from '@database/entities';
 import { CacheService } from '@common/services/cache.service';
 import { SlotAvailabilityService } from './slot-availability.service';
 import { CreateBookingDto, CancelBookingDto } from '../dto';
@@ -56,9 +51,7 @@ export class BookingService {
     dto: CreateBookingDto,
     orderLineItemId?: string,
   ): Promise<Booking> {
-    this.logger.log(
-      `Creating booking for customer ${customerId}, service ${dto.service_id}`,
-    );
+    this.logger.log(`Creating booking for customer ${customerId}, service ${dto.service_id}`);
 
     // 1. Load service
     const service = await this.serviceRepository.findOne({
@@ -83,11 +76,7 @@ export class BookingService {
     }
 
     // 4. Acquire Redis lock for this slot
-    const lockKey = this.getLockKey(
-      dto.service_id,
-      dto.provider_id,
-      startAt,
-    );
+    const lockKey = this.getLockKey(dto.service_id, dto.provider_id, startAt);
 
     const locked = await this.acquireLock(lockKey);
 
@@ -177,10 +166,7 @@ export class BookingService {
   /**
    * Get bookings for a provider
    */
-  async getProviderBookings(
-    providerId: string,
-    status?: BookingStatus,
-  ): Promise<Booking[]> {
+  async getProviderBookings(providerId: string, status?: BookingStatus): Promise<Booking[]> {
     return this.bookingRepository.find({
       where: {
         provider_id: providerId,
@@ -194,11 +180,7 @@ export class BookingService {
   /**
    * Cancel a booking with policy enforcement
    */
-  async cancelBooking(
-    bookingId: string,
-    userId: string,
-    dto: CancelBookingDto,
-  ): Promise<Booking> {
+  async cancelBooking(bookingId: string, userId: string, dto: CancelBookingDto): Promise<Booking> {
     this.logger.log(`Cancelling booking ${bookingId} by user ${userId}`);
 
     return await this.dataSource.transaction(async (manager) => {
@@ -247,10 +229,7 @@ export class BookingService {
       }
 
       // Invalidate cache
-      await this.invalidateAvailabilityCache(
-        booking.service_id,
-        booking.start_at,
-      );
+      await this.invalidateAvailabilityCache(booking.service_id, booking.start_at);
 
       this.logger.log(`Booking ${bookingId} cancelled successfully`);
 
@@ -271,9 +250,7 @@ export class BookingService {
     }
 
     if (booking.status !== BookingStatus.PENDING) {
-      throw new BadRequestException(
-        `Cannot confirm booking in status: ${booking.status}`,
-      );
+      throw new BadRequestException(`Cannot confirm booking in status: ${booking.status}`);
     }
 
     booking.status = BookingStatus.CONFIRMED;
@@ -293,9 +270,7 @@ export class BookingService {
     }
 
     if (booking.status !== BookingStatus.CONFIRMED) {
-      throw new BadRequestException(
-        `Cannot start booking in status: ${booking.status}`,
-      );
+      throw new BadRequestException(`Cannot start booking in status: ${booking.status}`);
     }
 
     booking.status = BookingStatus.IN_PROGRESS;
@@ -322,9 +297,7 @@ export class BookingService {
       booking.status !== BookingStatus.IN_PROGRESS &&
       booking.status !== BookingStatus.CONFIRMED
     ) {
-      throw new BadRequestException(
-        `Cannot complete booking in status: ${booking.status}`,
-      );
+      throw new BadRequestException(`Cannot complete booking in status: ${booking.status}`);
     }
 
     booking.status = BookingStatus.COMPLETED;
@@ -347,9 +320,7 @@ export class BookingService {
     }
 
     if (booking.status !== BookingStatus.CONFIRMED) {
-      throw new BadRequestException(
-        `Cannot mark as no-show in status: ${booking.status}`,
-      );
+      throw new BadRequestException(`Cannot mark as no-show in status: ${booking.status}`);
     }
 
     booking.status = BookingStatus.NO_SHOW;
@@ -382,11 +353,7 @@ export class BookingService {
   /**
    * Generate Redis lock key for a booking slot
    */
-  private getLockKey(
-    serviceId: string,
-    providerId: string | undefined,
-    startAt: Date,
-  ): string {
+  private getLockKey(serviceId: string, providerId: string | undefined, startAt: Date): string {
     const timestamp = startAt.toISOString();
     return `booking:lock:${serviceId}:${providerId || 'any'}:${timestamp}`;
   }
@@ -394,10 +361,7 @@ export class BookingService {
   /**
    * Invalidate availability cache for a service/date
    */
-  private async invalidateAvailabilityCache(
-    serviceId: string,
-    date: Date,
-  ): Promise<void> {
+  private async invalidateAvailabilityCache(serviceId: string, date: Date): Promise<void> {
     const cacheKey = `availability:${serviceId}:*`;
     await this.cacheService.deletePattern(cacheKey);
   }

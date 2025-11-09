@@ -29,7 +29,7 @@ export class CreateServiceDto {
 
   @ApiProperty({
     description: 'Service name',
-    example: 'Men\'s Haircut',
+    example: "Men's Haircut",
   })
   @IsString()
   @MaxLength(255)
@@ -37,7 +37,7 @@ export class CreateServiceDto {
 
   @ApiPropertyOptional({
     description: 'Service description',
-    example: 'Professional men\'s haircut with styling',
+    example: "Professional men's haircut with styling",
   })
   @IsString()
   @IsOptional()

@@ -7,12 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import {
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsOptional, IsObject, IsString, IsUUID } from 'class-validator';
 import { Order } from './order.entity';
 import { OrderLineItem } from './order-line-item.entity';
 import { User } from './user.entity';

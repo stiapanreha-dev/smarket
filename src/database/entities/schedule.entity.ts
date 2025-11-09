@@ -9,13 +9,7 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import {
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from 'class-validator';
+import { IsOptional, IsObject, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { Service } from './service.entity';
 import { User } from './user.entity';
 

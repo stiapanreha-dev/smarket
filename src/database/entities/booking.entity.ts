@@ -9,14 +9,7 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import {
-  IsEnum,
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-  IsDate,
-} from 'class-validator';
+import { IsEnum, IsOptional, IsObject, IsString, IsUUID, IsDate } from 'class-validator';
 import { Service } from './service.entity';
 import { User } from './user.entity';
 import { OrderLineItem } from './order-line-item.entity';
@@ -179,30 +172,19 @@ export class Booking {
 
   // Helper methods
   get is_cancellable(): boolean {
-    return (
-      this.status === BookingStatus.PENDING ||
-      this.status === BookingStatus.CONFIRMED
-    );
+    return this.status === BookingStatus.PENDING || this.status === BookingStatus.CONFIRMED;
   }
 
   get is_modifiable(): boolean {
-    return (
-      this.status === BookingStatus.PENDING ||
-      this.status === BookingStatus.CONFIRMED
-    );
+    return this.status === BookingStatus.PENDING || this.status === BookingStatus.CONFIRMED;
   }
 
   get is_completed(): boolean {
-    return (
-      this.status === BookingStatus.COMPLETED ||
-      this.status === BookingStatus.NO_SHOW
-    );
+    return this.status === BookingStatus.COMPLETED || this.status === BookingStatus.NO_SHOW;
   }
 
   get duration_minutes(): number {
-    return Math.round(
-      (this.end_at.getTime() - this.start_at.getTime()) / (1000 * 60),
-    );
+    return Math.round((this.end_at.getTime() - this.start_at.getTime()) / (1000 * 60));
   }
 
   get hours_until_start(): number {
@@ -217,8 +199,7 @@ export class Booking {
   needsReminder(): boolean {
     return (
       !this.reminder_sent_at &&
-      (this.status === BookingStatus.PENDING ||
-        this.status === BookingStatus.CONFIRMED) &&
+      (this.status === BookingStatus.PENDING || this.status === BookingStatus.CONFIRMED) &&
       this.hours_until_start > 0 &&
       this.hours_until_start <= 24
     );

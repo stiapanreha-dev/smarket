@@ -233,7 +233,9 @@ export class CreateOrders1699000000009 implements MigrationInterface {
     await queryRunner.query(`DROP FUNCTION IF EXISTS generate_order_number()`);
 
     // Drop triggers
-    await queryRunner.query(`DROP TRIGGER IF EXISTS update_order_line_items_updated_at ON order_line_items`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS update_order_line_items_updated_at ON order_line_items`,
+    );
     await queryRunner.query(`DROP TRIGGER IF EXISTS update_orders_updated_at ON orders`);
 
     // Drop tables in reverse order (respecting foreign keys)

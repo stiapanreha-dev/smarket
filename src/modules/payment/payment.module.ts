@@ -62,10 +62,6 @@ import { PaymentEventHandler } from './handlers/payment-event.handler';
     // Event handlers
     PaymentEventHandler,
   ],
-  exports: [
-    PaymentService,
-    WebhookService,
-    SplitCalculationService,
-  ],
+  exports: [PaymentService, WebhookService, SplitCalculationService],
 })
 export class PaymentModule {}

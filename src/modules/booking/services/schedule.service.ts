@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Schedule, Service } from '@database/entities';
@@ -80,10 +75,7 @@ export class ScheduleService {
   /**
    * Get schedule for a service (and optionally provider)
    */
-  async getScheduleForService(
-    serviceId: string,
-    providerId?: string,
-  ): Promise<Schedule | null> {
+  async getScheduleForService(serviceId: string, providerId?: string): Promise<Schedule | null> {
     return this.scheduleRepository.findOne({
       where: {
         service_id: serviceId,
@@ -96,10 +88,7 @@ export class ScheduleService {
   /**
    * Update schedule
    */
-  async updateSchedule(
-    scheduleId: string,
-    dto: UpdateScheduleDto,
-  ): Promise<Schedule> {
+  async updateSchedule(scheduleId: string, dto: UpdateScheduleDto): Promise<Schedule> {
     const schedule = await this.getSchedule(scheduleId);
 
     // Update fields

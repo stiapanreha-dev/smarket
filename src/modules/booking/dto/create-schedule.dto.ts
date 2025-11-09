@@ -1,16 +1,7 @@
-import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsObject, ValidateNested } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  WeeklySlots,
-  ScheduleException,
-} from '@database/entities/schedule.entity';
+import { WeeklySlots, ScheduleException } from '@database/entities/schedule.entity';
 
 export class CreateScheduleDto {
   @ApiProperty({

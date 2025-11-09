@@ -69,10 +69,7 @@ export class AdminPayoutController {
 
     const total = await qb.getCount();
 
-    const payouts = await qb
-      .limit(Math.min(limit, 200))
-      .offset(offset)
-      .getMany();
+    const payouts = await qb.limit(Math.min(limit, 200)).offset(offset).getMany();
 
     return {
       payouts: payouts.map(PayoutResponseDto.fromEntity),
@@ -99,9 +96,7 @@ export class AdminPayoutController {
    */
   @Post(':id/approve')
   @HttpCode(HttpStatus.OK)
-  async approvePayout(
-    @Param('id') payoutId: string,
-  ): Promise<PayoutResponseDto> {
+  async approvePayout(@Param('id') payoutId: string): Promise<PayoutResponseDto> {
     const payout = await this.payoutService.processPayout(payoutId);
     return PayoutResponseDto.fromEntity(payout);
   }
@@ -149,9 +144,7 @@ export class AdminPayoutController {
     limit: number;
     offset: number;
   }> {
-    const qb = this.batchRepository
-      .createQueryBuilder('batch')
-      .orderBy('batch.created_at', 'DESC');
+    const qb = this.batchRepository.createQueryBuilder('batch').orderBy('batch.created_at', 'DESC');
 
     if (status) {
       qb.andWhere('batch.status = :status', { status });
@@ -159,10 +152,7 @@ export class AdminPayoutController {
 
     const total = await qb.getCount();
 
-    const batches = await qb
-      .limit(Math.min(limit, 200))
-      .offset(offset)
-      .getMany();
+    const batches = await qb.limit(Math.min(limit, 200)).offset(offset).getMany();
 
     return {
       batches,
@@ -244,22 +234,13 @@ export class AdminPayoutController {
     let report;
     switch (type) {
       case 'daily':
-        report = await this.reconciliationService.generateDailyReport(
-          date,
-          merchantId,
-        );
+        report = await this.reconciliationService.generateDailyReport(date, merchantId);
         break;
       case 'weekly':
-        report = await this.reconciliationService.generateWeeklyReport(
-          date,
-          merchantId,
-        );
+        report = await this.reconciliationService.generateWeeklyReport(date, merchantId);
         break;
       case 'monthly':
-        report = await this.reconciliationService.generateMonthlyReport(
-          date,
-          merchantId,
-        );
+        report = await this.reconciliationService.generateMonthlyReport(date, merchantId);
         break;
       default:
         throw new Error('Invalid report type');

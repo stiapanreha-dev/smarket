@@ -12,13 +12,7 @@ import {
   RawBodyRequest,
   Req,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { PaymentService } from '../services/payment.service';
 import { WebhookService } from '../services/webhook.service';
@@ -39,13 +33,8 @@ export class PaymentController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Authorize payment for order' })
   @ApiResponse({ status: 201, description: 'Payment authorized', type: PaymentResponseDto })
-  async authorizePayment(
-    @Body() dto: AuthorizePaymentDto,
-  ): Promise<any> {
-    const payment = await this.paymentService.authorizePayment(
-      dto.orderId,
-      dto.idempotencyKey,
-    );
+  async authorizePayment(@Body() dto: AuthorizePaymentDto): Promise<any> {
+    const payment = await this.paymentService.authorizePayment(dto.orderId, dto.idempotencyKey);
 
     return this.mapPaymentToResponse(payment);
   }

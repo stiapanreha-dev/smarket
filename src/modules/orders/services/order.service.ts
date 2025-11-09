@@ -1,14 +1,17 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { Order, OrderStatus, PaymentStatus } from '../../../database/entities/order.entity';
-import { OrderLineItem, LineItemType, PhysicalItemStatus } from '../../../database/entities/order-line-item.entity';
-import { CheckoutSession, CheckoutStatus, CartItemSnapshot } from '../../../database/entities/checkout-session.entity';
+import {
+  OrderLineItem,
+  LineItemType,
+  PhysicalItemStatus,
+} from '../../../database/entities/order-line-item.entity';
+import {
+  CheckoutSession,
+  CheckoutStatus,
+  CartItemSnapshot,
+} from '../../../database/entities/checkout-session.entity';
 import { OrderFSMService, TransitionMetadata } from './order-fsm.service';
 import { OutboxService } from './outbox.service';
 import { AggregateType } from '../../../database/entities/order-outbox.entity';
@@ -74,8 +77,8 @@ export class OrderService {
         shipping_amount: session.totals.shipping_amount,
         discount_amount: session.totals.discount_amount,
         total_amount: session.totals.total_amount,
-        guest_email: session.user_id ? null : (session.metadata?.guest_email || null),
-        guest_phone: session.user_id ? null : (session.metadata?.guest_phone || null),
+        guest_email: session.user_id ? null : session.metadata?.guest_email || null,
+        guest_phone: session.user_id ? null : session.metadata?.guest_phone || null,
         shipping_address: session.shipping_address,
         billing_address: session.billing_address || session.shipping_address,
         payment_method: session.payment_method || null,
@@ -252,11 +255,7 @@ export class OrderService {
     }
 
     // Use FSM to transition
-    const updated = await this.fsmService.transitionLineItem(
-      lineItemId,
-      newStatus,
-      metadata,
-    );
+    const updated = await this.fsmService.transitionLineItem(lineItemId, newStatus, metadata);
 
     // Emit event
     await this.outboxService.addEvent({
@@ -299,10 +298,7 @@ export class OrderService {
     } else if (
       statuses.every(
         (s) =>
-          s === 'delivered' ||
-          s === 'completed' ||
-          s === 'downloaded' ||
-          s === 'access_granted',
+          s === 'delivered' || s === 'completed' || s === 'downloaded' || s === 'access_granted',
       )
     ) {
       newStatus = OrderStatus.COMPLETED;
@@ -390,11 +386,7 @@ export class OrderService {
   /**
    * Cancel order
    */
-  async cancelOrder(
-    orderId: string,
-    reason: string,
-    userId?: string,
-  ): Promise<Order> {
+  async cancelOrder(orderId: string, reason: string, userId?: string): Promise<Order> {
     return this.dataSource.transaction(async (manager) => {
       const order = await manager.findOne(Order, {
         where: { id: orderId },

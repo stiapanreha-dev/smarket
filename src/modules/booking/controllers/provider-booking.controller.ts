@@ -19,16 +19,8 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
-import {
-  BookingService,
-  ScheduleService,
-  ServiceService,
-} from '../services';
-import {
-  CreateScheduleDto,
-  UpdateScheduleDto,
-  CompleteBookingDto,
-} from '../dto';
+import { BookingService, ScheduleService, ServiceService } from '../services';
+import { CreateScheduleDto, UpdateScheduleDto, CompleteBookingDto } from '../dto';
 import { BookingStatus } from '@database/entities';
 
 @ApiTags('Provider Bookings')
@@ -51,9 +43,7 @@ export class ProviderBookingController {
     description: 'Schedules retrieved successfully',
   })
   async getSchedules(@Request() req: any) {
-    const schedules = await this.scheduleService.getProviderSchedules(
-      req.user.userId,
-    );
+    const schedules = await this.scheduleService.getProviderSchedules(req.user.userId);
 
     return {
       success: true,
@@ -83,10 +73,7 @@ export class ProviderBookingController {
   @ApiParam({ name: 'id', description: 'Schedule ID' })
   @ApiResponse({ status: 200, description: 'Schedule updated successfully' })
   @ApiResponse({ status: 404, description: 'Schedule not found' })
-  async updateSchedule(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateScheduleDto,
-  ) {
+  async updateSchedule(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateScheduleDto) {
     const schedule = await this.scheduleService.updateSchedule(id, dto);
 
     return {
@@ -109,14 +96,8 @@ export class ProviderBookingController {
     status: 200,
     description: 'Bookings retrieved successfully',
   })
-  async getBookings(
-    @Request() req: any,
-    @Query('status') status?: BookingStatus,
-  ) {
-    const bookings = await this.bookingService.getProviderBookings(
-      req.user.userId,
-      status,
-    );
+  async getBookings(@Request() req: any, @Query('status') status?: BookingStatus) {
+    const bookings = await this.bookingService.getProviderBookings(req.user.userId, status);
 
     return {
       success: true,
@@ -132,14 +113,8 @@ export class ProviderBookingController {
     description: 'Booking started successfully',
   })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  async startBooking(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: any,
-  ) {
-    const booking = await this.bookingService.startBooking(
-      id,
-      req.user.userId,
-    );
+  async startBooking(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+    const booking = await this.bookingService.startBooking(id, req.user.userId);
 
     return {
       success: true,
@@ -182,14 +157,8 @@ export class ProviderBookingController {
     description: 'Booking marked as no-show',
   })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  async markNoShow(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: any,
-  ) {
-    const booking = await this.bookingService.markNoShow(
-      id,
-      req.user.userId,
-    );
+  async markNoShow(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+    const booking = await this.bookingService.markNoShow(id, req.user.userId);
 
     return {
       success: true,
@@ -207,9 +176,7 @@ export class ProviderBookingController {
     description: 'Services retrieved successfully',
   })
   async getServices(@Request() req: any) {
-    const services = await this.serviceService.getProviderServices(
-      req.user.userId,
-    );
+    const services = await this.serviceService.getProviderServices(req.user.userId);
 
     return {
       success: true,
