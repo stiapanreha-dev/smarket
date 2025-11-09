@@ -13,6 +13,7 @@ import { IsString, IsNotEmpty, IsEnum, IsOptional, IsNumber, Min } from 'class-v
 import { Merchant } from './merchant.entity';
 import { ProductVariant } from './product-variant.entity';
 import { ProductTranslation } from './product-translation.entity';
+import { ProductImage } from './product-image.entity';
 
 export enum ProductType {
   PHYSICAL = 'PHYSICAL',
@@ -26,6 +27,7 @@ export enum ProductStatus {
   INACTIVE = 'inactive',
   OUT_OF_STOCK = 'out_of_stock',
   ARCHIVED = 'archived',
+  DELETED = 'deleted',
 }
 
 @Entity('products')
@@ -70,6 +72,15 @@ export class Product {
   })
   @IsEnum(ProductStatus)
   status: ProductStatus;
+
+  @Column({ type: 'bigint', nullable: true })
+  @IsNumber()
+  @IsOptional()
+  base_price_minor: number | null;
+
+  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @IsString()
+  currency: string;
 
   @Column({ type: 'jsonb', nullable: true })
   attrs: {
@@ -142,15 +153,48 @@ export class Product {
   @JoinColumn({ name: 'merchant_id' })
   merchant: Merchant;
 
-  @OneToMany(() => ProductVariant, (variant) => variant.product)
+  @OneToMany(() => ProductVariant, (variant) => variant.product, {
+    cascade: true,
+  })
   variants: ProductVariant[];
 
-  @OneToMany(() => ProductTranslation, (translation) => translation.product)
+  @OneToMany(() => ProductTranslation, (translation) => translation.product, {
+    cascade: true,
+    eager: true,
+  })
   translations: ProductTranslation[];
+
+  @OneToMany(() => ProductImage, (image) => image.product, {
+    cascade: true,
+  })
+  product_images: ProductImage[];
 
   // Virtual fields
   get is_published(): boolean {
     return this.status === ProductStatus.ACTIVE && this.published_at !== null;
+  }
+
+  get base_price(): number | null {
+    return this.base_price_minor ? this.base_price_minor / 100 : null;
+  }
+
+  // Helper method to get translation by locale
+  getTranslation(locale: string): ProductTranslation | null {
+    if (!this.translations || this.translations.length === 0) {
+      return null;
+    }
+
+    const translation = this.translations.find((t) => t.locale === locale);
+    if (translation) {
+      return translation;
+    }
+
+    // Fallback to English or first available
+    return (
+      this.translations.find((t) => t.locale === 'en') ||
+      this.translations[0] ||
+      null
+    );
   }
 
   get is_physical(): boolean {
