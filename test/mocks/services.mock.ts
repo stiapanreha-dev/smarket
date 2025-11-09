@@ -72,7 +72,7 @@ export const createMockSplitCalculationService = () => ({
  */
 export const createMockConfigService = () => ({
   get: jest.fn((key: string) => {
-    const config = {
+    const config: Record<string, any> = {
       FRONTEND_URL: 'http://localhost:3000',
       STRIPE_SECRET_KEY: 'sk_test_123',
       PLATFORM_FEE_PERCENTAGE: 10,

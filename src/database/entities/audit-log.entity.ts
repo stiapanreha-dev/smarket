@@ -10,6 +10,11 @@ import {
 import { User } from './user.entity';
 
 export enum AuditAction {
+  // Generic CRUD actions
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+
   // Profile actions
   PROFILE_UPDATED = 'profile_updated',
   EMAIL_CHANGED = 'email_changed',

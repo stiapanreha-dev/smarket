@@ -1,7 +1,6 @@
-export interface AuthenticatedRequest {
-  user: {
-    userId: string;
-    email: string;
-    role: string;
-  };
+import { Request } from 'express';
+import { User } from '../../../database/entities/user.entity';
+
+export interface AuthenticatedRequest extends Request {
+  user: User;
 }

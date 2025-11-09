@@ -12,10 +12,7 @@ import { YooKassaProvider } from '../providers/yookassa.provider';
 import { NetworkIntlProvider } from '../providers/network-intl.provider';
 import { SplitCalculationService } from './split-calculation.service';
 import { OutboxService } from '../../orders/services/outbox.service';
-import {
-  createMockRepository,
-  createMockDataSource,
-} from '../../../../test/mocks/repository.mock';
+import { createMockRepository, createMockDataSource } from '../../../../test/mocks/repository.mock';
 import {
   createMockOutboxService,
   createMockSplitCalculationService,
@@ -25,6 +22,7 @@ import {
   createMockStripeProvider,
   createMockStripeProviderWithFailures,
 } from '../../../../test/mocks/stripe.mock';
+import { PaymentIntentStatus, RefundResultStatus } from '../interfaces/payment-provider.interface';
 
 describe('PaymentService', () => {
   let service: PaymentService;
@@ -146,13 +144,13 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.createPaymentIntent.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'createPaymentIntent').mockResolvedValue({
         id: 'pi_test_123',
-        status: 'requires_payment_method',
+        status: 'requires_payment_method' as any,
         amount: 3799,
         currency: 'USD',
         requiresAction: false,
-        actionUrl: null,
+        actionUrl: undefined,
         clientSecret: 'pi_test_secret',
       });
 
@@ -165,7 +163,7 @@ describe('PaymentService', () => {
         expect.objectContaining({
           eventType: 'payment.authorized',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -194,9 +192,7 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(service.authorizePayment('invalid-order')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.authorizePayment('invalid-order')).rejects.toThrow(NotFoundException);
     });
 
     it('should select correct provider based on currency', async () => {
@@ -245,9 +241,11 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.capturePayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'capturePayment').mockResolvedValue({
         success: true,
+        transactionId: 'pi_test_123',
         amount: 3799,
+        status: PaymentIntentStatus.SUCCEEDED,
       });
 
       const result = await service.capturePayment('payment-1');
@@ -258,7 +256,7 @@ describe('PaymentService', () => {
         expect.objectContaining({
           eventType: 'payment.captured',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -272,9 +270,7 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(service.capturePayment('payment-1')).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(service.capturePayment('payment-1')).rejects.toThrow(BadRequestException);
     });
 
     it('should handle capture failure from provider', async () => {
@@ -335,9 +331,11 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.refundPayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'refundPayment').mockResolvedValue({
         success: true,
         refundId: 're_test_123',
+        amount: 1000,
+        status: RefundResultStatus.SUCCEEDED,
       });
 
       splitCalculationService.calculateRefundSplit.mockReturnValue({
@@ -351,13 +349,13 @@ describe('PaymentService', () => {
       expect(stripeProvider.refundPayment).toHaveBeenCalledWith(
         'pi_test_123',
         refundAmount,
-        'Customer request'
+        'Customer request',
       );
       expect(outboxService.addEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           eventType: 'payment.refunded',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -369,14 +367,14 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(
-        service.refundPayment('payment-1', 5000, 'Test')
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.refundPayment('payment-1', 5000, 'Test')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should update payment status to REFUNDED when fully refunded', async () => {
       const fullRefundAmount = 3799;
-      let savedPayment;
+      let savedPayment: any;
 
       dataSource.transaction.mockImplementation(async (callback) => {
         const mockManager = {
@@ -392,14 +390,16 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.refundPayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'refundPayment').mockResolvedValue({
         success: true,
         refundId: 're_test_123',
+        amount: 1000,
+        status: RefundResultStatus.SUCCEEDED,
       });
 
       await service.refundPayment('payment-1', fullRefundAmount, 'Full refund');
 
-      expect(savedPayment.status).toBe(PaymentStatusEnum.REFUNDED);
+      expect(savedPayment?.status).toBe(PaymentStatusEnum.REFUNDED);
     });
   });
 
@@ -427,9 +427,7 @@ describe('PaymentService', () => {
     it('should throw NotFoundException if payment not found', async () => {
       paymentRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getPayment('invalid-payment')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.getPayment('invalid-payment')).rejects.toThrow(NotFoundException);
     });
   });
 });

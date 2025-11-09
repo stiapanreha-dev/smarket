@@ -21,6 +21,7 @@ import { OrderLineItem } from '../../../database/entities/order-line-item.entity
 import { OrderService } from '../services/order.service';
 import { TransitionLineItemDto } from '../dto/transition-line-item.dto';
 import { AddShippingInfoDto } from '../dto/add-shipping-info.dto';
+import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Merchant Orders')
 @Controller('api/v1/merchant/orders')
@@ -39,7 +40,7 @@ export class MerchantOrderController {
   @Get()
   @ApiOperation({ summary: 'Get merchant orders' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  async getMerchantOrders(@Request() req) {
+  async getMerchantOrders(@Request() req: AuthenticatedRequest) {
     const merchant = await this.getMerchantByUserId(req.user.id);
 
     // Get all line items for this merchant
@@ -74,7 +75,10 @@ export class MerchantOrderController {
   @ApiOperation({ summary: 'Get merchant items in order' })
   @ApiParam({ name: 'orderId', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'Items retrieved successfully' })
-  async getMerchantOrderItems(@Param('orderId', ParseUUIDPipe) orderId: string, @Request() req) {
+  async getMerchantOrderItems(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
     const merchant = await this.getMerchantByUserId(req.user.id);
 
     const items = await this.lineItemRepository.find({
@@ -104,7 +108,7 @@ export class MerchantOrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @Param('itemId', ParseUUIDPipe) itemId: string,
     @Body() transitionDto: TransitionLineItemDto,
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
   ) {
     const merchant = await this.getMerchantByUserId(req.user.id);
 
@@ -137,7 +141,7 @@ export class MerchantOrderController {
   async fulfillItem(
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @Param('itemId', ParseUUIDPipe) itemId: string,
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
   ) {
     const merchant = await this.getMerchantByUserId(req.user.id);
     await this.verifyMerchantOwnership(itemId, merchant.id);
@@ -147,13 +151,15 @@ export class MerchantOrderController {
     });
 
     // Determine next status based on item type
-    let nextStatus: string;
-    if (item.type === 'physical') {
-      nextStatus = item.status === 'payment_confirmed' ? 'preparing' : 'ready_to_ship';
-    } else if (item.type === 'digital') {
-      nextStatus = 'access_granted';
-    } else if (item.type === 'service') {
-      nextStatus = 'booking_confirmed';
+    let nextStatus: string = 'preparing'; // default
+    if (item) {
+      if (item.type === 'physical') {
+        nextStatus = item.status === 'payment_confirmed' ? 'preparing' : 'ready_to_ship';
+      } else if (item.type === 'digital') {
+        nextStatus = 'access_granted';
+      } else if (item.type === 'service') {
+        nextStatus = 'booking_confirmed';
+      }
     }
 
     const updatedItem = await this.orderService.updateLineItemStatus(orderId, itemId, nextStatus, {
@@ -177,7 +183,7 @@ export class MerchantOrderController {
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @Param('itemId', ParseUUIDPipe) itemId: string,
     @Body() shippingDto: AddShippingInfoDto,
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
   ) {
     const merchant = await this.getMerchantByUserId(req.user.id);
     await this.verifyMerchantOwnership(itemId, merchant.id);
@@ -202,7 +208,7 @@ export class MerchantOrderController {
    */
   private async getMerchantByUserId(userId: string): Promise<Merchant> {
     const merchant = await this.merchantRepository.findOne({
-      where: { user_id: userId },
+      where: { owner_id: userId },
     });
 
     if (!merchant) {

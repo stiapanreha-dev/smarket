@@ -230,7 +230,7 @@ describe('OrderFSMService', () => {
         'item-1',
         PhysicalItemStatus.PAYMENT_CONFIRMED,
         { reason: 'Payment captured' },
-        mockEntityManager,
+        mockEntityManager as any,
       );
 
       expect(result.status).toBe(PhysicalItemStatus.PAYMENT_CONFIRMED);
@@ -266,7 +266,7 @@ describe('OrderFSMService', () => {
           'item-1',
           PhysicalItemStatus.SHIPPED,
           undefined,
-          mockEntityManager,
+          mockEntityManager as any,
         ),
       ).rejects.toThrow(BadRequestException);
     });
@@ -285,7 +285,7 @@ describe('OrderFSMService', () => {
           'nonexistent',
           PhysicalItemStatus.PAYMENT_CONFIRMED,
           undefined,
-          mockEntityManager,
+          mockEntityManager as any,
         ),
       ).rejects.toThrow(BadRequestException);
     });

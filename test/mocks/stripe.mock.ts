@@ -1,4 +1,14 @@
-import { PaymentProvider, PaymentIntentResponse } from '../../src/modules/payment/interfaces/payment-provider.interface';
+import {
+  PaymentProvider,
+  PaymentIntent,
+  PaymentResult,
+  RefundResult,
+  PaymentStatus,
+  PaymentIntentStatus,
+  RefundResultStatus,
+  WebhookEvent,
+  CreatePaymentParams,
+} from '../../src/modules/payment/interfaces/payment-provider.interface';
 
 /**
  * Mock Stripe Provider for testing
@@ -8,46 +18,76 @@ export class MockStripeProvider implements PaymentProvider {
   public capturePaymentCalls: any[] = [];
   public refundPaymentCalls: any[] = [];
 
-  async createPaymentIntent(params: any): Promise<PaymentIntentResponse> {
+  async createPaymentIntent(params: CreatePaymentParams): Promise<PaymentIntent> {
     this.createPaymentIntentCalls.push(params);
 
     return {
       id: `pi_test_${Date.now()}`,
-      status: 'requires_payment_method',
+      status: PaymentIntentStatus.REQUIRES_PAYMENT_METHOD,
       amount: params.amount,
       currency: params.currency,
       requiresAction: false,
-      actionUrl: null,
+      actionUrl: undefined,
       clientSecret: `pi_test_secret_${Date.now()}`,
     };
   }
 
-  async capturePayment(paymentIntentId: string, amount: number): Promise<{ success: boolean; amount: number; errorMessage?: string }> {
+  async capturePayment(paymentIntentId: string, amount?: number): Promise<PaymentResult> {
     this.capturePaymentCalls.push({ paymentIntentId, amount });
 
     return {
       success: true,
-      amount,
+      transactionId: paymentIntentId,
+      amount: amount || 0,
+      status: PaymentIntentStatus.SUCCEEDED,
     };
   }
 
-  async refundPayment(paymentIntentId: string, amount: number, reason: string): Promise<{ success: boolean; refundId: string; errorMessage?: string }> {
+  async refundPayment(
+    paymentIntentId: string,
+    amount: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     this.refundPaymentCalls.push({ paymentIntentId, amount, reason });
 
     return {
       success: true,
       refundId: `re_test_${Date.now()}`,
+      amount,
+      status: RefundResultStatus.SUCCEEDED,
     };
   }
 
-  async cancelPayment(paymentIntentId: string): Promise<{ success: boolean; errorMessage?: string }> {
+  async cancelPayment(paymentIntentId: string): Promise<PaymentResult> {
     return {
       success: true,
+      transactionId: paymentIntentId,
+      amount: 0,
+      status: PaymentIntentStatus.CANCELLED,
     };
   }
 
-  async getPaymentStatus(paymentIntentId: string): Promise<string> {
-    return 'succeeded';
+  async getPaymentStatus(paymentIntentId: string): Promise<PaymentStatus> {
+    return {
+      id: paymentIntentId,
+      status: PaymentIntentStatus.SUCCEEDED,
+      amount: 1000,
+      currency: 'usd',
+    };
+  }
+
+  verifyWebhookSignature(_payload: any, _signature: string): boolean {
+    return true;
+  }
+
+  parseWebhookEvent(payload: any): WebhookEvent {
+    return {
+      id: 'evt_test_123',
+      type: 'payment_intent.succeeded',
+      paymentIntentId: 'pi_test_123',
+      data: payload,
+      createdAt: new Date(),
+    };
   }
 
   reset() {
@@ -72,30 +112,40 @@ export class MockStripeProviderWithFailures extends MockStripeProvider {
     this.shouldFailRefund = fail;
   }
 
-  async capturePayment(paymentIntentId: string, amount: number): Promise<{ success: boolean; amount: number; errorMessage?: string }> {
+  async capturePayment(paymentIntentId: string, amount?: number): Promise<PaymentResult> {
     this.capturePaymentCalls.push({ paymentIntentId, amount });
 
     if (this.shouldFailCapture) {
       return {
         success: false,
+        transactionId: paymentIntentId,
         amount: 0,
+        status: PaymentIntentStatus.FAILED,
         errorMessage: 'Card declined',
       };
     }
 
     return {
       success: true,
-      amount,
+      transactionId: paymentIntentId,
+      amount: amount || 0,
+      status: PaymentIntentStatus.SUCCEEDED,
     };
   }
 
-  async refundPayment(paymentIntentId: string, amount: number, reason: string): Promise<{ success: boolean; refundId: string; errorMessage?: string }> {
+  async refundPayment(
+    paymentIntentId: string,
+    amount: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     this.refundPaymentCalls.push({ paymentIntentId, amount, reason });
 
     if (this.shouldFailRefund) {
       return {
         success: false,
         refundId: '',
+        amount: 0,
+        status: RefundResultStatus.FAILED,
         errorMessage: 'Refund failed',
       };
     }
@@ -103,6 +153,8 @@ export class MockStripeProviderWithFailures extends MockStripeProvider {
     return {
       success: true,
       refundId: `re_test_${Date.now()}`,
+      amount,
+      status: RefundResultStatus.SUCCEEDED,
     };
   }
 }

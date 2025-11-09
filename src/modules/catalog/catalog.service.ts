@@ -9,7 +9,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, In } from 'typeorm';
 import { Product, ProductStatus } from '../../database/entities/product.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
-import { ProductTranslation } from '../../database/entities/product-translation.entity';
+import {
+  ProductTranslation,
+  TranslationLocale,
+} from '../../database/entities/product-translation.entity';
 import { ProductImage } from '../../database/entities/product-image.entity';
 import { AuditLogService } from '../../common/services/audit-log.service';
 import { AuditAction } from '../../database/entities/audit-log.entity';
@@ -158,7 +161,7 @@ export class CatalogService {
    */
   async findOneBySlug(slug: string, locale: string = 'en'): Promise<Product> {
     const translation = await this.translationRepository.findOne({
-      where: { slug, locale },
+      where: { slug, locale: locale as TranslationLocale },
       relations: ['product', 'product.translations', 'product.variants', 'product.product_images'],
     });
 
@@ -209,8 +212,8 @@ export class CatalogService {
         if (existing) {
           // Update existing translation
           existing.title = translationDto.title;
-          existing.description = translationDto.description;
-          existing.attrs = translationDto.attrs;
+          existing.description = translationDto.description ?? null;
+          existing.attrs = translationDto.attrs ?? null;
 
           // Update slug if provided or if title changed
           if (translationDto.slug) {
@@ -432,7 +435,7 @@ export class CatalogService {
     // Check uniqueness
     while (
       await this.translationRepository.findOne({
-        where: { slug, locale },
+        where: { slug, locale: locale as TranslationLocale },
       })
     ) {
       counter++;

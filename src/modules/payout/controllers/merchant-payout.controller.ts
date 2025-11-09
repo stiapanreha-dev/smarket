@@ -18,6 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaymentSplit } from '../../../database/entities/payment-split.entity';
 import { Merchant } from '../../../database/entities/merchant.entity';
+import { UserRole } from '../../../database/entities/user.entity';
+import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @Controller('api/v1/merchant')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,9 +37,9 @@ export class MerchantPayoutController {
    * GET /api/v1/merchant/balance
    */
   @Get('balance')
-  @Roles('merchant', 'admin')
+  @Roles(UserRole.MERCHANT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async getBalance(@Request() req): Promise<BalanceResponseDto> {
+  async getBalance(@Request() req: AuthenticatedRequest): Promise<BalanceResponseDto> {
     const userId = req.user.id;
 
     // Get merchant for user
@@ -59,10 +61,10 @@ export class MerchantPayoutController {
    * GET /api/v1/merchant/payouts
    */
   @Get('payouts')
-  @Roles('merchant', 'admin')
+  @Roles(UserRole.MERCHANT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async getPayouts(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Query('status') status?: string,
     @Query('limit') limit = 20,
     @Query('offset') offset = 0,
@@ -102,9 +104,12 @@ export class MerchantPayoutController {
    * GET /api/v1/merchant/payouts/:id
    */
   @Get('payouts/:id')
-  @Roles('merchant', 'admin')
+  @Roles(UserRole.MERCHANT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async getPayout(@Request() req, @Param('id') payoutId: string): Promise<PayoutResponseDto> {
+  async getPayout(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') payoutId: string,
+  ): Promise<PayoutResponseDto> {
     const userId = req.user.id;
 
     // Get merchant for user
@@ -131,10 +136,10 @@ export class MerchantPayoutController {
    * GET /api/v1/merchant/transactions
    */
   @Get('transactions')
-  @Roles('merchant', 'admin')
+  @Roles(UserRole.MERCHANT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
   async getTransactions(
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
     @Query('status') status?: string,
     @Query('limit') limit = 20,
     @Query('offset') offset = 0,

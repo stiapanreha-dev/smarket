@@ -7,13 +7,13 @@ import { CartItemSnapshot } from '../../../database/entities/checkout-session.en
 
 interface ReservationResult {
   success: boolean;
-  _reservationId: string;
-  errors?: { _variantId: string; reason: string }[];
+  reservationId: string;
+  errors?: { variantId: string; reason: string }[];
 }
 
 interface BookingSlot {
   serviceId: string;
-  _variantId: string;
+  variantId: string;
   date: string;
   timeSlot: string;
   duration: number; // minutes
@@ -41,7 +41,7 @@ export class InventoryReservationService {
     items: CartItemSnapshot[],
   ): Promise<ReservationResult> {
     const reservationId = `reservation:${checkoutSessionId}`;
-    const errors: { _variantId: string; reason: string }[] = [];
+    const errors: { variantId: string; reason: string }[] = [];
 
     // Use transaction for inventory checks and updates
     const queryRunner = this.dataSource.createQueryRunner();
@@ -99,7 +99,7 @@ export class InventoryReservationService {
    */
   private async reserveProductVariant(
     item: CartItemSnapshot,
-    _reservationId: string,
+    reservationId: string,
     queryRunner: any,
   ): Promise<boolean> {
     // Lock the row for update
@@ -153,7 +153,7 @@ export class InventoryReservationService {
    */
   private async reserveBookingSlot(
     item: CartItemSnapshot,
-    _reservationId: string,
+    reservationId: string,
   ): Promise<boolean> {
     if (!item.metadata?.bookingDate || !item.metadata?.bookingSlot) {
       this.logger.warn(`Service item ${item.variantId} missing booking details`);
@@ -234,7 +234,7 @@ export class InventoryReservationService {
   /**
    * Release product inventory reservation
    */
-  private async releaseProductReservation(_variantId: string, quantity: number): Promise<void> {
+  private async releaseProductReservation(variantId: string, quantity: number): Promise<void> {
     const reservedKey = `inventory:reserved:${variantId}`;
     const currentReserved = (await this.cacheService.get<number>(reservedKey)) || 0;
     const newReserved = Math.max(0, currentReserved - quantity);
@@ -251,7 +251,7 @@ export class InventoryReservationService {
    */
   private async releaseBookingReservation(
     item: CartItemSnapshot,
-    _reservationId: string,
+    reservationId: string,
   ): Promise<void> {
     if (!item.metadata?.bookingDate || !item.metadata?.bookingSlot) {
       return;
@@ -340,7 +340,7 @@ export class InventoryReservationService {
    * Store reservation metadata
    */
   private async storeReservationMetadata(
-    _reservationId: string,
+    reservationId: string,
     items: CartItemSnapshot[],
   ): Promise<void> {
     await this.cacheService.set(`${reservationId}:metadata`, { items }, this.RESERVATION_TTL);
@@ -350,7 +350,7 @@ export class InventoryReservationService {
    * Get booking slot capacity
    * In production, query from database
    */
-  private async getSlotCapacity(_variantId: string): Promise<number> {
+  private async getSlotCapacity(variantId: string): Promise<number> {
     // Mock capacity - in production, get from variant or service configuration
     return 5;
   }

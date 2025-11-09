@@ -1,10 +1,10 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { dataSourceOptions } from '../../src/database/data-source';
 
 /**
  * Create test database configuration
  */
-export function getTestDataSourceOptions() {
+export function getTestDataSourceOptions(): DataSourceOptions {
   const testDbName = process.env.TEST_DB_DATABASE || 'snailmarket_test';
 
   return {
@@ -16,7 +16,7 @@ export function getTestDataSourceOptions() {
     // Ensure we use test database
     migrations: dataSourceOptions.migrations,
     entities: dataSourceOptions.entities,
-  };
+  } as DataSourceOptions;
 }
 
 /**

@@ -11,6 +11,7 @@ export enum OutboxStatus {
 export enum AggregateType {
   ORDER = 'order',
   ORDER_LINE_ITEM = 'order_line_item',
+  PAYMENT = 'payment',
 }
 
 @Entity('order_outbox')

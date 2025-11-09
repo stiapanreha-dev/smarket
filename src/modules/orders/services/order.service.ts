@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
+import { Repository, DataSource, In, EntityManager } from 'typeorm';
 import { Order, OrderStatus, PaymentStatus } from '../../../database/entities/order.entity';
 import {
   OrderLineItem,
@@ -160,10 +160,16 @@ export class OrderService {
       this.logger.log(`Order ${order.order_number} created from checkout ${session.id}`);
 
       // 7. Load relations and return
-      return manager.findOne(Order, {
+      const orderWithRelations = await manager.findOne(Order, {
         where: { id: order.id },
         relations: ['line_items', 'line_items.product', 'line_items.merchant'],
       });
+
+      if (!orderWithRelations) {
+        throw new Error('Failed to load created order');
+      }
+
+      return orderWithRelations;
     });
   }
 
@@ -469,7 +475,7 @@ export class OrderService {
   /**
    * Generate unique order number
    */
-  private async generateOrderNumber(manager): Promise<string> {
+  private async generateOrderNumber(manager: EntityManager): Promise<string> {
     const result = await manager.query('SELECT generate_order_number() as order_number');
     return result[0].order_number;
   }

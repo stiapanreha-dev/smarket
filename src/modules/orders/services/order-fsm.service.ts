@@ -102,7 +102,8 @@ export class OrderFSMService {
    * Check if transition is allowed
    */
   canTransition(itemType: LineItemType, fromStatus: string, toStatus: string): boolean {
-    const allowedTransitions = this.transitions[itemType]?.[fromStatus];
+    const typeTransitions = this.transitions[itemType] as Record<string, string[]> | undefined;
+    const allowedTransitions = typeTransitions?.[fromStatus];
     if (!allowedTransitions) {
       return false;
     }
@@ -113,7 +114,8 @@ export class OrderFSMService {
    * Get all allowed transitions for a given status
    */
   getAllowedTransitions(itemType: LineItemType, currentStatus: string): string[] {
-    return this.transitions[itemType]?.[currentStatus] || [];
+    const typeTransitions = this.transitions[itemType] as Record<string, string[]> | undefined;
+    return typeTransitions?.[currentStatus] || [];
   }
 
   /**

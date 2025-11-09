@@ -18,7 +18,6 @@ import {
   IsInt,
   Min,
   IsEmail,
-  IsPhoneNumber,
 } from 'class-validator';
 import { User } from './user.entity';
 import { CheckoutSession } from './checkout-session.entity';

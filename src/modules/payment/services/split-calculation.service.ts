@@ -56,7 +56,7 @@ export class SplitCalculationService {
         where: { id: merchantId },
       });
 
-      const platformFee = this.calculatePlatformFee(items, grossAmount, merchant);
+      const platformFee = this.calculatePlatformFee(items, grossAmount, merchant ?? undefined);
       const processingFee = this.calculateProcessingFee(grossAmount);
       const netAmount = grossAmount - platformFee - processingFee;
 
@@ -85,8 +85,11 @@ export class SplitCalculationService {
     merchant?: Merchant,
   ): number {
     // If merchant has custom commission rate, use it
-    if (merchant?.commission_rate !== undefined && merchant.commission_rate !== null) {
-      return Math.round(grossAmount * merchant.commission_rate);
+    if (
+      merchant?.settings?.commission_rate !== undefined &&
+      merchant.settings.commission_rate !== null
+    ) {
+      return Math.round(grossAmount * merchant.settings.commission_rate);
     }
 
     // Otherwise, calculate weighted average based on item types
