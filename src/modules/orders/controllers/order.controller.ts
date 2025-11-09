@@ -10,13 +10,7 @@ import {
   ForbiddenException,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { OrderService } from '../services/order.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
@@ -35,10 +29,7 @@ export class OrderController {
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid checkout session' })
   @ApiResponse({ status: 404, description: 'Checkout session not found' })
-  async createOrder(
-    @Body() createOrderDto: CreateOrderDto,
-    @Request() req,
-  ) {
+  async createOrder(@Body() createOrderDto: CreateOrderDto, @Request() req) {
     const order = await this.orderService.createOrderFromCheckout(
       createOrderDto.checkout_session_id,
       createOrderDto.payment_intent_id,
@@ -55,10 +46,7 @@ export class OrderController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user orders' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  async getUserOrders(
-    @Query() query: GetOrdersDto,
-    @Request() req,
-  ) {
+  async getUserOrders(@Query() query: GetOrdersDto, @Request() req) {
     const result = await this.orderService.getUserOrders(req.user.id, {
       page: query.page,
       limit: query.limit,
@@ -83,10 +71,7 @@ export class OrderController {
   @ApiParam({ name: 'orderNumber', example: 'ORD-12345-ABC' })
   @ApiResponse({ status: 200, description: 'Order found' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  async getOrder(
-    @Param('orderNumber') orderNumber: string,
-    @Request() req,
-  ) {
+  async getOrder(@Param('orderNumber') orderNumber: string, @Request() req) {
     const order = await this.orderService.getOrderByNumber(orderNumber);
 
     // Verify ownership
@@ -136,10 +121,7 @@ export class OrderController {
   @ApiOperation({ summary: 'Track order (public endpoint for guest orders)' })
   @ApiParam({ name: 'orderNumber', example: 'ORD-12345-ABC' })
   @ApiResponse({ status: 200, description: 'Order tracking info' })
-  async trackOrder(
-    @Param('orderNumber') orderNumber: string,
-    @Query('email') email?: string,
-  ) {
+  async trackOrder(@Param('orderNumber') orderNumber: string, @Query('email') email?: string) {
     const order = await this.orderService.getOrderByNumber(orderNumber);
 
     // For guest orders, verify email
@@ -157,11 +139,14 @@ export class OrderController {
           product_name: item.product_name,
           quantity: item.quantity,
           status: item.status,
-          tracking: item.type === 'physical' ? {
-            tracking_number: (item.fulfillment_data as any)?.tracking_number,
-            carrier: (item.fulfillment_data as any)?.carrier,
-            estimated_delivery: (item.fulfillment_data as any)?.estimated_delivery,
-          } : null,
+          tracking:
+            item.type === 'physical'
+              ? {
+                  tracking_number: (item.fulfillment_data as any)?.tracking_number,
+                  carrier: (item.fulfillment_data as any)?.carrier,
+                  estimated_delivery: (item.fulfillment_data as any)?.estimated_delivery,
+                }
+              : null,
         })),
       },
     };

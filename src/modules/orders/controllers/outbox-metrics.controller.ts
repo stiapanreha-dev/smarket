@@ -51,9 +51,7 @@ export class OutboxMetricsController {
     status: 404,
     description: 'DLQ entry not found',
   })
-  async reprocessFromDLQ(
-    @Param('id') dlqId: string,
-  ): Promise<{ message: string }> {
+  async reprocessFromDLQ(@Param('id') dlqId: string): Promise<{ message: string }> {
     await this.outboxService.reprocessFromDLQ(dlqId);
     return { message: `Event ${dlqId} moved from DLQ to outbox for reprocessing` };
   }

@@ -27,9 +27,7 @@ export class PaymentEventHandler {
     this.logger.log(`Processing order confirmation for order ${orderId}`);
 
     // Check if order has digital items
-    const hasDigitalItems = lineItems?.some(
-      (item: any) => item.type === 'digital',
-    );
+    const hasDigitalItems = lineItems?.some((item: any) => item.type === 'digital');
 
     if (hasDigitalItems) {
       try {
@@ -42,9 +40,7 @@ export class PaymentEventHandler {
           await this.paymentService.capturePayment(payment.id);
         }
       } catch (error) {
-        this.logger.error(
-          `Failed to capture payment for order ${orderId}: ${error.message}`,
-        );
+        this.logger.error(`Failed to capture payment for order ${orderId}: ${error.message}`);
       }
     }
   }
@@ -66,9 +62,7 @@ export class PaymentEventHandler {
         const payment = await this.paymentService.getPaymentByOrderId(orderId);
 
         if (payment && payment.status === 'authorized') {
-          this.logger.log(
-            `Auto-capturing payment ${payment.id} for physical item ${lineItemId}`,
-          );
+          this.logger.log(`Auto-capturing payment ${payment.id} for physical item ${lineItemId}`);
           await this.paymentService.capturePayment(payment.id);
         }
       } catch (error) {
@@ -88,9 +82,7 @@ export class PaymentEventHandler {
         const payment = await this.paymentService.getPaymentByOrderId(orderId);
 
         if (payment && payment.status === 'authorized') {
-          this.logger.log(
-            `Auto-capturing payment ${payment.id} for service item ${lineItemId}`,
-          );
+          this.logger.log(`Auto-capturing payment ${payment.id} for service item ${lineItemId}`);
           await this.paymentService.capturePayment(payment.id);
         }
       } catch (error) {
@@ -110,9 +102,7 @@ export class PaymentEventHandler {
         const payment = await this.paymentService.getPaymentByOrderId(orderId);
 
         if (payment && payment.status === 'authorized') {
-          this.logger.log(
-            `Auto-capturing payment ${payment.id} for digital item ${lineItemId}`,
-          );
+          this.logger.log(`Auto-capturing payment ${payment.id} for digital item ${lineItemId}`);
           await this.paymentService.capturePayment(payment.id);
         }
       } catch (error) {
@@ -146,9 +136,7 @@ export class PaymentEventHandler {
         );
       }
     } catch (error) {
-      this.logger.error(
-        `Failed to process refund for line item ${lineItemId}: ${error.message}`,
-      );
+      this.logger.error(`Failed to process refund for line item ${lineItemId}: ${error.message}`);
     }
   }
 
@@ -172,9 +160,7 @@ export class PaymentEventHandler {
   async handlePaymentRefunded(event: any): Promise<void> {
     const { refundId, paymentId, orderId, amount } = event.payload;
 
-    this.logger.log(
-      `Refund ${refundId} processed for payment ${paymentId}, amount: ${amount}`,
-    );
+    this.logger.log(`Refund ${refundId} processed for payment ${paymentId}, amount: ${amount}`);
 
     // This event can trigger notifications to customer and merchant
   }

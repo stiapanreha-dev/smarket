@@ -22,11 +22,7 @@ export class WebhookService {
   /**
    * Process webhook from payment provider
    */
-  async processWebhook(
-    provider: string,
-    payload: any,
-    signature: string,
-  ): Promise<void> {
+  async processWebhook(provider: string, payload: any, signature: string): Promise<void> {
     // 1. Get provider instance
     const providerInstance = this.paymentService.getProvider(provider);
 
@@ -55,12 +51,14 @@ export class WebhookService {
     // 5. Process event in transaction
     await this.dataSource.transaction(async (manager) => {
       // Save webhook event
-      const webhookEvent = existingEvent || manager.create(WebhookEvent, {
-        provider,
-        provider_event_id: event.id,
-        event_type: event.type,
-        payload: event.data,
-      });
+      const webhookEvent =
+        existingEvent ||
+        manager.create(WebhookEvent, {
+          provider,
+          provider_event_id: event.id,
+          event_type: event.type,
+          payload: event.data,
+        });
 
       try {
         // Process event based on type
@@ -84,11 +82,7 @@ export class WebhookService {
   /**
    * Handle specific webhook event types
    */
-  private async handleWebhookEvent(
-    provider: string,
-    event: any,
-    manager: any,
-  ): Promise<void> {
+  private async handleWebhookEvent(provider: string, event: any, manager: any): Promise<void> {
     const eventType = event.type.toLowerCase();
 
     this.logger.debug(`Handling webhook event: ${eventType}`);
@@ -110,11 +104,7 @@ export class WebhookService {
   /**
    * Handle Stripe webhook events
    */
-  private async handleStripeEvent(
-    eventType: string,
-    event: any,
-    manager: any,
-  ): Promise<void> {
+  private async handleStripeEvent(eventType: string, event: any, manager: any): Promise<void> {
     const paymentIntentId = event.paymentIntentId || event.data?.id;
 
     switch (eventType) {
@@ -139,11 +129,7 @@ export class WebhookService {
   /**
    * Handle YooKassa webhook events
    */
-  private async handleYooKassaEvent(
-    eventType: string,
-    event: any,
-    manager: any,
-  ): Promise<void> {
+  private async handleYooKassaEvent(eventType: string, event: any, manager: any): Promise<void> {
     const paymentId = event.paymentIntentId || event.data?.id;
 
     switch (eventType) {
@@ -164,11 +150,7 @@ export class WebhookService {
   /**
    * Handle Network International webhook events
    */
-  private async handleNetworkIntlEvent(
-    eventType: string,
-    event: any,
-    manager: any,
-  ): Promise<void> {
+  private async handleNetworkIntlEvent(eventType: string, event: any, manager: any): Promise<void> {
     const paymentId = event.paymentIntentId || event.data?.order?.reference;
 
     switch (eventType) {
@@ -232,9 +214,7 @@ export class WebhookService {
 
     await manager.save(payment);
 
-    this.logger.log(
-      `Updated payment ${payment.id} status to ${newStatus} from webhook`,
-    );
+    this.logger.log(`Updated payment ${payment.id} status to ${newStatus} from webhook`);
   }
 
   /**

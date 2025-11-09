@@ -237,7 +237,9 @@ export class CreatePayments1699000000011 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop triggers
-    await queryRunner.query(`DROP TRIGGER IF EXISTS trg_payment_splits_updated_at ON payment_splits`);
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS trg_payment_splits_updated_at ON payment_splits`,
+    );
     await queryRunner.query(`DROP TRIGGER IF EXISTS trg_payments_updated_at ON payments`);
 
     // Drop function

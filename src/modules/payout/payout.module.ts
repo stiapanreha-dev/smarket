@@ -15,13 +15,7 @@ import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Payout,
-      PayoutBatch,
-      ReconciliationReport,
-      PaymentSplit,
-      Merchant,
-    ]),
+    TypeOrmModule.forFeature([Payout, PayoutBatch, ReconciliationReport, PaymentSplit, Merchant]),
     ScheduleModule.forRoot(),
     OrdersModule, // For OutboxService
   ],

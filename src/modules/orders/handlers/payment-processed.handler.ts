@@ -11,9 +11,7 @@ export class PaymentProcessedHandler {
 
   @OnEvent('PaymentProcessed')
   async handle(event: PaymentProcessedEvent): Promise<void> {
-    this.logger.log(
-      `Handling PaymentProcessed event for order ${event.payload.orderNumber}`,
-    );
+    this.logger.log(`Handling PaymentProcessed event for order ${event.payload.orderNumber}`);
 
     try {
       await Promise.all([
@@ -27,10 +25,7 @@ export class PaymentProcessedHandler {
         `Successfully processed PaymentProcessed event for order ${event.payload.orderNumber}`,
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to process PaymentProcessed event: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Failed to process PaymentProcessed event: ${error.message}`, error.stack);
       throw error;
     }
   }
@@ -38,12 +33,8 @@ export class PaymentProcessedHandler {
   /**
    * Send payment confirmation to customer
    */
-  private async sendPaymentConfirmation(
-    event: PaymentProcessedEvent,
-  ): Promise<void> {
-    this.logger.debug(
-      `Sending payment confirmation for order ${event.payload.orderNumber}`,
-    );
+  private async sendPaymentConfirmation(event: PaymentProcessedEvent): Promise<void> {
+    this.logger.debug(`Sending payment confirmation for order ${event.payload.orderNumber}`);
 
     // In production:
     // await this.emailService.send({
@@ -62,12 +53,8 @@ export class PaymentProcessedHandler {
   /**
    * Update accounting system
    */
-  private async updateAccountingSystem(
-    event: PaymentProcessedEvent,
-  ): Promise<void> {
-    this.logger.debug(
-      `Updating accounting system for order ${event.payload.orderNumber}`,
-    );
+  private async updateAccountingSystem(event: PaymentProcessedEvent): Promise<void> {
+    this.logger.debug(`Updating accounting system for order ${event.payload.orderNumber}`);
 
     // In production:
     // await this.accountingService.recordRevenue({
@@ -84,12 +71,8 @@ export class PaymentProcessedHandler {
   /**
    * Track payment in analytics
    */
-  private async trackPaymentAnalytics(
-    event: PaymentProcessedEvent,
-  ): Promise<void> {
-    this.logger.debug(
-      `Tracking payment analytics for order ${event.payload.orderNumber}`,
-    );
+  private async trackPaymentAnalytics(event: PaymentProcessedEvent): Promise<void> {
+    this.logger.debug(`Tracking payment analytics for order ${event.payload.orderNumber}`);
 
     // In production:
     // await this.analyticsService.track({
@@ -109,9 +92,7 @@ export class PaymentProcessedHandler {
    * Trigger order fulfillment
    */
   private async triggerFulfillment(event: PaymentProcessedEvent): Promise<void> {
-    this.logger.debug(
-      `Triggering fulfillment for order ${event.payload.orderNumber}`,
-    );
+    this.logger.debug(`Triggering fulfillment for order ${event.payload.orderNumber}`);
 
     // In production:
     // await this.fulfillmentService.startFulfillment({

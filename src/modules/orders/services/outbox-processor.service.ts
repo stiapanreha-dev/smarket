@@ -47,10 +47,7 @@ export class OutboxProcessorService {
         );
       }
     } catch (error) {
-      this.logger.error(
-        `Error processing outbox events: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error processing outbox events: ${error.message}`, error.stack);
     } finally {
       this.isProcessing = false;
     }
@@ -70,10 +67,7 @@ export class OutboxProcessorService {
 
       this.logger.log(`Cleanup completed: ${deleted} events removed`);
     } catch (error) {
-      this.logger.error(
-        `Error cleaning up processed events: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error cleaning up processed events: ${error.message}`, error.stack);
     }
   }
 
@@ -102,10 +96,7 @@ export class OutboxProcessorService {
         }),
       );
     } catch (error) {
-      this.logger.error(
-        `Error logging outbox metrics: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error logging outbox metrics: ${error.message}`, error.stack);
     }
   }
 

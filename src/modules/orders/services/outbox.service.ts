@@ -45,13 +45,8 @@ export class OutboxService {
   /**
    * Add event to outbox (transactional)
    */
-  async addEvent(
-    event: OutboxEvent,
-    manager?: EntityManager,
-  ): Promise<OrderOutbox> {
-    const repo = manager
-      ? manager.getRepository(OrderOutbox)
-      : this.outboxRepository;
+  async addEvent(event: OutboxEvent, manager?: EntityManager): Promise<OrderOutbox> {
+    const repo = manager ? manager.getRepository(OrderOutbox) : this.outboxRepository;
 
     const outboxEntry = repo.create({
       aggregate_id: event.aggregateId,
@@ -117,10 +112,7 @@ export class OutboxService {
    * Mark event as processing
    */
   async markProcessing(eventId: string): Promise<void> {
-    await this.outboxRepository.update(
-      { id: eventId },
-      { status: OutboxStatus.PROCESSING },
-    );
+    await this.outboxRepository.update({ id: eventId }, { status: OutboxStatus.PROCESSING });
   }
 
   /**
@@ -224,10 +216,7 @@ export class OutboxService {
         );
       } catch (error) {
         failed++;
-        this.logger.error(
-          `Failed to process event ${event.id}: ${error.message}`,
-          error.stack,
-        );
+        this.logger.error(`Failed to process event ${event.id}: ${error.message}`, error.stack);
         await this.markFailed(event.id, error.message);
       }
     }
@@ -312,13 +301,12 @@ export class OutboxService {
    * Get comprehensive outbox metrics
    */
   async getMetrics(): Promise<OutboxMetrics> {
-    const [statusCounts, dlqSize, avgTimeResult, retryStats] =
-      await Promise.all([
-        this.getStatusCounts(),
-        this.dlqRepository.count(),
-        this.getAverageProcessingTime(),
-        this.getRetryStats(),
-      ]);
+    const [statusCounts, dlqSize, avgTimeResult, retryStats] = await Promise.all([
+      this.getStatusCounts(),
+      this.dlqRepository.count(),
+      this.getAverageProcessingTime(),
+      this.getRetryStats(),
+    ]);
 
     return {
       ...statusCounts,
@@ -349,10 +337,7 @@ export class OutboxService {
   private async getAverageProcessingTime(): Promise<number> {
     const result = await this.outboxRepository
       .createQueryBuilder('outbox')
-      .select(
-        'AVG(EXTRACT(EPOCH FROM (processed_at - created_at))) * 1000',
-        'avg_time',
-      )
+      .select('AVG(EXTRACT(EPOCH FROM (processed_at - created_at))) * 1000', 'avg_time')
       .where('status = :status', { status: OutboxStatus.PROCESSED })
       .andWhere('processed_at IS NOT NULL')
       .getRawOne();

@@ -8,15 +8,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import {
-  IsEnum,
-  IsOptional,
-  IsObject,
-  IsString,
-  IsUUID,
-  IsInt,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsOptional, IsObject, IsString, IsUUID, IsInt, Min } from 'class-validator';
 import { Order } from './order.entity';
 import { Product } from './product.entity';
 import { ProductVariant } from './product-variant.entity';
@@ -239,10 +231,9 @@ export class OrderLineItem {
       ].includes(this.status as PhysicalItemStatus);
     }
     if (this.type === LineItemType.DIGITAL) {
-      return [
-        DigitalItemStatus.PENDING,
-        DigitalItemStatus.PAYMENT_CONFIRMED,
-      ].includes(this.status as DigitalItemStatus);
+      return [DigitalItemStatus.PENDING, DigitalItemStatus.PAYMENT_CONFIRMED].includes(
+        this.status as DigitalItemStatus,
+      );
     }
     if (this.type === LineItemType.SERVICE) {
       return [
@@ -256,21 +247,17 @@ export class OrderLineItem {
 
   get is_refundable(): boolean {
     if (this.type === LineItemType.PHYSICAL) {
-      return [
-        PhysicalItemStatus.DELIVERED,
-      ].includes(this.status as PhysicalItemStatus);
+      return [PhysicalItemStatus.DELIVERED].includes(this.status as PhysicalItemStatus);
     }
     if (this.type === LineItemType.DIGITAL) {
-      return [
-        DigitalItemStatus.ACCESS_GRANTED,
-        DigitalItemStatus.DOWNLOADED,
-      ].includes(this.status as DigitalItemStatus);
+      return [DigitalItemStatus.ACCESS_GRANTED, DigitalItemStatus.DOWNLOADED].includes(
+        this.status as DigitalItemStatus,
+      );
     }
     if (this.type === LineItemType.SERVICE) {
-      return [
-        ServiceItemStatus.COMPLETED,
-        ServiceItemStatus.NO_SHOW,
-      ].includes(this.status as ServiceItemStatus);
+      return [ServiceItemStatus.COMPLETED, ServiceItemStatus.NO_SHOW].includes(
+        this.status as ServiceItemStatus,
+      );
     }
     return false;
   }

@@ -12,9 +12,7 @@ export class OrderCreatedHandler {
 
   @OnEvent('OrderCreated')
   async handle(event: OrderCreatedEvent): Promise<void> {
-    this.logger.log(
-      `Handling OrderCreated event for order ${event.payload.orderNumber}`,
-    );
+    this.logger.log(`Handling OrderCreated event for order ${event.payload.orderNumber}`);
 
     try {
       // Execute all side effects
@@ -29,10 +27,7 @@ export class OrderCreatedHandler {
         `Successfully processed OrderCreated event for order ${event.payload.orderNumber}`,
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to process OrderCreated event: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Failed to process OrderCreated event: ${error.message}`, error.stack);
       throw error; // Re-throw to trigger retry
     }
   }
@@ -40,11 +35,8 @@ export class OrderCreatedHandler {
   /**
    * Send order confirmation email to customer
    */
-  private async sendOrderConfirmationEmail(
-    event: OrderCreatedEvent,
-  ): Promise<void> {
-    const customerEmail =
-      event.payload.userId || event.payload.guestEmail || 'unknown';
+  private async sendOrderConfirmationEmail(event: OrderCreatedEvent): Promise<void> {
+    const customerEmail = event.payload.userId || event.payload.guestEmail || 'unknown';
 
     this.logger.debug(
       `Sending order confirmation email to ${customerEmail} for order ${event.payload.orderNumber}`,
@@ -71,9 +63,7 @@ export class OrderCreatedHandler {
    * Update search index with new order data
    */
   private async updateSearchIndex(event: OrderCreatedEvent): Promise<void> {
-    this.logger.debug(
-      `Updating search index for order ${event.payload.orderNumber}`,
-    );
+    this.logger.debug(`Updating search index for order ${event.payload.orderNumber}`);
 
     // In production, integrate with search service (Elasticsearch, Algolia, etc.)
     // Example:
@@ -92,9 +82,7 @@ export class OrderCreatedHandler {
    * Track order creation in analytics
    */
   private async trackAnalytics(event: OrderCreatedEvent): Promise<void> {
-    this.logger.debug(
-      `Tracking analytics for order ${event.payload.orderNumber}`,
-    );
+    this.logger.debug(`Tracking analytics for order ${event.payload.orderNumber}`);
 
     // In production, integrate with analytics service (Segment, Mixpanel, etc.)
     // Example:
@@ -122,9 +110,7 @@ export class OrderCreatedHandler {
    * Notify warehouse about new order
    */
   private async notifyWarehouse(event: OrderCreatedEvent): Promise<void> {
-    this.logger.debug(
-      `Notifying warehouse about order ${event.payload.orderNumber}`,
-    );
+    this.logger.debug(`Notifying warehouse about order ${event.payload.orderNumber}`);
 
     // In production, publish to message queue or call warehouse API
     // Example:

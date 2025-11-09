@@ -27,8 +27,8 @@ export class SplitCalculationService {
   // Default fee configuration
   private readonly defaultFees: FeeConfig = {
     physical: 0.15, // 15%
-    digital: 0.20, // 20%
-    service: 0.10, // 10%
+    digital: 0.2, // 20%
+    service: 0.1, // 10%
     processing_base: 0.029, // 2.9%
     processing_fixed: 30, // 30 cents
   };
@@ -128,9 +128,7 @@ export class SplitCalculationService {
   /**
    * Group line items by merchant ID
    */
-  private groupByMerchant(
-    lineItems: OrderLineItem[],
-  ): Record<string, OrderLineItem[]> {
+  private groupByMerchant(lineItems: OrderLineItem[]): Record<string, OrderLineItem[]> {
     const grouped: Record<string, OrderLineItem[]> = {};
 
     for (const item of lineItems) {

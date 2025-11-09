@@ -54,9 +54,7 @@ export class PayoutSchedulerService {
       };
 
       // Process each currency group
-      for (const [currency, currencyMerchants] of Object.entries(
-        merchantsByCurrency,
-      )) {
+      for (const [currency, currencyMerchants] of Object.entries(merchantsByCurrency)) {
         this.logger.log(
           `Processing ${currencyMerchants.length} merchants for currency ${currency}`,
         );
@@ -69,14 +67,10 @@ export class PayoutSchedulerService {
 
           try {
             // Calculate payout for merchant
-            const calculation = await this.payoutService.calculatePayout(
-              merchant.id,
-            );
+            const calculation = await this.payoutService.calculatePayout(merchant.id);
 
             // Check if amount meets minimum
-            const minAmount = this.payoutService.getMinimumPayout(
-              calculation.currency,
-            );
+            const minAmount = this.payoutService.getMinimumPayout(calculation.currency);
 
             if (calculation.amount < minAmount) {
               this.logger.log(
@@ -133,10 +127,7 @@ export class PayoutSchedulerService {
         `Weekly payout creation completed: ${results.created} created, ${results.skipped} skipped, ${results.failed} failed out of ${results.total} total`,
       );
     } catch (error) {
-      this.logger.error(
-        `Error in weekly payout creation: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error in weekly payout creation: ${error.message}`, error.stack);
     } finally {
       this.isProcessing = false;
     }
@@ -158,9 +149,7 @@ export class PayoutSchedulerService {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      const report = await this.reconciliationService.generateDailyReport(
-        yesterday,
-      );
+      const report = await this.reconciliationService.generateDailyReport(yesterday);
 
       if (!report.isReconciled) {
         this.logger.warn(
@@ -174,10 +163,7 @@ export class PayoutSchedulerService {
         );
       }
     } catch (error) {
-      this.logger.error(
-        `Error in daily reconciliation: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error in daily reconciliation: ${error.message}`, error.stack);
     }
   }
 
@@ -197,9 +183,7 @@ export class PayoutSchedulerService {
       const lastWeek = new Date();
       lastWeek.setDate(lastWeek.getDate() - 7);
 
-      const report = await this.reconciliationService.generateWeeklyReport(
-        lastWeek,
-      );
+      const report = await this.reconciliationService.generateWeeklyReport(lastWeek);
 
       if (!report.isReconciled) {
         this.logger.warn(
@@ -209,10 +193,7 @@ export class PayoutSchedulerService {
         this.logger.log('Weekly reconciliation completed successfully');
       }
     } catch (error) {
-      this.logger.error(
-        `Error in weekly reconciliation: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error in weekly reconciliation: ${error.message}`, error.stack);
     }
   }
 
@@ -250,19 +231,14 @@ export class PayoutSchedulerService {
         );
       }
     } catch (error) {
-      this.logger.error(
-        `Error processing pending payouts: ${error.message}`,
-        error.stack,
-      );
+      this.logger.error(`Error processing pending payouts: ${error.message}`, error.stack);
     }
   }
 
   /**
    * Group merchants by currency
    */
-  private groupMerchantsByCurrency(
-    merchants: Merchant[],
-  ): Record<string, Merchant[]> {
+  private groupMerchantsByCurrency(merchants: Merchant[]): Record<string, Merchant[]> {
     return merchants.reduce(
       (groups, merchant) => {
         const currency = merchant.settings?.currency || 'USD';
