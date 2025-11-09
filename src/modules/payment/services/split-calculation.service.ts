@@ -56,7 +56,7 @@ export class SplitCalculationService {
         where: { id: merchantId },
       });
 
-      const platformFee = this.calculatePlatformFee(items, grossAmount, merchant);
+      const platformFee = this.calculatePlatformFee(items, grossAmount, merchant ?? undefined);
       const processingFee = this.calculateProcessingFee(grossAmount);
       const netAmount = grossAmount - platformFee - processingFee;
 

@@ -268,7 +268,7 @@ describe('OrderService', () => {
         andWhere: jest.fn().mockReturnThis(),
       };
 
-      orderRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+      orderRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
       const result = await service.getUserOrders('user-1', { page: 1, limit: 10 });
 
@@ -291,7 +291,7 @@ describe('OrderService', () => {
         getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       };
 
-      orderRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+      orderRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
       await service.getUserOrders('user-1', { status: OrderStatus.COMPLETED });
 

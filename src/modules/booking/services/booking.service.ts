@@ -336,12 +336,12 @@ export class BookingService {
     try {
       // SET key "locked" NX EX ttl
       // Returns true if lock acquired, false if already exists
-      const result = await this.cacheService['redis'].set(
+      const result = await this.cacheService.redis.set(
         key,
         'locked',
-        'NX',
         'EX',
         this.LOCK_TTL_SECONDS,
+        'NX',
       );
       return result === 'OK';
     } catch (error) {

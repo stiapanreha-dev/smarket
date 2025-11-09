@@ -27,7 +27,7 @@ export class MockStripeProvider implements PaymentProvider {
       amount: params.amount,
       currency: params.currency,
       requiresAction: false,
-      actionUrl: null,
+      actionUrl: undefined,
       clientSecret: `pi_test_secret_${Date.now()}`,
     };
   }

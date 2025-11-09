@@ -22,6 +22,7 @@ import {
   createMockStripeProvider,
   createMockStripeProviderWithFailures,
 } from '../../../../test/mocks/stripe.mock';
+import { PaymentIntentStatus, RefundResultStatus } from '../interfaces/payment-provider.interface';
 
 describe('PaymentService', () => {
   let service: PaymentService;
@@ -143,13 +144,13 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.createPaymentIntent.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'createPaymentIntent').mockResolvedValue({
         id: 'pi_test_123',
-        status: 'requires_payment_method',
+        status: 'requires_payment_method' as any,
         amount: 3799,
         currency: 'USD',
         requiresAction: false,
-        actionUrl: null,
+        actionUrl: undefined,
         clientSecret: 'pi_test_secret',
       });
 
@@ -240,9 +241,11 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.capturePayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'capturePayment').mockResolvedValue({
         success: true,
+        transactionId: 'pi_test_123',
         amount: 3799,
+        status: PaymentIntentStatus.SUCCEEDED,
       });
 
       const result = await service.capturePayment('payment-1');
@@ -328,9 +331,11 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.refundPayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'refundPayment').mockResolvedValue({
         success: true,
         refundId: 're_test_123',
+        amount: 1000,
+        status: RefundResultStatus.SUCCEEDED,
       });
 
       splitCalculationService.calculateRefundSplit.mockReturnValue({
@@ -369,7 +374,7 @@ describe('PaymentService', () => {
 
     it('should update payment status to REFUNDED when fully refunded', async () => {
       const fullRefundAmount = 3799;
-      let savedPayment;
+      let savedPayment: any;
 
       dataSource.transaction.mockImplementation(async (callback) => {
         const mockManager = {
@@ -385,14 +390,16 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      stripeProvider.refundPayment.mockResolvedValue({
+      jest.spyOn(stripeProvider, 'refundPayment').mockResolvedValue({
         success: true,
         refundId: 're_test_123',
+        amount: 1000,
+        status: RefundResultStatus.SUCCEEDED,
       });
 
       await service.refundPayment('payment-1', fullRefundAmount, 'Full refund');
 
-      expect(savedPayment.status).toBe(PaymentStatusEnum.REFUNDED);
+      expect(savedPayment?.status).toBe(PaymentStatusEnum.REFUNDED);
     });
   });
 
