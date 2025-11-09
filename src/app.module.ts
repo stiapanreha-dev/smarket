@@ -12,7 +12,7 @@ import { UserModule } from '@modules/user/user.module';
 import { CatalogModule } from '@modules/catalog/catalog.module';
 import { InventoryModule } from '@modules/inventory/inventory.module';
 import { BookingModule } from '@modules/booking/booking.module';
-import { OrderModule } from '@modules/order/order.module';
+import { OrdersModule } from '@modules/orders/orders.module';
 import { PaymentModule } from '@modules/payment/payment.module';
 import { NotificationModule } from '@modules/notification/notification.module';
 import { CartModule } from '@modules/cart/cart.module';
@@ -63,7 +63,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
     CheckoutModule,
     InventoryModule,
     BookingModule,
-    OrderModule,
+    OrdersModule,
     PaymentModule,
     NotificationModule,
   ],
