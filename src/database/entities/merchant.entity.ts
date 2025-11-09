@@ -119,6 +119,7 @@ export class Merchant {
     commission_rate?: number;
     auto_approve_products?: boolean;
     notification_preferences?: Record<string, boolean>;
+    currency?: string;
   } | null;
 
   @Column({ type: 'jsonb', nullable: true })

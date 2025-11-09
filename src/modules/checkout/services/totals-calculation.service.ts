@@ -92,7 +92,7 @@ export class TotalsCalculationService {
   private async calculateTax(
     subtotal: number,
     address: Address,
-    _currency: string,
+    currency: string,
   ): Promise<{ rate: number; amount: number; jurisdiction: string }> {
     const cacheKey = `tax:rate:${address.country}:${address.state || 'N/A'}:${currency}`;
 
@@ -165,7 +165,7 @@ export class TotalsCalculationService {
   private async calculateShipping(
     items: CartItemSnapshot[],
     address: Address,
-    _currency: string,
+    currency: string,
   ): Promise<number> {
     // Filter only physical items that require shipping
     const physicalItems = items.filter((item) => item.type === 'physical');
@@ -189,7 +189,7 @@ export class TotalsCalculationService {
   private async getShippingRate(
     totalQuantity: number,
     address: Address,
-    _currency: string,
+    currency: string,
   ): Promise<ShippingRate> {
     // Simplified shipping calculation
     // In production, call shipping carrier APIs for real-time rates
@@ -228,7 +228,7 @@ export class TotalsCalculationService {
   async validateAndApplyPromoCode(
     code: string,
     subtotal: number,
-    _currency: string,
+    currency: string,
   ): Promise<PromoCodeApplication | null> {
     const promoCode = await this.getPromoCode(code);
 

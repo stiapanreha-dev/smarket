@@ -205,7 +205,7 @@ export class MerchantOrderController {
    */
   private async getMerchantByUserId(userId: string): Promise<Merchant> {
     const merchant = await this.merchantRepository.findOne({
-      where: { user_id: userId },
+      where: { owner_id: userId },
     });
 
     if (!merchant) {
