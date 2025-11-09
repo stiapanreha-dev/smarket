@@ -9,10 +9,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  InventoryPolicy,
-  VariantStatus,
-} from '../../../database/entities/product-variant.entity';
+import { InventoryPolicy, VariantStatus } from '../../../database/entities/product-variant.entity';
 
 export class CreateVariantDto {
   @ApiProperty({

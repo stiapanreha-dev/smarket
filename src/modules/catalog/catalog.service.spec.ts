@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { CatalogService } from './catalog.service';
 import { Product, ProductStatus, ProductType } from '../../database/entities/product.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
-import { ProductTranslation, TranslationLocale } from '../../database/entities/product-translation.entity';
+import {
+  ProductTranslation,
+  TranslationLocale,
+} from '../../database/entities/product-translation.entity';
 import { ProductImage } from '../../database/entities/product-image.entity';
 import { AuditLogService } from '../../common/services/audit-log.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -232,9 +235,9 @@ describe('CatalogService', () => {
 
       mockProductRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.updateProduct(productId, merchantId, {}, userId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updateProduct(productId, merchantId, {}, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

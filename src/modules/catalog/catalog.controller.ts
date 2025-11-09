@@ -21,9 +21,11 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { CatalogService } from './catalog.service';
+import { ProductSearchService } from './product-search.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductsDto } from './dto/search-products.dto';
+import { AdvancedSearchProductsDto } from './dto/advanced-search-products.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -33,7 +35,10 @@ import { UserRole } from '../../database/entities/user.entity';
 @ApiTags('Products')
 @Controller('api/v1/products')
 export class CatalogController {
-  constructor(private readonly catalogService: CatalogService) {}
+  constructor(
+    private readonly catalogService: CatalogService,
+    private readonly productSearchService: ProductSearchService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,9 +75,9 @@ export class CatalogController {
 
   @Get()
   @ApiOperation({
-    summary: 'Search and filter products',
+    summary: 'Search and filter products (basic)',
     description:
-      'Search products with filters, sorting, and pagination. Supports full-text search, price range, attributes, etc.',
+      'Basic product search with filters, sorting, and pagination. For advanced search with facets, use /search endpoint.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -80,6 +85,81 @@ export class CatalogController {
   })
   async searchProducts(@Query() searchDto: SearchProductsDto) {
     return this.catalogService.searchProducts(searchDto);
+  }
+
+  @Get('search')
+  @ApiOperation({
+    summary: 'Advanced product search with facets',
+    description: `
+      Advanced product search with the following features:
+      - Full-text search with PostgreSQL pg_trgm for fuzzy matching
+      - Search across all 3 languages (en/ru/ar)
+      - Filters: type, price range, merchant, status, attributes, availability, SKU
+      - Sorting: relevance, price, date, popularity, rating
+      - Cursor-based pagination for large datasets (max 100 items per page)
+      - Faceted search with aggregations
+      - Highlighting of matching terms
+      - Redis caching for popular queries (5 min TTL)
+    `,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Search results with facets and pagination',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          description: 'Array of products matching search criteria',
+        },
+        pagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'number', example: 150 },
+            limit: { type: 'number', example: 20 },
+            offset: { type: 'number', example: 0 },
+            page: { type: 'number', example: 1 },
+            total_pages: { type: 'number', example: 8 },
+            next_cursor: { type: 'string', nullable: true },
+          },
+        },
+        facets: {
+          type: 'object',
+          nullable: true,
+          properties: {
+            types: {
+              type: 'object',
+              example: { PHYSICAL: 100, DIGITAL: 50 },
+            },
+            price_ranges: {
+              type: 'object',
+              example: { '0-500': 30, '500-1000': 70, '1000+': 50 },
+            },
+            merchants: {
+              type: 'object',
+              description: 'Top 10 merchants with product count',
+            },
+            availability: {
+              type: 'object',
+              properties: {
+                in_stock: { type: 'number' },
+                out_of_stock: { type: 'number' },
+              },
+            },
+          },
+        },
+        performance: {
+          type: 'object',
+          properties: {
+            query_time_ms: { type: 'number', example: 150 },
+            cache_hit: { type: 'boolean', example: false },
+          },
+        },
+      },
+    },
+  })
+  async advancedSearch(@Query() searchDto: AdvancedSearchProductsDto) {
+    return this.productSearchService.search(searchDto);
   }
 
   @Get(':id')
