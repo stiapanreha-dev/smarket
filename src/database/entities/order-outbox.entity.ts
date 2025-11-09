@@ -83,4 +83,8 @@ export class OrderOutbox {
   @IsString()
   @IsOptional()
   idempotency_key: string | null;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  @IsOptional()
+  next_retry_at: Date | null;
 }
