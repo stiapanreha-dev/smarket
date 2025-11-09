@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { Schedule, Service } from '@database/entities';
 import { CreateScheduleDto, UpdateScheduleDto } from '../dto';
 
@@ -34,7 +34,7 @@ export class ScheduleService {
     const existing = await this.scheduleRepository.findOne({
       where: {
         service_id: dto.service_id,
-        provider_id: dto.provider_id || null,
+        provider_id: dto.provider_id ? dto.provider_id : IsNull(),
       },
     });
 

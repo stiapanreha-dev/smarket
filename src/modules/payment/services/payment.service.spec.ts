@@ -12,10 +12,7 @@ import { YooKassaProvider } from '../providers/yookassa.provider';
 import { NetworkIntlProvider } from '../providers/network-intl.provider';
 import { SplitCalculationService } from './split-calculation.service';
 import { OutboxService } from '../../orders/services/outbox.service';
-import {
-  createMockRepository,
-  createMockDataSource,
-} from '../../../../test/mocks/repository.mock';
+import { createMockRepository, createMockDataSource } from '../../../../test/mocks/repository.mock';
 import {
   createMockOutboxService,
   createMockSplitCalculationService,
@@ -165,7 +162,7 @@ describe('PaymentService', () => {
         expect.objectContaining({
           eventType: 'payment.authorized',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -194,9 +191,7 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(service.authorizePayment('invalid-order')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.authorizePayment('invalid-order')).rejects.toThrow(NotFoundException);
     });
 
     it('should select correct provider based on currency', async () => {
@@ -258,7 +253,7 @@ describe('PaymentService', () => {
         expect.objectContaining({
           eventType: 'payment.captured',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -272,9 +267,7 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(service.capturePayment('payment-1')).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(service.capturePayment('payment-1')).rejects.toThrow(BadRequestException);
     });
 
     it('should handle capture failure from provider', async () => {
@@ -351,13 +344,13 @@ describe('PaymentService', () => {
       expect(stripeProvider.refundPayment).toHaveBeenCalledWith(
         'pi_test_123',
         refundAmount,
-        'Customer request'
+        'Customer request',
       );
       expect(outboxService.addEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           eventType: 'payment.refunded',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -369,9 +362,9 @@ describe('PaymentService', () => {
         return callback(mockManager);
       });
 
-      await expect(
-        service.refundPayment('payment-1', 5000, 'Test')
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.refundPayment('payment-1', 5000, 'Test')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should update payment status to REFUNDED when fully refunded', async () => {
@@ -427,9 +420,7 @@ describe('PaymentService', () => {
     it('should throw NotFoundException if payment not found', async () => {
       paymentRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getPayment('invalid-payment')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.getPayment('invalid-payment')).rejects.toThrow(NotFoundException);
     });
   });
 });

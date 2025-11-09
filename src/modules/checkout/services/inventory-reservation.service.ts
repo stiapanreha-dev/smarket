@@ -7,13 +7,13 @@ import { CartItemSnapshot } from '../../../database/entities/checkout-session.en
 
 interface ReservationResult {
   success: boolean;
-  _reservationId: string;
-  errors?: { _variantId: string; reason: string }[];
+  reservationId: string;
+  errors?: { variantId: string; reason: string }[];
 }
 
 interface BookingSlot {
   serviceId: string;
-  _variantId: string;
+  variantId: string;
   date: string;
   timeSlot: string;
   duration: number; // minutes

@@ -8,6 +8,13 @@ export class CacheService {
   private readonly client: Redis;
   private readonly defaultTTL: number = 300; // 5 minutes in seconds
 
+  /**
+   * Get raw Redis client for advanced operations
+   */
+  get redis(): Redis {
+    return this.client;
+  }
+
   constructor(private readonly configService: ConfigService) {
     const redisUrl = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
 

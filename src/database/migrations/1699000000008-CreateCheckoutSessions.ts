@@ -187,7 +187,7 @@ export class CreateCheckoutSessions1699000000008 implements MigrationInterface {
       new TableIndex({
         name: 'IDX_checkout_sessions_status_expires_at',
         columnNames: ['status', 'expires_at'],
-        comment: 'For finding expired sessions to cleanup',
+        // Index for finding expired sessions to cleanup
       }),
     );
 

@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, IsNull } from 'typeorm';
 import { Service, Booking, BookingStatus, OrderLineItem } from '@database/entities';
 import { CacheService } from '@common/services/cache.service';
 import { SlotAvailabilityService } from './slot-availability.service';
@@ -93,7 +93,7 @@ export class BookingService {
         const existingBooking = await manager.findOne(Booking, {
           where: {
             service_id: dto.service_id,
-            provider_id: dto.provider_id || null,
+            provider_id: dto.provider_id ? dto.provider_id : IsNull(),
             start_at: startAt,
           },
         });

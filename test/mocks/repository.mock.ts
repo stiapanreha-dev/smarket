@@ -1,9 +1,9 @@
-import { Repository, FindOptionsWhere, FindOneOptions, FindManyOptions } from 'typeorm';
+import { Repository, ObjectLiteral } from 'typeorm';
 
 /**
  * Create mock repository for testing
  */
-export function createMockRepository<T = any>(): jest.Mocked<Repository<T>> {
+export function createMockRepository<T extends ObjectLiteral = any>(): jest.Mocked<Repository<T>> {
   return {
     find: jest.fn(),
     findOne: jest.fn(),
@@ -68,7 +68,7 @@ export function createMockRepository<T = any>(): jest.Mocked<Repository<T>> {
     minimum: jest.fn(),
     maximum: jest.fn(),
     upsert: jest.fn(),
-  } as jest.Mocked<Repository<T>>;
+  } as unknown as jest.Mocked<Repository<T>>;
 }
 
 /**

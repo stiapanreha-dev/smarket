@@ -4,13 +4,13 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Order, OrderStatus } from '../../../database/entities/order.entity';
 import { OrderLineItem } from '../../../database/entities/order-line-item.entity';
-import { CheckoutSession, CheckoutStatus } from '../../../database/entities/checkout-session.entity';
+import {
+  CheckoutSession,
+  CheckoutStatus,
+} from '../../../database/entities/checkout-session.entity';
 import { OrderFSMService } from './order-fsm.service';
 import { OutboxService } from './outbox.service';
-import {
-  createMockRepository,
-  createMockDataSource,
-} from '../../../../test/mocks/repository.mock';
+import { createMockRepository, createMockDataSource } from '../../../../test/mocks/repository.mock';
 import {
   createMockFSMService,
   createMockOutboxService,
@@ -153,7 +153,7 @@ describe('OrderService', () => {
           eventType: 'order.created',
           aggregateType: 'order',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -168,7 +168,7 @@ describe('OrderService', () => {
       });
 
       await expect(service.createOrderFromCheckout('invalid-session')).rejects.toThrow(
-        NotFoundException
+        NotFoundException,
       );
     });
 
@@ -185,7 +185,7 @@ describe('OrderService', () => {
       });
 
       await expect(service.createOrderFromCheckout('session-1')).rejects.toThrow(
-        BadRequestException
+        BadRequestException,
       );
     });
 
@@ -202,7 +202,7 @@ describe('OrderService', () => {
       });
 
       await expect(service.createOrderFromCheckout('session-1')).rejects.toThrow(
-        BadRequestException
+        BadRequestException,
       );
     });
 
@@ -219,7 +219,7 @@ describe('OrderService', () => {
       });
 
       await expect(service.createOrderFromCheckout('session-1')).rejects.toThrow(
-        BadRequestException
+        BadRequestException,
       );
     });
   });
@@ -247,9 +247,7 @@ describe('OrderService', () => {
     it('should throw NotFoundException if order not found', async () => {
       orderRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getOrderById('invalid-order')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.getOrderById('invalid-order')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -330,7 +328,7 @@ describe('OrderService', () => {
         expect.objectContaining({
           eventType: 'order.payment_confirmed',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
   });
@@ -363,7 +361,7 @@ describe('OrderService', () => {
         expect.objectContaining({
           eventType: 'order.cancelled',
         }),
-        expect.anything()
+        expect.anything(),
       );
     });
 
@@ -381,9 +379,7 @@ describe('OrderService', () => {
         return callback(mockManager);
       });
 
-      await expect(service.cancelOrder('order-1', 'Test')).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(service.cancelOrder('order-1', 'Test')).rejects.toThrow(BadRequestException);
     });
   });
 });
