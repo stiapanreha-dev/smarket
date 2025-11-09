@@ -16,6 +16,7 @@ import { OrderService } from '../services/order.service';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { GetOrdersDto } from '../dto/get-orders.dto';
 import { CancelOrderDto } from '../dto/cancel-order.dto';
+import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Orders')
 @Controller('api/v1/orders')
@@ -29,7 +30,7 @@ export class OrderController {
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid checkout session' })
   @ApiResponse({ status: 404, description: 'Checkout session not found' })
-  async createOrder(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+  async createOrder(@Body() createOrderDto: CreateOrderDto, @Request() req: AuthenticatedRequest) {
     const order = await this.orderService.createOrderFromCheckout(
       createOrderDto.checkout_session_id,
       createOrderDto.payment_intent_id,
@@ -46,7 +47,7 @@ export class OrderController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user orders' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  async getUserOrders(@Query() query: GetOrdersDto, @Request() req) {
+  async getUserOrders(@Query() query: GetOrdersDto, @Request() req: AuthenticatedRequest) {
     const result = await this.orderService.getUserOrders(req.user.id, {
       page: query.page,
       limit: query.limit,
@@ -71,7 +72,7 @@ export class OrderController {
   @ApiParam({ name: 'orderNumber', example: 'ORD-12345-ABC' })
   @ApiResponse({ status: 200, description: 'Order found' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  async getOrder(@Param('orderNumber') orderNumber: string, @Request() req) {
+  async getOrder(@Param('orderNumber') orderNumber: string, @Request() req: AuthenticatedRequest) {
     const order = await this.orderService.getOrderByNumber(orderNumber);
 
     // Verify ownership
@@ -95,7 +96,7 @@ export class OrderController {
   async cancelOrder(
     @Param('orderId', ParseUUIDPipe) orderId: string,
     @Body() cancelDto: CancelOrderDto,
-    @Request() req,
+    @Request() req: AuthenticatedRequest,
   ) {
     const order = await this.orderService.getOrderById(orderId);
 

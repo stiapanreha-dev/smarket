@@ -19,10 +19,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payout, PayoutStatus } from '../../../database/entities/payout.entity';
 import { PayoutBatch } from '../../../database/entities/payout-batch.entity';
+import { UserRole } from '../../../database/entities/user.entity';
 
 @Controller('api/v1/admin/payouts')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles(UserRole.ADMIN)
 export class AdminPayoutController {
   constructor(
     private readonly payoutService: PayoutService,
