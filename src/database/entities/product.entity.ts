@@ -190,11 +190,7 @@ export class Product {
     }
 
     // Fallback to English or first available
-    return (
-      this.translations.find((t) => t.locale === 'en') ||
-      this.translations[0] ||
-      null
-    );
+    return this.translations.find((t) => t.locale === 'en') || this.translations[0] || null;
   }
 
   get is_physical(): boolean {
