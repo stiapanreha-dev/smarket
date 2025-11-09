@@ -106,7 +106,10 @@ export class MerchantPayoutController {
   @Get('payouts/:id')
   @Roles(UserRole.MERCHANT, UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
-  async getPayout(@Request() req: AuthenticatedRequest, @Param('id') payoutId: string): Promise<PayoutResponseDto> {
+  async getPayout(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') payoutId: string,
+  ): Promise<PayoutResponseDto> {
     const userId = req.user.id;
 
     // Get merchant for user

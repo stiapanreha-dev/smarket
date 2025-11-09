@@ -75,7 +75,10 @@ export class MerchantOrderController {
   @ApiOperation({ summary: 'Get merchant items in order' })
   @ApiParam({ name: 'orderId', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'Items retrieved successfully' })
-  async getMerchantOrderItems(@Param('orderId', ParseUUIDPipe) orderId: string, @Request() req: AuthenticatedRequest) {
+  async getMerchantOrderItems(
+    @Param('orderId', ParseUUIDPipe) orderId: string,
+    @Request() req: AuthenticatedRequest,
+  ) {
     const merchant = await this.getMerchantByUserId(req.user.id);
 
     const items = await this.lineItemRepository.find({
