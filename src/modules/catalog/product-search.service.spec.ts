@@ -4,7 +4,10 @@ import { Repository } from 'typeorm';
 import { ProductSearchService } from './product-search.service';
 import { Product, ProductType } from '../../database/entities/product.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
-import { ProductTranslation, TranslationLocale } from '../../database/entities/product-translation.entity';
+import {
+  ProductTranslation,
+  TranslationLocale,
+} from '../../database/entities/product-translation.entity';
 import { CacheService } from '../../common/services/cache.service';
 import {
   AdvancedSearchProductsDto,
