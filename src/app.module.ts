@@ -18,6 +18,7 @@ import { PaymentModule } from '@modules/payment/payment.module';
 import { NotificationModule } from '@modules/notification/notification.module';
 import { CartModule } from '@modules/cart/cart.module';
 import { CheckoutModule } from '@modules/checkout/checkout.module';
+import { PayoutModule } from '@modules/payout/payout.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -69,6 +70,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
     BookingModule,
     OrdersModule,
     PaymentModule,
+    PayoutModule,
     NotificationModule,
   ],
   controllers: [AppController, HealthController],
