@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: smarket-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: snailmarket
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-snailmarket_password}
+      POSTGRES_DB: snailmarket
+    ports:
+      - '127.0.0.1:5434:5432'  # Bind to localhost only
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U snailmarket']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: smarket-redis-prod
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6381:6379'  # Bind to localhost only
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # NestJS Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: smarket-backend:latest
+    container_name: smarket-backend-prod
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3003:3000'  # Bind to localhost only, nginx will proxy
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=snailmarket
+      - DB_PASSWORD=${DB_PASSWORD:-snailmarket_password}
+      - DB_DATABASE=snailmarket
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-me-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres-data:
+    name: smarket-postgres-data-prod
+  redis-data:
+    name: smarket-redis-data-prod
