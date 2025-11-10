@@ -48,3 +48,8 @@ lerna-debug.log*
 # Docker volumes
 postgres-data/
 redis-data/
+
+# Frontend
+/client/dist
+/client/node_modules
+/client/.vite
