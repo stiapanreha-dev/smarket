@@ -77,7 +77,6 @@ export class Booking {
     default: BookingStatus.PENDING,
   })
   @IsEnum(BookingStatus)
-  @Index()
   status: BookingStatus;
 
   @Column({ type: 'text', name: 'cancellation_reason', nullable: true })
