@@ -1,7 +1,6 @@
-import Navbar from '../components/Navbar';
+import { Navbar, Footer } from '../components/layout';
 import HeroSection from '../components/HeroSection';
 import ServicesSection from '../components/ServicesSection';
-import Footer from '../components/Footer';
 
 const Landing = () => {
   return (
