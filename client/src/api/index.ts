@@ -12,6 +12,17 @@
  * - notifications: Notification services
  */
 
+// Export configured Axios instance and utilities
+export {
+  apiClient,
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+  clearTokens,
+  isApiError,
+  getErrorMessage,
+} from './axios.config';
+
 // Export API clients here as they are created
 // Example:
 // export * from './auth';
