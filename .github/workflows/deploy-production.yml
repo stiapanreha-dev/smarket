@@ -1,10 +1,12 @@
 name: Deploy to Production
 
 on:
-  push:
-    branches:
-      - master
-  workflow_dispatch:  # Allow manual trigger
+  # Disabled auto-deploy due to SSH port 22 not accessible from GitHub Actions
+  # Use manual deployment via: ssh Pi4-2 "cd ~/apps/smarket && ./scripts/deploy.sh"
+  # push:
+  #   branches:
+  #     - master
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   deploy:
