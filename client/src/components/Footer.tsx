@@ -8,8 +8,8 @@ const Footer = () => {
       <Container>
         <Row>
           <Col lg={4} md={6} className="mb-4">
-            <h4 className="footer-title">🐌 SnailMarketplace</h4>
-            <p style={{ opacity: 0.8 }}>
+            <h4 className="footer-title">SnailMarketplace</h4>
+            <p style={{ opacity: 0.85, fontSize: '14px', lineHeight: '1.6' }}>
               A modern modular marketplace platform built with NestJS, PostgreSQL, Redis, and S3.
               Supporting physical goods, digital products, and professional services.
             </p>

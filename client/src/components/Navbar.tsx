@@ -14,7 +14,7 @@ const Navbar = () => {
     <BootstrapNavbar expand="lg" className="navbar" fixed="top">
       <Container>
         <BootstrapNavbar.Brand href="/">
-          🐌 SNAILMARKETPLACE
+          SNAILMARKETPLACE
         </BootstrapNavbar.Brand>
 
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />

@@ -1,12 +1,19 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import { BsBox, BsDownload, BsCalendarCheck } from 'react-icons/bs';
-import type { Service } from '../types';
+
+interface Service {
+  id: string;
+  icon: JSX.Element;
+  title: string;
+  description: string;
+  features: string[];
+}
 
 const ServicesSection = () => {
   const services: Service[] = [
     {
       id: 'physical',
-      icon: '📦',
+      icon: <BsBox />,
       title: 'Physical Goods',
       description: 'Sell and ship tangible products with integrated inventory management and order tracking.',
       features: [
@@ -19,7 +26,7 @@ const ServicesSection = () => {
     },
     {
       id: 'digital',
-      icon: '💾',
+      icon: <BsDownload />,
       title: 'Digital Products',
       description: 'Distribute digital content like ebooks, software, courses, and media files securely.',
       features: [
@@ -32,7 +39,7 @@ const ServicesSection = () => {
     },
     {
       id: 'services',
-      icon: '🎯',
+      icon: <BsCalendarCheck />,
       title: 'Professional Services',
       description: 'Book appointments and schedule professional services with integrated calendar management.',
       features: [
@@ -60,12 +67,14 @@ const ServicesSection = () => {
                 className="service-card fade-in-up"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
-                <div className="service-icon">{service.icon}</div>
+                <div className="service-icon-wrapper">
+                  <div className="service-icon">{service.icon}</div>
+                </div>
                 <h3 className="service-title">{service.title}</h3>
                 <p className="service-description">{service.description}</p>
                 <ul className="service-features">
                   {service.features.map((feature, idx) => (
-                    <li key={idx}>✓ {feature}</li>
+                    <li key={idx}>{feature}</li>
                   ))}
                 </ul>
               </div>
