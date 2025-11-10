@@ -20,6 +20,7 @@ import { CartModule } from '@modules/cart/cart.module';
 import { CheckoutModule } from '@modules/checkout/checkout.module';
 import { PayoutModule } from '@modules/payout/payout.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import * as entities from './database/entities';
 
 @Module({
   imports: [
@@ -50,7 +51,9 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
         username: configService.get('DB_USERNAME', 'snailmarket'),
         password: configService.get('DB_PASSWORD', 'snailmarket_password'),
         database: configService.get('DB_DATABASE', 'snailmarket'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: Object.values(entities).filter(
+          (val) => typeof val === 'function' && val.prototype,
+        ),
         synchronize: configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
       }),
