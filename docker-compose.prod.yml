@@ -54,6 +54,7 @@ services:
       - DB_USERNAME=snailmarket
       - DB_PASSWORD=${DB_PASSWORD:-snailmarket_password}
       - DB_DATABASE=snailmarket
+      - REDIS_URL=redis://redis:6379
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
