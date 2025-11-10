@@ -50,7 +50,6 @@ export class Service {
 
   @Column({ type: 'uuid', name: 'merchant_id' })
   @IsUUID()
-  @Index()
   merchant_id: string;
 
   @Column({ type: 'uuid', name: 'provider_id', nullable: true })

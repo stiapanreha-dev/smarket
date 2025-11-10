@@ -40,7 +40,6 @@ export class Booking {
 
   @Column({ type: 'uuid', name: 'service_id' })
   @IsUUID()
-  @Index()
   service_id: string;
 
   @Column({ type: 'uuid', name: 'order_line_item_id', nullable: true })
@@ -50,7 +49,6 @@ export class Booking {
 
   @Column({ type: 'uuid', name: 'customer_id' })
   @IsUUID()
-  @Index()
   customer_id: string;
 
   @Column({ type: 'uuid', name: 'provider_id', nullable: true })
@@ -60,7 +58,6 @@ export class Booking {
 
   @Column({ type: 'timestamp with time zone', name: 'start_at' })
   @IsDate()
-  @Index()
   start_at: Date;
 
   @Column({ type: 'timestamp with time zone', name: 'end_at' })

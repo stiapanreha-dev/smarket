@@ -13,7 +13,6 @@ import { ProductVariant } from './product-variant.entity';
 
 @Entity('product_images')
 @Index(['product_id', 'position'])
-@Index(['product_id'])
 export class ProductImage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
