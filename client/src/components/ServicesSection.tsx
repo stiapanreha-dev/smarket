@@ -1,9 +1,10 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import { BsBox, BsDownload, BsCalendarCheck } from 'react-icons/bs';
+import type { ReactElement } from 'react';
 
 interface Service {
   id: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   title: string;
   description: string;
   features: string[];
