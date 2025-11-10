@@ -102,7 +102,9 @@ import {
           Schedule,
           Booking,
         ],
-        synchronize: configService.get('NODE_ENV') === 'development',
+        // Disable synchronize to avoid duplicate index errors
+        // Use migrations instead: npm run migration:run
+        synchronize: false, // configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
