@@ -2,6 +2,9 @@
 
 Modern modular monolith marketplace platform built with NestJS, PostgreSQL, Redis, and S3.
 
+> **Note:** This repository contains the **backend API**. Frontend application (React + Bootstrap) is planned separately.
+> See [docs/FRONTEND_TECH_DECISIONS.md](docs/FRONTEND_TECH_DECISIONS.md) for frontend technology choices.
+
 ## Features
 
 - **Modular Architecture**: Clear module boundaries with separation of concerns

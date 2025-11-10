@@ -144,15 +144,23 @@ Core:
   - React 18
   - TypeScript
   - Vite
-  
+
 UI:
-  - Tailwind CSS
-  - Headless UI
+  - Bootstrap 5 (react-bootstrap)
   - React Hook Form
-  
+  - React Icons
+
 State:
   - Zustand
   - React Query
+
+Rationale:
+  - Bootstrap chosen over Tailwind for:
+    * Ready-made components (cards, modals, forms)
+    * Faster MVP development
+    * Built-in RTL support (important for Arabic)
+    * Consistent design system out-of-the-box
+    * Less boilerplate in JSX
 ```
 
 ### Infrastructure
