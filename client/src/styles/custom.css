@@ -420,3 +420,17 @@ body {
     max-width: 1200px;
   }
 }
+
+/* Custom Component Utilities */
+.card-hoverable {
+  transition: all 0.3s ease;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(127, 179, 213, 0.15);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
