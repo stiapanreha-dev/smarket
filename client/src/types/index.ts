@@ -14,3 +14,6 @@ export interface NavLink {
   label: string;
   href: string;
 }
+
+// Export API types
+export * from './api';
