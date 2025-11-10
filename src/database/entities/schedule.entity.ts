@@ -45,7 +45,6 @@ export class Schedule {
 
   @Column({ type: 'uuid', name: 'service_id' })
   @IsUUID()
-  @Index()
   service_id: string;
 
   @Column({ type: 'uuid', name: 'provider_id', nullable: true })
