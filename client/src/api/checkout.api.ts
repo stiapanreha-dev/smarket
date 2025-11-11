@@ -20,6 +20,7 @@ import type {
   UpdatePaymentMethodRequest,
   ApplyPromoCodeRequest,
   CompleteCheckoutRequest,
+  CompleteCheckoutResponse,
   DeliveryOption,
 } from '@/types';
 
@@ -134,8 +135,8 @@ export const checkoutApi = {
   async completeCheckout(
     sessionId: string,
     data?: CompleteCheckoutRequest,
-  ): Promise<CheckoutSession> {
-    const response = await apiClient.post<CheckoutSession>(
+  ): Promise<CompleteCheckoutResponse> {
+    const response = await apiClient.post<CompleteCheckoutResponse>(
       CHECKOUT_ENDPOINTS.COMPLETE(sessionId),
       data || {},
     );

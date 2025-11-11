@@ -20,6 +20,7 @@ import type {
   UpdateShippingAddressDto,
   UpdateDeliveryMethodDto,
   UpdatePaymentMethodDto,
+  CompleteCheckoutResponse,
   DeliveryOption,
 } from '@/types';
 import { CheckoutStep as CheckoutStepEnum, requiresShipping } from '@/types';
@@ -43,7 +44,7 @@ interface CheckoutState {
   updateDeliveryMethod: (delivery: UpdateDeliveryMethodDto) => Promise<void>;
   updatePaymentMethod: (payment: UpdatePaymentMethodDto) => Promise<void>;
   applyPromoCode: (code: string) => Promise<void>;
-  completeCheckout: () => Promise<void>;
+  completeCheckout: () => Promise<CompleteCheckoutResponse>;
   cancelSession: () => Promise<void>;
   goToStep: (step: CheckoutStep) => void;
   nextStep: () => void;
@@ -395,14 +396,15 @@ export const useCheckoutStore = create<CheckoutState>()(
         try {
           set({ isLoading: true, error: null });
 
-          const completedSession = await checkoutApi.completeCheckout(session.id);
+          const response = await checkoutApi.completeCheckout(session.id);
 
           set({
-            session: completedSession,
             currentStep: CheckoutStepEnum.CONFIRMATION,
             isLoading: false,
             error: null,
           });
+
+          return response;
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : 'Failed to complete checkout';
