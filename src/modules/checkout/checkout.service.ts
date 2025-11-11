@@ -22,7 +22,9 @@ import {
   UpdatePaymentMethodDto,
   ApplyPromoCodeDto,
   CompleteCheckoutDto,
+  CreatePaymentIntentDto,
 } from './dto';
+import { StripePaymentService } from './services/stripe-payment.service';
 
 const SESSION_TTL_MINUTES = 30;
 
@@ -36,6 +38,7 @@ export class CheckoutService {
     private readonly cartService: CartService,
     private readonly totalsService: TotalsCalculationService,
     private readonly inventoryService: InventoryReservationService,
+    private readonly stripePaymentService: StripePaymentService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -312,6 +315,55 @@ export class CheckoutService {
 
     this.logger.log(`Updated payment method for session ${sessionId}`);
     return updated;
+  }
+
+  /**
+   * Create a Stripe Payment Intent for the checkout session
+   * Step 3: Payment Method
+   */
+  async createPaymentIntent(
+    sessionId: string,
+    userId: string | undefined,
+    dto: CreatePaymentIntentDto,
+  ): Promise<{ clientSecret: string; paymentIntentId: string }> {
+    const session = await this.getSession(sessionId, userId);
+
+    // Validate that session is at or past the payment method step
+    if (session.step === CheckoutStep.CART_REVIEW ||
+        (session.requires_shipping && session.step === CheckoutStep.SHIPPING_ADDRESS) ||
+        (session.requires_shipping && session.step === CheckoutStep.DELIVERY_METHOD)) {
+      throw new BadRequestException(
+        'Complete previous steps before creating payment intent',
+      );
+    }
+
+    const metadata = {
+      checkout_session_id: session.id,
+      user_id: session.user_id || 'guest',
+      ...dto.metadata,
+    };
+
+    // Create Stripe Payment Intent
+    const paymentIntent = await this.stripePaymentService.createPaymentIntent(
+      session.totals.total_amount,
+      session.totals.currency.toLowerCase(),
+      metadata,
+    );
+
+    // Store Payment Intent ID in session metadata for reference
+    session.metadata = {
+      ...session.metadata,
+      stripe_payment_intent_id: paymentIntent.id,
+    };
+
+    await this.checkoutSessionRepository.save(session);
+
+    this.logger.log(`Created payment intent ${paymentIntent.id} for session ${sessionId}`);
+
+    return {
+      clientSecret: paymentIntent.client_secret!,
+      paymentIntentId: paymentIntent.id,
+    };
   }
 
   /**

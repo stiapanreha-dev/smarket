@@ -5,6 +5,7 @@ import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
 import { TotalsCalculationService } from './services/totals-calculation.service';
 import { InventoryReservationService } from './services/inventory-reservation.service';
+import { StripePaymentService } from './services/stripe-payment.service';
 import { CheckoutSession } from '../../database/entities/checkout-session.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
 import { CartModule } from '../cart/cart.module';
@@ -17,7 +18,13 @@ import { CacheService } from '../../common/services/cache.service';
     CartModule, // Import CartModule to use CartService
   ],
   controllers: [CheckoutController],
-  providers: [CheckoutService, TotalsCalculationService, InventoryReservationService, CacheService],
+  providers: [
+    CheckoutService,
+    TotalsCalculationService,
+    InventoryReservationService,
+    StripePaymentService,
+    CacheService,
+  ],
   exports: [CheckoutService],
 })
 export class CheckoutModule {}

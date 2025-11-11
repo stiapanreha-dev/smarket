@@ -23,6 +23,7 @@ import { Container, Row, Col, Alert, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaArrowLeft } from 'react-icons/fa';
+import { Elements } from '@stripe/react-stripe-js';
 import {
   useCheckoutSession,
   useCheckoutStep,
@@ -43,6 +44,8 @@ import { CheckoutStepper } from './components/CheckoutStepper';
 import { ShippingAddressForm } from './components/ShippingAddressForm';
 import { SavedAddresses } from './components/SavedAddresses';
 import { DeliveryMethodStep } from './components/DeliveryMethodStep';
+import { PaymentMethodStep } from './components/PaymentMethodStep';
+import { getStripe } from '@/config/stripe.config';
 import './CheckoutPage.css';
 
 /**
@@ -284,25 +287,12 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              {/* Step 3: Payment Method (Placeholder) */}
+              {/* Step 3: Payment Method */}
               {currentStep === CheckoutStep.PAYMENT_METHOD && (
                 <div className="checkout-step">
-                  <Card>
-                    <Card.Body className="text-center py-5">
-                      <h3>{t('checkout.payment.title', 'Payment Method')}</h3>
-                      <p className="text-muted">
-                        {t('checkout.payment.comingSoon', 'Payment method selection coming soon...')}
-                      </p>
-                      <div className="d-flex justify-content-between mt-4">
-                        <Button variant="outline-secondary" onClick={previousStep}>
-                          {t('common.back', 'Back')}
-                        </Button>
-                        <Button variant="primary" onClick={nextStep}>
-                          {t('common.continue', 'Continue')}
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
+                  <Elements stripe={getStripe()}>
+                    <PaymentMethodStep />
+                  </Elements>
                 </div>
               )}
 
