@@ -12,7 +12,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { checkoutApi } from '@/api';
+import { checkoutApi } from '@/api/checkout.api';
 import type {
   CheckoutSession,
   CheckoutStep,

@@ -139,6 +139,13 @@ export interface CompleteCheckoutDto {
   idempotency_key?: string;
 }
 
+// Type aliases for compatibility with checkout API
+export type CreateCheckoutSessionRequest = CreateCheckoutSessionDto;
+export type UpdateShippingAddressRequest = UpdateShippingAddressDto;
+export type UpdatePaymentMethodRequest = UpdatePaymentMethodDto;
+export type ApplyPromoCodeRequest = ApplyPromoCodeDto;
+export type CompleteCheckoutRequest = CompleteCheckoutDto;
+
 // Utility types
 export interface ShippingAddressFormData {
   fullName: string;

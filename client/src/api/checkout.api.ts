@@ -1,107 +1,125 @@
 /**
  * Checkout API Client
  *
- * API client for checkout operations:
- * - Create and manage checkout sessions
+ * Handles all checkout-related API requests:
+ * - Create checkout session
+ * - Get checkout session
  * - Update shipping address
  * - Update payment method
- * - Apply promo codes
+ * - Apply promo code
  * - Complete checkout
+ * - Cancel checkout session
  */
 
 import { apiClient } from './axios.config';
 import type {
   CheckoutSession,
-  CreateCheckoutSessionDto,
-  UpdateShippingAddressDto,
-  UpdatePaymentMethodDto,
-  ApplyPromoCodeDto,
-  CompleteCheckoutDto,
+  CreateCheckoutSessionRequest,
+  UpdateShippingAddressRequest,
+  UpdatePaymentMethodRequest,
+  ApplyPromoCodeRequest,
+  CompleteCheckoutRequest,
 } from '@/types';
 
-const BASE_URL = '/api/v1/checkout';
+/**
+ * Checkout API endpoints
+ */
+const CHECKOUT_ENDPOINTS = {
+  SESSIONS: '/checkout/sessions',
+  SESSION: (sessionId: string) => `/checkout/sessions/${sessionId}`,
+  SHIPPING: (sessionId: string) => `/checkout/sessions/${sessionId}/shipping`,
+  PAYMENT_METHOD: (sessionId: string) => `/checkout/sessions/${sessionId}/payment-method`,
+  APPLY_PROMO: (sessionId: string) => `/checkout/sessions/${sessionId}/apply-promo`,
+  COMPLETE: (sessionId: string) => `/checkout/sessions/${sessionId}/complete`,
+} as const;
 
 /**
- * Checkout API
+ * Checkout API client
  */
 export const checkoutApi = {
   /**
-   * Create a new checkout session
-   * POST /api/v1/checkout/sessions
+   * Create a new checkout session from current cart
    */
-  createSession: async (dto?: CreateCheckoutSessionDto): Promise<CheckoutSession> => {
-    const response = await apiClient.post<CheckoutSession>(`${BASE_URL}/sessions`, dto || {});
+  async createSession(data?: CreateCheckoutSessionRequest): Promise<CheckoutSession> {
+    const response = await apiClient.post<CheckoutSession>(
+      CHECKOUT_ENDPOINTS.SESSIONS,
+      data || {},
+    );
     return response.data;
   },
 
   /**
    * Get checkout session by ID
-   * GET /api/v1/checkout/sessions/:id
    */
-  getSession: async (sessionId: string): Promise<CheckoutSession> => {
-    const response = await apiClient.get<CheckoutSession>(`${BASE_URL}/sessions/${sessionId}`);
+  async getSession(sessionId: string): Promise<CheckoutSession> {
+    const response = await apiClient.get<CheckoutSession>(
+      CHECKOUT_ENDPOINTS.SESSION(sessionId),
+    );
     return response.data;
   },
 
   /**
    * Update shipping address
-   * PUT /api/v1/checkout/sessions/:id/shipping
    */
-  updateShippingAddress: async (
+  async updateShippingAddress(
     sessionId: string,
-    dto: UpdateShippingAddressDto,
-  ): Promise<CheckoutSession> => {
+    data: UpdateShippingAddressRequest,
+  ): Promise<CheckoutSession> {
     const response = await apiClient.put<CheckoutSession>(
-      `${BASE_URL}/sessions/${sessionId}/shipping`,
-      dto,
+      CHECKOUT_ENDPOINTS.SHIPPING(sessionId),
+      data,
     );
     return response.data;
   },
 
   /**
    * Update payment method
-   * PUT /api/v1/checkout/sessions/:id/payment-method
    */
-  updatePaymentMethod: async (
+  async updatePaymentMethod(
     sessionId: string,
-    dto: UpdatePaymentMethodDto,
-  ): Promise<CheckoutSession> => {
+    data: UpdatePaymentMethodRequest,
+  ): Promise<CheckoutSession> {
     const response = await apiClient.put<CheckoutSession>(
-      `${BASE_URL}/sessions/${sessionId}/payment-method`,
-      dto,
+      CHECKOUT_ENDPOINTS.PAYMENT_METHOD(sessionId),
+      data,
     );
     return response.data;
   },
 
   /**
-   * Apply promo code
-   * POST /api/v1/checkout/sessions/:id/apply-promo
+   * Apply promo code to checkout session
    */
-  applyPromoCode: async (sessionId: string, dto: ApplyPromoCodeDto): Promise<CheckoutSession> => {
+  async applyPromoCode(
+    sessionId: string,
+    data: ApplyPromoCodeRequest,
+  ): Promise<CheckoutSession> {
     const response = await apiClient.post<CheckoutSession>(
-      `${BASE_URL}/sessions/${sessionId}/apply-promo`,
-      dto,
+      CHECKOUT_ENDPOINTS.APPLY_PROMO(sessionId),
+      data,
     );
     return response.data;
   },
 
   /**
    * Complete checkout and create order
-   * POST /api/v1/checkout/sessions/:id/complete
    */
-  completeCheckout: async (sessionId: string, dto?: CompleteCheckoutDto): Promise<CheckoutSession> => {
+  async completeCheckout(
+    sessionId: string,
+    data?: CompleteCheckoutRequest,
+  ): Promise<CheckoutSession> {
     const response = await apiClient.post<CheckoutSession>(
-      `${BASE_URL}/sessions/${sessionId}/complete`,
-      dto || {},
+      CHECKOUT_ENDPOINTS.COMPLETE(sessionId),
+      data || {},
     );
     return response.data;
   },
 
   /**
    * Cancel checkout session
-   * DELETE /api/v1/checkout/sessions/:id
    */
-  cancelSession: async (sessionId: string): Promise<void> => {
-    await apiClient.delete(`${BASE_URL}/sessions/${sessionId}`);
+  async cancelSession(sessionId: string): Promise<void> {
+    await apiClient.delete(CHECKOUT_ENDPOINTS.SESSION(sessionId));
   },
 };
+
+export default checkoutApi;
