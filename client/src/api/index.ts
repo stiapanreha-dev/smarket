@@ -27,3 +27,4 @@ export {
 export * from './catalog.api';
 export * from './cart.api';
 export * from './checkout.api';
+export * from './order.api';
