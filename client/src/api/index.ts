@@ -25,10 +25,10 @@ export {
 
 // Export API clients
 export * from './catalog.api';
+export * from './cart.api';
 
 // Export API clients here as they are created
 // Example:
 // export * from './auth';
-// export * from './cart';
 // export * from './checkout';
 // export * from './orders';
