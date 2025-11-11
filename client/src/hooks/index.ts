@@ -9,9 +9,20 @@
  * - etc.
  */
 
+// Export catalog hooks
+export {
+  useProducts,
+  useProduct,
+  useProductBySlug,
+  useCategories,
+  useSearchProducts,
+  useFeaturedProducts,
+  useRelatedProducts,
+  catalogKeys,
+} from './useCatalog';
+
 // Export hooks here
 // Example:
 // export { useAuth } from './useAuth';
 // export { useCart } from './useCart';
-// export { useProducts } from './useProducts';
 // export { useLocale } from './useLocale';
