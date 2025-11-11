@@ -24,6 +24,7 @@ export {
 } from './axios.config';
 
 // Export API clients
+export * from './auth.api';
 export * from './catalog.api';
 export * from './cart.api';
 export * from './checkout.api';

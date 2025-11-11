@@ -11,6 +11,7 @@ import { Navbar, Footer } from '@/components/layout';
 import { ProfileSidebar } from './components/ProfileSidebar';
 import { PersonalInformation } from './components/PersonalInformation';
 import { SettingsPage } from './SettingsPage';
+import { ChangePasswordPage } from './ChangePasswordPage';
 import './ProfilePage.css';
 
 export type ProfileSection =
@@ -34,7 +35,7 @@ export const ProfilePage: React.FC = () => {
       case 'settings':
         return <SettingsPage />;
       case 'security':
-        return <div className="p-4">Security section - Coming soon</div>;
+        return <ChangePasswordPage />;
       default:
         return <PersonalInformation />;
     }
