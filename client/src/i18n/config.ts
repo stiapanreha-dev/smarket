@@ -120,6 +120,16 @@ const resources = {
         connect: 'Connect',
         copyright: 'All rights reserved.',
       },
+      product: {
+        type: {
+          physical: 'Physical',
+          service: 'Service',
+          course: 'Digital',
+        },
+        addToCart: 'Add to Cart',
+        bookNow: 'Book Now',
+        sold: '{{count}} sold',
+      },
     },
   },
   ru: {
@@ -239,6 +249,16 @@ const resources = {
         connect: 'Связаться',
         copyright: 'Все права защищены.',
       },
+      product: {
+        type: {
+          physical: 'Физический',
+          service: 'Услуга',
+          course: 'Цифровой',
+        },
+        addToCart: 'В корзину',
+        bookNow: 'Забронировать',
+        sold: 'Продано: {{count}}',
+      },
     },
   },
   ar: {
@@ -357,6 +377,16 @@ const resources = {
         legal: 'قانوني',
         connect: 'اتصل',
         copyright: 'كل الحقوق محفوظة.',
+      },
+      product: {
+        type: {
+          physical: 'مادي',
+          service: 'خدمة',
+          course: 'رقمي',
+        },
+        addToCart: 'أضف إلى السلة',
+        bookNow: 'احجز الآن',
+        sold: 'تم البيع: {{count}}',
       },
     },
   },
