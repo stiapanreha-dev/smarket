@@ -8,6 +8,7 @@
 export enum CheckoutStep {
   CART_REVIEW = 'cart_review',
   SHIPPING_ADDRESS = 'shipping_address',
+  DELIVERY_METHOD = 'delivery_method',
   PAYMENT_METHOD = 'payment_method',
   ORDER_REVIEW = 'order_review',
   PAYMENT = 'payment',
@@ -20,6 +21,12 @@ export enum CheckoutStatus {
   EXPIRED = 'expired',
   CANCELLED = 'cancelled',
   FAILED = 'failed',
+}
+
+export enum DeliveryMethodType {
+  STANDARD = 'standard',
+  EXPRESS = 'express',
+  PICKUP = 'pickup',
 }
 
 export enum PaymentMethodType {
@@ -60,6 +67,18 @@ export interface Address {
   company?: string;
 }
 
+export interface DeliveryOption {
+  type: DeliveryMethodType;
+  name: string;
+  description: string;
+  price: number; // In minor units (cents)
+  currency: string;
+  estimatedDays: {
+    min: number;
+    max: number;
+  };
+}
+
 export interface CheckoutTotals {
   subtotal: number; // In minor units
   tax_amount: number;
@@ -91,6 +110,7 @@ export interface CheckoutSession {
   step: CheckoutStep;
   shipping_address: Address | null;
   billing_address: Address | null;
+  delivery_method: DeliveryMethodType | null;
   payment_method: PaymentMethodType | null;
   payment_details: Record<string, any> | null;
   totals: CheckoutTotals;
@@ -126,6 +146,10 @@ export interface UpdateShippingAddressDto {
   use_as_billing?: boolean; // If true, billing_address = shipping_address
 }
 
+export interface UpdateDeliveryMethodDto {
+  delivery_method: DeliveryMethodType;
+}
+
 export interface UpdatePaymentMethodDto {
   payment_method: PaymentMethodType;
   payment_details?: Record<string, any>;
@@ -142,6 +166,7 @@ export interface CompleteCheckoutDto {
 // Type aliases for compatibility with checkout API
 export type CreateCheckoutSessionRequest = CreateCheckoutSessionDto;
 export type UpdateShippingAddressRequest = UpdateShippingAddressDto;
+export type UpdateDeliveryMethodRequest = UpdateDeliveryMethodDto;
 export type UpdatePaymentMethodRequest = UpdatePaymentMethodDto;
 export type ApplyPromoCodeRequest = ApplyPromoCodeDto;
 export type CompleteCheckoutRequest = CompleteCheckoutDto;

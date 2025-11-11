@@ -14,6 +14,7 @@ import { User } from './user.entity';
 export enum CheckoutStep {
   CART_REVIEW = 'cart_review',
   SHIPPING_ADDRESS = 'shipping_address',
+  DELIVERY_METHOD = 'delivery_method',
   PAYMENT_METHOD = 'payment_method',
   ORDER_REVIEW = 'order_review',
   PAYMENT = 'payment',
@@ -26,6 +27,24 @@ export enum CheckoutStatus {
   EXPIRED = 'expired',
   CANCELLED = 'cancelled',
   FAILED = 'failed',
+}
+
+export enum DeliveryMethodType {
+  STANDARD = 'standard',
+  EXPRESS = 'express',
+  PICKUP = 'pickup',
+}
+
+export interface DeliveryOption {
+  type: DeliveryMethodType;
+  name: string;
+  description: string;
+  price: number; // In minor units (cents)
+  currency: string;
+  estimatedDays: {
+    min: number;
+    max: number;
+  };
 }
 
 export enum PaymentMethodType {
@@ -128,6 +147,15 @@ export class CheckoutSession {
   @IsObject()
   @IsOptional()
   billing_address: Address | null;
+
+  @Column({
+    type: 'enum',
+    enum: DeliveryMethodType,
+    nullable: true,
+  })
+  @IsEnum(DeliveryMethodType)
+  @IsOptional()
+  delivery_method: DeliveryMethodType | null;
 
   @Column({
     type: 'enum',

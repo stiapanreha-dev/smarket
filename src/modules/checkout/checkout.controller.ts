@@ -18,11 +18,12 @@ import { CheckoutService } from './checkout.service';
 import {
   CreateCheckoutSessionDto,
   UpdateShippingAddressDto,
+  UpdateDeliveryMethodDto,
   UpdatePaymentMethodDto,
   ApplyPromoCodeDto,
   CompleteCheckoutDto,
 } from './dto';
-import { CheckoutSession } from '../../database/entities/checkout-session.entity';
+import { CheckoutSession, DeliveryOption } from '../../database/entities/checkout-session.entity';
 
 @Controller('api/v1/checkout')
 export class CheckoutController {
@@ -76,6 +77,41 @@ export class CheckoutController {
     this.logger.log(`Updating shipping address for session ${sessionId}`);
 
     return await this.checkoutService.updateShippingAddress(sessionId, userId, dto);
+  }
+
+  /**
+   * GET /api/v1/checkout/sessions/:id/delivery-options
+   * Get available delivery options
+   */
+  @Get('sessions/:id/delivery-options')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getDeliveryOptions(
+    @Request() req: any,
+    @Param('id') sessionId: string,
+  ): Promise<DeliveryOption[]> {
+    const userId = req.user?.userId;
+
+    this.logger.log(`Getting delivery options for session ${sessionId}`);
+
+    return await this.checkoutService.getDeliveryOptions(sessionId, userId);
+  }
+
+  /**
+   * PUT /api/v1/checkout/sessions/:id/delivery
+   * Update delivery method
+   */
+  @Put('sessions/:id/delivery')
+  @UseGuards(OptionalJwtAuthGuard)
+  async updateDeliveryMethod(
+    @Request() req: any,
+    @Param('id') sessionId: string,
+    @Body() dto: UpdateDeliveryMethodDto,
+  ): Promise<CheckoutSession> {
+    const userId = req.user?.userId;
+
+    this.logger.log(`Updating delivery method for session ${sessionId}`);
+
+    return await this.checkoutService.updateDeliveryMethod(sessionId, userId, dto);
   }
 
   /**

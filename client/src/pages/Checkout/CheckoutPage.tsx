@@ -3,15 +3,17 @@
  *
  * Multi-step checkout process:
  * Step 1: Shipping Address (skipped for digital-only products)
- * Step 2: Delivery Method
- * Step 3: Payment
- * Step 4: Review & Complete
+ * Step 2: Delivery Method (skipped for digital-only products)
+ * Step 3: Payment Method
+ * Step 4: Order Review
+ * Step 5: Confirmation
  *
  * Features:
  * - Multi-step flow with progress indicator
  * - Shipping address form with validation
+ * - Delivery method selection with estimated dates
  * - Saved addresses selection
- * - Skip shipping for digital products
+ * - Skip shipping/delivery for digital products
  * - Integration with checkoutStore
  * - Real-time cart snapshot
  */
@@ -40,6 +42,7 @@ import { Navbar, Footer } from '@/components/layout';
 import { CheckoutStepper } from './components/CheckoutStepper';
 import { ShippingAddressForm } from './components/ShippingAddressForm';
 import { SavedAddresses } from './components/SavedAddresses';
+import { DeliveryMethodStep } from './components/DeliveryMethodStep';
 import './CheckoutPage.css';
 
 /**
@@ -274,14 +277,21 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              {/* Step 2: Delivery Method (Placeholder) */}
+              {/* Step 2: Delivery Method */}
+              {currentStep === CheckoutStep.DELIVERY_METHOD && needsShipping && (
+                <div className="checkout-step">
+                  <DeliveryMethodStep />
+                </div>
+              )}
+
+              {/* Step 3: Payment Method (Placeholder) */}
               {currentStep === CheckoutStep.PAYMENT_METHOD && (
                 <div className="checkout-step">
                   <Card>
                     <Card.Body className="text-center py-5">
-                      <h3>{t('checkout.delivery.title', 'Delivery Method')}</h3>
+                      <h3>{t('checkout.payment.title', 'Payment Method')}</h3>
                       <p className="text-muted">
-                        {t('checkout.delivery.comingSoon', 'Delivery method selection coming soon...')}
+                        {t('checkout.payment.comingSoon', 'Payment method selection coming soon...')}
                       </p>
                       <div className="d-flex justify-content-between mt-4">
                         <Button variant="outline-secondary" onClick={previousStep}>
@@ -296,21 +306,21 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              {/* Step 3: Payment (Placeholder) */}
+              {/* Step 4: Order Review (Placeholder) */}
               {currentStep === CheckoutStep.ORDER_REVIEW && (
                 <div className="checkout-step">
                   <Card>
                     <Card.Body className="text-center py-5">
-                      <h3>{t('checkout.payment.title', 'Payment')}</h3>
+                      <h3>{t('checkout.review.title', 'Order Review')}</h3>
                       <p className="text-muted">
-                        {t('checkout.payment.comingSoon', 'Payment methods coming soon...')}
+                        {t('checkout.review.comingSoon', 'Order review coming soon...')}
                       </p>
                       <div className="d-flex justify-content-between mt-4">
                         <Button variant="outline-secondary" onClick={previousStep}>
                           {t('common.back', 'Back')}
                         </Button>
-                        <Button variant="primary" onClick={nextStep}>
-                          {t('common.continue', 'Continue')}
+                        <Button variant="success">
+                          {t('checkout.placeOrder', 'Place Order')}
                         </Button>
                       </div>
                     </Card.Body>
@@ -318,7 +328,7 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              {/* Step 4: Review (Placeholder) */}
+              {/* Step 5: Confirmation (Placeholder) */}
               {currentStep === CheckoutStep.CONFIRMATION && (
                 <div className="checkout-step">
                   <Card>
