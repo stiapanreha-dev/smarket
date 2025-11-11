@@ -1,37 +1,14 @@
-import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
+import { Card, Button, Row, Col } from 'react-bootstrap';
 import { format } from 'date-fns';
 import {
   type Order,
-  OrderStatus,
   formatOrderTotal,
-  getOrderStatusText,
 } from '@/types';
+import { OrderStatusBadge } from '@/components/features/OrderStatusBadge';
 
 export interface OrderCardProps {
   order: Order;
   onClick: () => void;
-}
-
-/**
- * Get badge variant based on order status
- */
-function getStatusBadgeVariant(status: OrderStatus): 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
-  switch (status) {
-    case OrderStatus.COMPLETED:
-      return 'success';
-    case OrderStatus.PROCESSING:
-    case OrderStatus.CONFIRMED:
-      return 'primary';
-    case OrderStatus.PENDING:
-      return 'warning';
-    case OrderStatus.CANCELLED:
-      return 'danger';
-    case OrderStatus.REFUNDED:
-    case OrderStatus.PARTIALLY_REFUNDED:
-      return 'secondary';
-    default:
-      return 'secondary';
-  }
 }
 
 /**
@@ -74,9 +51,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
                     {orderDate}
                   </p>
                 </div>
-                <Badge bg={getStatusBadgeVariant(order.status)} pill>
-                  {getOrderStatusText(order.status)}
-                </Badge>
+                <OrderStatusBadge status={order.status} size="sm" />
               </div>
 
               {/* Product thumbnails */}

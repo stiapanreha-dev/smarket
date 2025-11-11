@@ -1,0 +1,31 @@
+/**
+ * OrderStatusBadge Styles
+ */
+
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Size variants */
+.order-status-badge-sm {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.order-status-badge-md {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.order-status-badge-lg {
+  font-size: 1rem;
+  padding: 0.5rem 0.85rem;
+}
+
+/* Icon spacing */
+.order-status-badge .me-1 {
+  margin-right: 0.25rem;
+}
