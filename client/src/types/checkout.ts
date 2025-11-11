@@ -118,6 +118,7 @@ export interface CheckoutSession {
   status: CheckoutStatus;
   idempotency_key: string | null;
   order_id: string | null;
+  order_number: string | null;
   error_message: string | null;
   metadata: Record<string, any> | null;
   expires_at: string;
@@ -161,6 +162,12 @@ export interface ApplyPromoCodeDto {
 
 export interface CompleteCheckoutDto {
   idempotency_key?: string;
+}
+
+export interface CompleteCheckoutResponse {
+  order_id: string;
+  order_number: string;
+  status: CheckoutStatus;
 }
 
 // Type aliases for compatibility with checkout API

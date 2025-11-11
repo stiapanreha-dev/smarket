@@ -45,6 +45,7 @@ import { ShippingAddressForm } from './components/ShippingAddressForm';
 import { SavedAddresses } from './components/SavedAddresses';
 import { DeliveryMethodStep } from './components/DeliveryMethodStep';
 import { PaymentMethodStep } from './components/PaymentMethodStep';
+import { OrderReviewStep } from './components/OrderReviewStep';
 import { getStripe } from '@/config/stripe.config';
 import './CheckoutPage.css';
 
@@ -296,25 +297,10 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              {/* Step 4: Order Review (Placeholder) */}
+              {/* Step 4: Order Review */}
               {currentStep === CheckoutStep.ORDER_REVIEW && (
                 <div className="checkout-step">
-                  <Card>
-                    <Card.Body className="text-center py-5">
-                      <h3>{t('checkout.review.title', 'Order Review')}</h3>
-                      <p className="text-muted">
-                        {t('checkout.review.comingSoon', 'Order review coming soon...')}
-                      </p>
-                      <div className="d-flex justify-content-between mt-4">
-                        <Button variant="outline-secondary" onClick={previousStep}>
-                          {t('common.back', 'Back')}
-                        </Button>
-                        <Button variant="success">
-                          {t('checkout.placeOrder', 'Place Order')}
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
+                  <OrderReviewStep />
                 </div>
               )}
 

@@ -197,6 +197,11 @@ export class CheckoutSession {
   @IsOptional()
   order_id: string | null;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  @IsString()
+  @IsOptional()
+  order_number: string | null;
+
   @Column({ type: 'text', nullable: true })
   @IsString()
   @IsOptional()
