@@ -1,6 +1,7 @@
 import { Navbar, Footer } from '../components/layout';
 import HeroSection from '../components/HeroSection';
 import ServicesSection from '../components/ServicesSection';
+import ComponentShowcase from '../components/ComponentShowcase';
 
 const Landing = () => {
   return (
@@ -9,6 +10,7 @@ const Landing = () => {
       <main>
         <HeroSection />
         <ServicesSection />
+        <ComponentShowcase />
       </main>
       <Footer />
     </div>
