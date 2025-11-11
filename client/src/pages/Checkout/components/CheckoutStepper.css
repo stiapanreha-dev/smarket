@@ -1,0 +1,206 @@
+/**
+ * Checkout Stepper Styles
+ */
+
+.checkout-stepper {
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.stepper-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.stepper-step.clickable {
+  cursor: pointer;
+}
+
+.stepper-step.clickable:hover .step-icon {
+  transform: scale(1.1);
+}
+
+/* Step Icon Wrapper */
+.step-icon-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+/* Step Lines */
+.step-line {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  background-color: #dee2e6;
+  transition: background-color 0.3s ease;
+  z-index: 0;
+}
+
+.step-line.completed {
+  background-color: var(--bs-primary);
+}
+
+.step-line-left {
+  right: 50%;
+  left: -50%;
+  transform: translateY(-50%);
+}
+
+.step-line-right {
+  left: 50%;
+  right: -50%;
+  transform: translateY(-50%);
+}
+
+.stepper-step:first-child .step-line-left {
+  display: none;
+}
+
+.stepper-step:last-child .step-line-right {
+  display: none;
+}
+
+/* Step Icon */
+.step-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.stepper-step.completed .step-icon {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.stepper-step.active .step-icon {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+/* Step Label */
+.step-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+}
+
+.step-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.stepper-step.active .step-number,
+.stepper-step.completed .step-number {
+  color: var(--bs-primary);
+}
+
+.step-text {
+  font-size: 0.875rem;
+  color: #495057;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.stepper-step.active .step-text {
+  color: var(--bs-primary);
+  font-weight: 600;
+}
+
+.stepper-step.completed .step-text {
+  color: #495057;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checkout-stepper {
+    padding: 1rem 0;
+  }
+
+  .stepper-container {
+    max-width: 100%;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-label {
+    gap: 0.125rem;
+  }
+
+  .step-number {
+    font-size: 0.75rem;
+  }
+
+  .step-text {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+  }
+
+  .step-text {
+    display: none;
+  }
+
+  .step-number {
+    font-size: 0.75rem;
+  }
+}
+
+/* RTL Support */
+[dir='rtl'] .stepper-container {
+  direction: rtl;
+}
+
+[dir='rtl'] .step-line-left {
+  right: -50%;
+  left: 50%;
+}
+
+[dir='rtl'] .step-line-right {
+  left: -50%;
+  right: 50%;
+}

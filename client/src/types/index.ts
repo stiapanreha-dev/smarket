@@ -23,3 +23,6 @@ export * from './catalog';
 
 // Export Cart types
 export * from './cart';
+
+// Export Checkout types
+export * from './checkout';

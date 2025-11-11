@@ -30,5 +30,12 @@ export {
   useCartError,
 } from './cartStore';
 
-// Future stores:
-// export { useCatalogStore } from './catalogStore';
+// Export checkout store and hooks
+export {
+  useCheckoutStore,
+  useCheckoutSession,
+  useCheckoutStep,
+  useCheckoutActions,
+  useCheckoutLoading,
+  useCheckoutError,
+} from './checkoutStore';
