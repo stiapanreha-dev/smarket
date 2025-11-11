@@ -19,6 +19,7 @@ import { NotificationModule } from '@modules/notification/notification.module';
 import { CartModule } from '@modules/cart/cart.module';
 import { CheckoutModule } from '@modules/checkout/checkout.module';
 import { PayoutModule } from '@modules/payout/payout.module';
+import { MerchantModule } from '@modules/merchant/merchant.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
   User,
@@ -124,6 +125,7 @@ import {
     OrdersModule,
     PaymentModule,
     PayoutModule,
+    MerchantModule,
     NotificationModule,
   ],
   controllers: [AppController, HealthController],

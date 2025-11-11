@@ -1,0 +1,15 @@
+.merchant-layout {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  background-color: #f8f9fa;
+  min-height: calc(100vh - 56px);
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 0;
+  }
+}

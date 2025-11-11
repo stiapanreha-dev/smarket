@@ -30,6 +30,12 @@ export {
   orderKeys,
 } from './useOrders';
 
+// Export merchant dashboard hooks
+export {
+  useDashboardStats,
+  merchantDashboardKeys,
+} from './useMerchantDashboard';
+
 // Export hooks here
 // Example:
 // export { useAuth } from './useAuth';
