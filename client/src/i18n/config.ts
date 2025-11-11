@@ -247,6 +247,46 @@ const resources = {
       common: {
         loading: 'Loading...',
       },
+      settings: {
+        title: 'Settings',
+        sections: {
+          languageRegion: 'Language & Region',
+          notifications: 'Notifications',
+          privacy: 'Privacy',
+        },
+        fields: {
+          language: 'Language',
+          currency: 'Currency',
+          emailNotifications: 'Enable email notifications',
+          orderUpdates: 'Order updates',
+          promotions: 'Promotions and special offers',
+          newsletter: 'Newsletter and tips',
+          profileVisibility: 'Profile Visibility',
+          showEmail: 'Show email on public profile',
+          showPhone: 'Show phone on public profile',
+        },
+        options: {
+          public: 'Public - Anyone can view your profile',
+          private: 'Private - Only you can view your profile',
+        },
+        hints: {
+          languageRegion: 'Changing language will update the interface immediately. Currency affects how prices are displayed.',
+          emailNotifications: 'Master toggle for all email notifications',
+          orderUpdates: 'Receive updates about your order status',
+          promotions: 'Get notified about sales and promotional offers',
+          newsletter: 'Receive our newsletter with tips and updates',
+          profileVisibility: 'Control who can see your profile information',
+          showEmail: 'Display your email address on your public profile',
+          showPhone: 'Display your phone number on your public profile',
+        },
+        buttons: {
+          save: 'Save Settings',
+        },
+        messages: {
+          saved: 'Settings saved successfully!',
+          error: 'Failed to save settings. Please try again.',
+        },
+      },
       order: {
         status: {
           // Main order statuses
@@ -524,6 +564,46 @@ const resources = {
       common: {
         loading: 'Загрузка...',
       },
+      settings: {
+        title: 'Настройки',
+        sections: {
+          languageRegion: 'Язык и регион',
+          notifications: 'Уведомления',
+          privacy: 'Конфиденциальность',
+        },
+        fields: {
+          language: 'Язык',
+          currency: 'Валюта',
+          emailNotifications: 'Включить email уведомления',
+          orderUpdates: 'Обновления заказов',
+          promotions: 'Акции и специальные предложения',
+          newsletter: 'Новости и советы',
+          profileVisibility: 'Видимость профиля',
+          showEmail: 'Показывать email в публичном профиле',
+          showPhone: 'Показывать телефон в публичном профиле',
+        },
+        options: {
+          public: 'Публичный - Любой может просматривать ваш профиль',
+          private: 'Приватный - Только вы можете просматривать ваш профиль',
+        },
+        hints: {
+          languageRegion: 'Изменение языка обновит интерфейс немедленно. Валюта влияет на отображение цен.',
+          emailNotifications: 'Главный переключатель для всех email уведомлений',
+          orderUpdates: 'Получать обновления о статусе заказов',
+          promotions: 'Получать уведомления о распродажах и акциях',
+          newsletter: 'Получать нашу рассылку с советами и обновлениями',
+          profileVisibility: 'Управление тем, кто может видеть информацию о вашем профиле',
+          showEmail: 'Отображать ваш адрес электронной почты в публичном профиле',
+          showPhone: 'Отображать ваш номер телефона в публичном профиле',
+        },
+        buttons: {
+          save: 'Сохранить настройки',
+        },
+        messages: {
+          saved: 'Настройки успешно сохранены!',
+          error: 'Не удалось сохранить настройки. Попробуйте снова.',
+        },
+      },
       order: {
         status: {
           // Main order statuses
@@ -797,6 +877,46 @@ const resources = {
       },
       common: {
         loading: 'جارٍ التحميل...',
+      },
+      settings: {
+        title: 'الإعدادات',
+        sections: {
+          languageRegion: 'اللغة والمنطقة',
+          notifications: 'الإشعارات',
+          privacy: 'الخصوصية',
+        },
+        fields: {
+          language: 'اللغة',
+          currency: 'العملة',
+          emailNotifications: 'تفعيل إشعارات البريد الإلكتروني',
+          orderUpdates: 'تحديثات الطلبات',
+          promotions: 'العروض الترويجية والعروض الخاصة',
+          newsletter: 'النشرة الإخبارية والنصائح',
+          profileVisibility: 'رؤية الملف الشخصي',
+          showEmail: 'إظهار البريد الإلكتروني في الملف العام',
+          showPhone: 'إظهار الهاتف في الملف العام',
+        },
+        options: {
+          public: 'عام - يمكن لأي شخص عرض ملفك الشخصي',
+          private: 'خاص - يمكنك فقط عرض ملفك الشخصي',
+        },
+        hints: {
+          languageRegion: 'سيؤدي تغيير اللغة إلى تحديث الواجهة على الفور. تؤثر العملة على كيفية عرض الأسعار.',
+          emailNotifications: 'المفتاح الرئيسي لجميع إشعارات البريد الإلكتروني',
+          orderUpdates: 'تلقي تحديثات حول حالة طلباتك',
+          promotions: 'احصل على إشعارات حول المبيعات والعروض الترويجية',
+          newsletter: 'تلقي نشرتنا الإخبارية مع النصائح والتحديثات',
+          profileVisibility: 'التحكم في من يمكنه رؤية معلومات ملفك الشخصي',
+          showEmail: 'عرض عنوان بريدك الإلكتروني في ملفك العام',
+          showPhone: 'عرض رقم هاتفك في ملفك العام',
+        },
+        buttons: {
+          save: 'حفظ الإعدادات',
+        },
+        messages: {
+          saved: 'تم حفظ الإعدادات بنجاح!',
+          error: 'فشل في حفظ الإعدادات. يرجى المحاولة مرة أخرى.',
+        },
       },
       order: {
         status: {
