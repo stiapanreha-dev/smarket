@@ -25,6 +25,81 @@ export interface RefreshTokenResponse {
   access_token: string;
 }
 
+/**
+ * User roles
+ */
+export type UserRole = 'customer' | 'merchant' | 'admin';
+
+/**
+ * Supported locales
+ */
+export type UserLocale = 'en' | 'ru' | 'ar';
+
+/**
+ * Supported currencies
+ */
+export type UserCurrency = 'USD' | 'EUR' | 'RUB' | 'AED';
+
+/**
+ * User Interface
+ */
+export interface User {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: UserRole;
+  locale: UserLocale;
+  currency: UserCurrency;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Login Request
+ */
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/**
+ * Login Response
+ */
+export interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+}
+
+/**
+ * Register Request
+ */
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  locale?: UserLocale;
+  currency?: UserCurrency;
+}
+
+/**
+ * Register Response
+ */
+export interface RegisterResponse {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+}
+
+/**
+ * Me Response
+ */
+export interface MeResponse {
+  user: User;
+}
+
 export class ApiError extends Error {
   statusCode: number;
   response?: ApiErrorResponse;

@@ -9,8 +9,16 @@
  * - etc.
  */
 
-// Export stores here
-// Example:
-// export { useAuthStore } from './authStore';
+// Export auth store and hooks
+export {
+  useAuthStore,
+  useAuth,
+  useAuthUser,
+  useAuthActions,
+  useAuthLoading,
+  useAuthError,
+} from './authStore';
+
+// Future stores:
 // export { useCartStore } from './cartStore';
 // export { useCatalogStore } from './catalogStore';
