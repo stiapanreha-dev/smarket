@@ -1,0 +1,83 @@
+.profile-page {
+  min-height: calc(100vh - 200px);
+}
+
+.profile-content {
+  min-height: 500px;
+}
+
+.avatar-upload-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e9ecef;
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #0d6efd;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: background-color 0.2s;
+}
+
+.avatar-upload-overlay:hover {
+  background-color: #0b5ed7;
+}
+
+.avatar-upload-input {
+  display: none;
+}
+
+.profile-sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-sidebar-nav-item {
+  margin-bottom: 0.5rem;
+}
+
+.profile-sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #6c757d;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.profile-sidebar-nav-link:hover {
+  background-color: #f8f9fa;
+  color: #0d6efd;
+}
+
+.profile-sidebar-nav-link.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.profile-sidebar-nav-link svg {
+  margin-right: 0.75rem;
+  width: 20px;
+  height: 20px;
+}

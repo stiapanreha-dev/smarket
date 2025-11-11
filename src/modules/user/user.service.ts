@@ -172,6 +172,18 @@ export class UserService {
       user.currency = updateDto.currency;
     }
 
+    if (updateDto.avatar_url !== undefined) {
+      oldValues.avatar_url = user.avatar_url;
+      newValues.avatar_url = updateDto.avatar_url;
+      user.avatar_url = updateDto.avatar_url;
+    }
+
+    if (updateDto.date_of_birth !== undefined) {
+      oldValues.date_of_birth = user.date_of_birth;
+      newValues.date_of_birth = updateDto.date_of_birth;
+      user.date_of_birth = updateDto.date_of_birth ? new Date(updateDto.date_of_birth) : null;
+    }
+
     await this.userRepository.save(user);
 
     // Log profile update if not already logged (email/phone)
@@ -417,6 +429,8 @@ export class UserService {
       phone: user.phone,
       first_name: user.first_name,
       last_name: user.last_name,
+      avatar_url: user.avatar_url,
+      date_of_birth: user.date_of_birth,
       full_name: user.full_name,
       locale: user.locale,
       currency: user.currency,

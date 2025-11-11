@@ -251,7 +251,9 @@ export class CheckoutService {
 
     // Validate step progression
     if (!session.shipping_address) {
-      throw new BadRequestException('Please provide shipping address before selecting delivery method');
+      throw new BadRequestException(
+        'Please provide shipping address before selecting delivery method',
+      );
     }
 
     // Get available delivery options to find the selected one
@@ -329,12 +331,12 @@ export class CheckoutService {
     const session = await this.getSession(sessionId, userId);
 
     // Validate that session is at or past the payment method step
-    if (session.step === CheckoutStep.CART_REVIEW ||
-        (session.requires_shipping && session.step === CheckoutStep.SHIPPING_ADDRESS) ||
-        (session.requires_shipping && session.step === CheckoutStep.DELIVERY_METHOD)) {
-      throw new BadRequestException(
-        'Complete previous steps before creating payment intent',
-      );
+    if (
+      session.step === CheckoutStep.CART_REVIEW ||
+      (session.requires_shipping && session.step === CheckoutStep.SHIPPING_ADDRESS) ||
+      (session.requires_shipping && session.step === CheckoutStep.DELIVERY_METHOD)
+    ) {
+      throw new BadRequestException('Complete previous steps before creating payment intent');
     }
 
     const metadata = {

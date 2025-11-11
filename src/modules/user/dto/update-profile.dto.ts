@@ -1,5 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsPhoneNumber, IsString, IsEnum, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsPhoneNumber,
+  IsString,
+  IsEnum,
+  IsOptional,
+  MaxLength,
+  IsDateString,
+  IsUrl,
+} from 'class-validator';
 import { UserLocale, UserCurrency } from '@/database/entities/user.entity';
 
 export class UpdateProfileDto {
@@ -24,6 +33,17 @@ export class UpdateProfileDto {
   @IsOptional()
   @MaxLength(100)
   last_name?: string;
+
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  @IsUrl()
+  @IsOptional()
+  @MaxLength(500)
+  avatar_url?: string;
+
+  @ApiPropertyOptional({ example: '1990-01-15' })
+  @IsDateString()
+  @IsOptional()
+  date_of_birth?: string;
 
   @ApiPropertyOptional({ enum: UserLocale, example: UserLocale.EN })
   @IsEnum(UserLocale)
