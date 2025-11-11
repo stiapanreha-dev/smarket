@@ -32,3 +32,6 @@ export * from './order';
 
 // Export Address types
 export * from './address';
+
+// Export Merchant types
+export * from './merchant';

@@ -11,6 +11,8 @@ import { CartPage } from './pages/Cart';
 import { CheckoutPage } from './pages/Checkout';
 import { OrdersPage, OrderDetailsPage } from './pages/Orders';
 import { ProfilePage } from './pages/Profile';
+import { DashboardPage } from './pages/Merchant';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import './i18n/config'; // Initialize i18n
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom.css';
@@ -30,6 +32,10 @@ function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/:id" element={<OrderDetailsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          {/* Merchant Routes - Protected */}
+          <Route element={<ProtectedRoute requiredRole="merchant" />}>
+            <Route path="/merchant/dashboard" element={<DashboardPage />} />
+          </Route>
         </Routes>
       </Router>
       {/* React Query Devtools - only in development */}
