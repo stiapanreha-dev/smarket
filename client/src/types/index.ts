@@ -29,3 +29,6 @@ export * from './checkout';
 
 // Export Order types
 export * from './order';
+
+// Export Address types
+export * from './address';
