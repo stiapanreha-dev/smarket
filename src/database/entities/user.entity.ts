@@ -69,6 +69,15 @@ export class User {
   @IsOptional()
   last_name: string | null;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  @IsString()
+  @IsOptional()
+  avatar_url: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  @IsOptional()
+  date_of_birth: Date | null;
+
   @Column({
     type: 'enum',
     enum: UserLocale,

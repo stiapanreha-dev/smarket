@@ -48,11 +48,36 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  phone?: string | null;
+  avatar_url?: string | null;
+  date_of_birth?: string | null;
   role: UserRole;
   locale: UserLocale;
   currency: UserCurrency;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+/**
+ * Update Profile Request
+ */
+export interface UpdateProfileRequest {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  avatar_url?: string;
+  date_of_birth?: string;
+  locale?: UserLocale;
+  currency?: UserCurrency;
+}
+
+/**
+ * Update Profile Response
+ */
+export interface UpdateProfileResponse {
+  user: User;
 }
 
 /**

@@ -18,6 +18,12 @@ export class UserProfileResponseDto {
   @ApiPropertyOptional({ example: 'Doe' })
   last_name?: string | null;
 
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
+  avatar_url?: string | null;
+
+  @ApiPropertyOptional({ example: '1990-01-15' })
+  date_of_birth?: Date | null;
+
   @ApiProperty({ example: 'John Doe' })
   full_name: string;
 
