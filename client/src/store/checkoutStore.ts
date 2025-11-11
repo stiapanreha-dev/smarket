@@ -1,13 +1,12 @@
 /**
  * Checkout Store
  *
- * Zustand store for managing multi-step checkout process:
+ * Zustand store for managing checkout state:
  * - Checkout session management
- * - Step navigation with validation
+ * - Multi-step checkout flow
  * - Shipping address management
- * - Delivery method selection
- * - Payment method management
- * - Order completion
+ * - Payment method selection
+ * - Promo code application
  * - Backend API synchronization
  */
 
@@ -16,24 +15,12 @@ import { persist } from 'zustand/middleware';
 import { checkoutApi } from '@/api/checkout.api';
 import type {
   CheckoutSession,
-  Address,
-  DeliveryOption,
-  PaymentMethod,
-  PaymentMethodType,
   CheckoutStep,
-  CreateCheckoutSessionRequest,
-  UpdateShippingAddressRequest,
-  UpdatePaymentMethodRequest,
-  ApplyPromoCodeRequest,
-  CompleteCheckoutRequest,
+  CreateCheckoutSessionDto,
+  UpdateShippingAddressDto,
+  UpdatePaymentMethodDto,
 } from '@/types';
-import {
-  getStepNumber,
-  getCheckoutStep,
-  canProceedToNextStep,
-  requiresShipping,
-  isCheckoutExpired,
-} from '@/types';
+import { CheckoutStep as CheckoutStepEnum, requiresShipping } from '@/types';
 
 /**
  * Checkout Store State
@@ -41,27 +28,21 @@ import {
 interface CheckoutState {
   // State
   session: CheckoutSession | null;
-  sessionId: string | null;
-  currentStep: number; // 1-4 for UI
-  shippingAddress: Address | null;
-  deliveryMethod: DeliveryOption | null;
-  paymentMethod: PaymentMethod | null;
+  currentStep: CheckoutStep;
   isLoading: boolean;
   error: string | null;
 
   // Actions
-  createSession: (request?: CreateCheckoutSessionRequest) => Promise<void>;
+  createSession: (dto?: CreateCheckoutSessionDto) => Promise<void>;
   loadSession: (sessionId: string) => Promise<void>;
-  setShippingAddress: (address: UpdateShippingAddressRequest) => Promise<void>;
-  setDeliveryMethod: (method: DeliveryOption) => Promise<void>;
-  setPaymentMethod: (method: PaymentMethod) => Promise<void>;
+  updateShippingAddress: (address: UpdateShippingAddressDto) => Promise<void>;
+  updatePaymentMethod: (payment: UpdatePaymentMethodDto) => Promise<void>;
   applyPromoCode: (code: string) => Promise<void>;
-  nextStep: () => Promise<boolean>;
-  previousStep: () => void;
-  goToStep: (step: number) => void;
-  completeCheckout: (request?: CompleteCheckoutRequest) => Promise<void>;
+  completeCheckout: () => Promise<void>;
   cancelSession: () => Promise<void>;
-  validateCurrentStep: () => boolean;
+  goToStep: (step: CheckoutStep) => void;
+  nextStep: () => void;
+  previousStep: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
@@ -73,14 +54,62 @@ interface CheckoutState {
  */
 const initialState = {
   session: null,
-  sessionId: null,
-  currentStep: 1,
-  shippingAddress: null,
-  deliveryMethod: null,
-  paymentMethod: null,
+  currentStep: CheckoutStepEnum.CART_REVIEW as CheckoutStep,
   isLoading: false,
   error: null,
 };
+
+/**
+ * Checkout step order for navigation
+ */
+const stepOrder: CheckoutStep[] = [
+  CheckoutStepEnum.CART_REVIEW,
+  CheckoutStepEnum.SHIPPING_ADDRESS,
+  CheckoutStepEnum.PAYMENT_METHOD,
+  CheckoutStepEnum.ORDER_REVIEW,
+  CheckoutStepEnum.PAYMENT,
+  CheckoutStepEnum.CONFIRMATION,
+];
+
+/**
+ * Get next step in the checkout flow
+ * Skips shipping_address step for digital-only orders
+ */
+function getNextStep(currentStep: CheckoutStep, session: CheckoutSession | null): CheckoutStep {
+  const currentIndex = stepOrder.indexOf(currentStep);
+  if (currentIndex === -1 || currentIndex === stepOrder.length - 1) {
+    return currentStep;
+  }
+
+  let nextStep = stepOrder[currentIndex + 1];
+
+  // Skip shipping address for digital-only orders
+  if (nextStep === CheckoutStepEnum.SHIPPING_ADDRESS && session && !requiresShipping(session)) {
+    nextStep = stepOrder[currentIndex + 2];
+  }
+
+  return nextStep;
+}
+
+/**
+ * Get previous step in the checkout flow
+ * Skips shipping_address step for digital-only orders
+ */
+function getPreviousStep(currentStep: CheckoutStep, session: CheckoutSession | null): CheckoutStep {
+  const currentIndex = stepOrder.indexOf(currentStep);
+  if (currentIndex <= 0) {
+    return currentStep;
+  }
+
+  let prevStep = stepOrder[currentIndex - 1];
+
+  // Skip shipping address for digital-only orders
+  if (prevStep === CheckoutStepEnum.SHIPPING_ADDRESS && session && !requiresShipping(session)) {
+    prevStep = stepOrder[currentIndex - 2];
+  }
+
+  return prevStep;
+}
 
 /**
  * Checkout Store
@@ -92,26 +121,19 @@ const initialState = {
  * // Create checkout session
  * await createSession();
  *
- * // Set shipping address
- * await setShippingAddress({
- *   country: 'US',
- *   city: 'New York',
+ * // Update shipping address
+ * await updateShippingAddress({
+ *   first_name: 'John',
+ *   last_name: 'Doe',
  *   street: '123 Main St',
+ *   city: 'New York',
  *   postal_code: '10001',
+ *   country: 'US',
  *   phone: '+1234567890'
  * });
  *
- * // Move to next step
- * await nextStep();
- *
- * // Set payment method
- * await setPaymentMethod({
- *   type: PaymentMethodType.CARD,
- *   details: { /* tokenized card data */ }
- * });
- *
- * // Complete checkout
- * await completeCheckout();
+ * // Navigate to next step
+ * nextStep();
  * ```
  */
 export const useCheckoutStore = create<CheckoutState>()(
@@ -120,33 +142,26 @@ export const useCheckoutStore = create<CheckoutState>()(
       ...initialState,
 
       /**
-       * Create a new checkout session from cart
+       * Create a new checkout session
        */
-      createSession: async (request?: CreateCheckoutSessionRequest) => {
+      createSession: async (dto?: CreateCheckoutSessionDto) => {
         try {
           set({ isLoading: true, error: null });
 
-          const session = await checkoutApi.createSession(request);
+          const session = await checkoutApi.createSession(dto);
+
+          // Start at shipping_address or payment_method based on cart contents
+          const startStep = requiresShipping(session) ? CheckoutStepEnum.SHIPPING_ADDRESS : CheckoutStepEnum.PAYMENT_METHOD;
 
           set({
             session,
-            sessionId: session.id,
-            currentStep: getStepNumber(session.step),
-            shippingAddress: session.shipping_address,
-            paymentMethod: session.payment_method
-              ? {
-                  type: session.payment_method,
-                  details: session.payment_details || undefined,
-                }
-              : null,
+            currentStep: startStep,
             isLoading: false,
             error: null,
           });
         } catch (error) {
           const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'Failed to create checkout session';
+            error instanceof Error ? error.message : 'Failed to create checkout session';
 
           set({
             isLoading: false,
@@ -166,30 +181,15 @@ export const useCheckoutStore = create<CheckoutState>()(
 
           const session = await checkoutApi.getSession(sessionId);
 
-          // Check if session is expired
-          if (isCheckoutExpired(session)) {
-            throw new Error('Checkout session has expired');
-          }
-
           set({
             session,
-            sessionId: session.id,
-            currentStep: getStepNumber(session.step),
-            shippingAddress: session.shipping_address,
-            paymentMethod: session.payment_method
-              ? {
-                  type: session.payment_method,
-                  details: session.payment_details || undefined,
-                }
-              : null,
+            currentStep: session.step,
             isLoading: false,
             error: null,
           });
         } catch (error) {
           const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'Failed to load checkout session';
+            error instanceof Error ? error.message : 'Failed to load checkout session';
 
           set({
             isLoading: false,
@@ -201,31 +201,27 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
 
       /**
-       * Set shipping address
+       * Update shipping address
        */
-      setShippingAddress: async (address: UpdateShippingAddressRequest) => {
-        const { sessionId } = get();
-
-        if (!sessionId) {
+      updateShippingAddress: async (address: UpdateShippingAddressDto) => {
+        const { session } = get();
+        if (!session) {
           throw new Error('No active checkout session');
         }
 
         try {
           set({ isLoading: true, error: null });
 
-          const session = await checkoutApi.updateShippingAddress(sessionId, address);
+          const updatedSession = await checkoutApi.updateShippingAddress(session.id, address);
 
           set({
-            session,
-            shippingAddress: session.shipping_address,
+            session: updatedSession,
             isLoading: false,
             error: null,
           });
         } catch (error) {
           const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'Failed to update shipping address';
+            error instanceof Error ? error.message : 'Failed to update shipping address';
 
           set({
             isLoading: false,
@@ -237,40 +233,21 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
 
       /**
-       * Set delivery method (local state only - for future implementation)
+       * Update payment method
        */
-      setDeliveryMethod: async (method: DeliveryOption) => {
-        // TODO: When backend supports delivery methods, call API here
-        // For now, just update local state
-        set({
-          deliveryMethod: method,
-        });
-      },
-
-      /**
-       * Set payment method
-       */
-      setPaymentMethod: async (method: PaymentMethod) => {
-        const { sessionId } = get();
-
-        if (!sessionId) {
+      updatePaymentMethod: async (payment: UpdatePaymentMethodDto) => {
+        const { session } = get();
+        if (!session) {
           throw new Error('No active checkout session');
         }
 
         try {
           set({ isLoading: true, error: null });
 
-          const session = await checkoutApi.updatePaymentMethod(sessionId, {
-            payment_method: method.type,
-            payment_details: method.details,
-          });
+          const updatedSession = await checkoutApi.updatePaymentMethod(session.id, payment);
 
           set({
-            session,
-            paymentMethod: {
-              type: session.payment_method as PaymentMethodType,
-              details: session.payment_details || undefined,
-            },
+            session: updatedSession,
             isLoading: false,
             error: null,
           });
@@ -291,19 +268,18 @@ export const useCheckoutStore = create<CheckoutState>()(
        * Apply promo code
        */
       applyPromoCode: async (code: string) => {
-        const { sessionId } = get();
-
-        if (!sessionId) {
+        const { session } = get();
+        if (!session) {
           throw new Error('No active checkout session');
         }
 
         try {
           set({ isLoading: true, error: null });
 
-          const session = await checkoutApi.applyPromoCode(sessionId, { code });
+          const updatedSession = await checkoutApi.applyPromoCode(session.id, { code });
 
           set({
-            session,
+            session: updatedSession,
             isLoading: false,
             error: null,
           });
@@ -321,123 +297,25 @@ export const useCheckoutStore = create<CheckoutState>()(
       },
 
       /**
-       * Validate current step before proceeding
-       */
-      validateCurrentStep: () => {
-        const { session, currentStep, shippingAddress, paymentMethod } = get();
-
-        if (!session) {
-          return false;
-        }
-
-        switch (currentStep) {
-          case 1: // Cart review
-            return session.cart_snapshot.length > 0;
-
-          case 2: // Shipping address
-            if (requiresShipping(session)) {
-              return shippingAddress !== null;
-            }
-            return true;
-
-          case 3: // Payment method
-            return paymentMethod !== null;
-
-          case 4: // Order review
-            return true;
-
-          default:
-            return false;
-        }
-      },
-
-      /**
-       * Move to next step with validation
-       */
-      nextStep: async () => {
-        const { currentStep, validateCurrentStep } = get();
-
-        // Validate current step
-        if (!validateCurrentStep()) {
-          set({
-            error: 'Please complete all required fields before proceeding',
-          });
-          return false;
-        }
-
-        // Max step is 4
-        if (currentStep >= 4) {
-          return false;
-        }
-
-        const nextStep = currentStep + 1;
-        set({
-          currentStep: nextStep,
-          error: null,
-        });
-
-        return true;
-      },
-
-      /**
-       * Move to previous step
-       */
-      previousStep: () => {
-        const { currentStep } = get();
-
-        // Min step is 1
-        if (currentStep <= 1) {
-          return;
-        }
-
-        set({
-          currentStep: currentStep - 1,
-          error: null,
-        });
-      },
-
-      /**
-       * Go to specific step (with basic validation)
-       */
-      goToStep: (step: number) => {
-        if (step < 1 || step > 4) {
-          return;
-        }
-
-        set({
-          currentStep: step,
-          error: null,
-        });
-      },
-
-      /**
        * Complete checkout and create order
        */
-      completeCheckout: async (request?: CompleteCheckoutRequest) => {
-        const { sessionId, validateCurrentStep } = get();
-
-        if (!sessionId) {
+      completeCheckout: async () => {
+        const { session } = get();
+        if (!session) {
           throw new Error('No active checkout session');
-        }
-
-        // Final validation
-        if (!validateCurrentStep()) {
-          throw new Error('Please complete all required fields');
         }
 
         try {
           set({ isLoading: true, error: null });
 
-          const session = await checkoutApi.completeCheckout(sessionId, request);
+          const completedSession = await checkoutApi.completeCheckout(session.id);
 
           set({
-            session,
+            session: completedSession,
+            currentStep: CheckoutStepEnum.CONFIRMATION,
             isLoading: false,
             error: null,
           });
-
-          // Move to confirmation step
-          set({ currentStep: 4 });
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : 'Failed to complete checkout';
@@ -455,24 +333,22 @@ export const useCheckoutStore = create<CheckoutState>()(
        * Cancel checkout session
        */
       cancelSession: async () => {
-        const { sessionId } = get();
-
-        if (!sessionId) {
+        const { session } = get();
+        if (!session) {
           return;
         }
 
         try {
           set({ isLoading: true, error: null });
 
-          await checkoutApi.cancelSession(sessionId);
+          await checkoutApi.cancelSession(session.id);
 
-          // Reset to initial state
           set({
             ...initialState,
           });
         } catch (error) {
           const errorMessage =
-            error instanceof Error ? error.message : 'Failed to cancel checkout';
+            error instanceof Error ? error.message : 'Failed to cancel checkout session';
 
           set({
             isLoading: false,
@@ -481,6 +357,31 @@ export const useCheckoutStore = create<CheckoutState>()(
 
           throw error;
         }
+      },
+
+      /**
+       * Navigate to a specific step
+       */
+      goToStep: (step: CheckoutStep) => {
+        set({ currentStep: step });
+      },
+
+      /**
+       * Navigate to next step
+       */
+      nextStep: () => {
+        const { currentStep, session } = get();
+        const nextStep = getNextStep(currentStep, session);
+        set({ currentStep: nextStep });
+      },
+
+      /**
+       * Navigate to previous step
+       */
+      previousStep: () => {
+        const { currentStep, session } = get();
+        const prevStep = getPreviousStep(currentStep, session);
+        set({ currentStep: prevStep });
       },
 
       /**
@@ -514,12 +415,9 @@ export const useCheckoutStore = create<CheckoutState>()(
     {
       name: 'checkout-storage', // localStorage key
       partialize: (state) => ({
-        // Persist session data but not loading/error states
-        sessionId: state.sessionId,
+        // Only persist session and current step, not loading/error states
+        session: state.session,
         currentStep: state.currentStep,
-        shippingAddress: state.shippingAddress,
-        deliveryMethod: state.deliveryMethod,
-        paymentMethod: state.paymentMethod,
       }),
     },
   ),
@@ -529,38 +427,22 @@ export const useCheckoutStore = create<CheckoutState>()(
  * Selector hooks for better performance
  * Use these instead of destructuring the entire store
  */
-export const useCheckoutSession = () =>
-  useCheckoutStore((state) => ({
-    session: state.session,
-    sessionId: state.sessionId,
-  }));
+export const useCheckoutSession = () => useCheckoutStore((state) => state.session);
 
-export const useCheckoutStep = () =>
-  useCheckoutStore((state) => ({
-    currentStep: state.currentStep,
-    goToStep: state.goToStep,
-    nextStep: state.nextStep,
-    previousStep: state.previousStep,
-  }));
-
-export const useCheckoutData = () =>
-  useCheckoutStore((state) => ({
-    shippingAddress: state.shippingAddress,
-    deliveryMethod: state.deliveryMethod,
-    paymentMethod: state.paymentMethod,
-  }));
+export const useCheckoutStep = () => useCheckoutStore((state) => state.currentStep);
 
 export const useCheckoutActions = () =>
   useCheckoutStore((state) => ({
     createSession: state.createSession,
     loadSession: state.loadSession,
-    setShippingAddress: state.setShippingAddress,
-    setDeliveryMethod: state.setDeliveryMethod,
-    setPaymentMethod: state.setPaymentMethod,
+    updateShippingAddress: state.updateShippingAddress,
+    updatePaymentMethod: state.updatePaymentMethod,
     applyPromoCode: state.applyPromoCode,
     completeCheckout: state.completeCheckout,
     cancelSession: state.cancelSession,
-    validateCurrentStep: state.validateCurrentStep,
+    goToStep: state.goToStep,
+    nextStep: state.nextStep,
+    previousStep: state.previousStep,
   }));
 
 export const useCheckoutLoading = () => useCheckoutStore((state) => state.isLoading);
@@ -568,6 +450,5 @@ export const useCheckoutLoading = () => useCheckoutStore((state) => state.isLoad
 export const useCheckoutError = () =>
   useCheckoutStore((state) => ({
     error: state.error,
-    setError: state.setError,
     clearError: state.clearError,
   }));

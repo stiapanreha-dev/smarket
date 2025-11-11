@@ -35,7 +35,6 @@ export {
   useCheckoutStore,
   useCheckoutSession,
   useCheckoutStep,
-  useCheckoutData,
   useCheckoutActions,
   useCheckoutLoading,
   useCheckoutError,

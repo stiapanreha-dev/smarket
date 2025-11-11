@@ -1,15 +1,10 @@
 /**
- * Checkout module TypeScript types
- * Based on backend CheckoutSession entity and DTOs
+ * Checkout Types
+ *
+ * TypeScript types for the checkout process matching backend entities
  */
 
-// ============================================================================
 // Enums
-// ============================================================================
-
-/**
- * Checkout step enum
- */
 export enum CheckoutStep {
   CART_REVIEW = 'cart_review',
   SHIPPING_ADDRESS = 'shipping_address',
@@ -19,9 +14,6 @@ export enum CheckoutStep {
   CONFIRMATION = 'confirmation',
 }
 
-/**
- * Checkout status enum
- */
 export enum CheckoutStatus {
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
@@ -30,9 +22,6 @@ export enum CheckoutStatus {
   FAILED = 'failed',
 }
 
-/**
- * Payment method types
- */
 export enum PaymentMethodType {
   CARD = 'card',
   APPLE_PAY = 'apple_pay',
@@ -43,23 +32,7 @@ export enum PaymentMethodType {
   CASH_ON_DELIVERY = 'cash_on_delivery',
 }
 
-/**
- * Delivery method types (for future implementation)
- */
-export enum DeliveryMethodType {
-  STANDARD = 'standard',
-  EXPRESS = 'express',
-  OVERNIGHT = 'overnight',
-  PICKUP = 'pickup',
-}
-
-// ============================================================================
 // Interfaces
-// ============================================================================
-
-/**
- * Cart item snapshot in checkout session
- */
 export interface CartItemSnapshot {
   productId: string;
   variantId: string;
@@ -74,9 +47,6 @@ export interface CartItemSnapshot {
   metadata?: Record<string, any>;
 }
 
-/**
- * Address interface
- */
 export interface Address {
   country: string;
   state?: string;
@@ -90,9 +60,6 @@ export interface Address {
   company?: string;
 }
 
-/**
- * Checkout totals
- */
 export interface CheckoutTotals {
   subtotal: number; // In minor units
   tax_amount: number;
@@ -108,9 +75,6 @@ export interface CheckoutTotals {
   }[];
 }
 
-/**
- * Promo code application
- */
 export interface PromoCodeApplication {
   code: string;
   discount_amount: number;
@@ -119,29 +83,6 @@ export interface PromoCodeApplication {
   applied_at: Date;
 }
 
-/**
- * Delivery option (for UI selection)
- */
-export interface DeliveryOption {
-  type: DeliveryMethodType;
-  name: string;
-  description: string;
-  price: number; // In minor units
-  estimated_days: number;
-  carrier?: string;
-}
-
-/**
- * Payment method (for UI)
- */
-export interface PaymentMethod {
-  type: PaymentMethodType;
-  details?: Record<string, any>;
-}
-
-/**
- * Checkout session from backend
- */
 export interface CheckoutSession {
   id: string;
   user_id: string | null;
@@ -165,183 +106,118 @@ export interface CheckoutSession {
   completed_at: string | null;
 }
 
-// ============================================================================
-// API Request/Response Types
-// ============================================================================
-
-/**
- * Create checkout session request
- */
-export interface CreateCheckoutSessionRequest {
-  cart_id?: string;
+// DTOs
+export interface CreateCheckoutSessionDto {
+  sessionId?: string; // For guest checkout
   metadata?: Record<string, any>;
 }
 
-/**
- * Update shipping address request
- */
-export interface UpdateShippingAddressRequest extends Address {
+export interface UpdateShippingAddressDto {
+  country: string;
+  state?: string;
+  city: string;
+  street: string;
+  street2?: string;
+  postal_code: string;
+  phone: string;
+  first_name?: string;
+  last_name?: string;
+  company?: string;
   use_as_billing?: boolean; // If true, billing_address = shipping_address
 }
 
-/**
- * Update payment method request
- */
-export interface UpdatePaymentMethodRequest {
+export interface UpdatePaymentMethodDto {
   payment_method: PaymentMethodType;
-  payment_details?: Record<string, any>; // Tokenized card data, PayPal email, etc.
+  payment_details?: Record<string, any>;
 }
 
-/**
- * Apply promo code request
- */
-export interface ApplyPromoCodeRequest {
+export interface ApplyPromoCodeDto {
   code: string;
 }
 
-/**
- * Complete checkout request
- */
-export interface CompleteCheckoutRequest {
+export interface CompleteCheckoutDto {
   idempotency_key?: string;
-  metadata?: Record<string, any>;
 }
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
+// Type aliases for compatibility with checkout API
+export type CreateCheckoutSessionRequest = CreateCheckoutSessionDto;
+export type UpdateShippingAddressRequest = UpdateShippingAddressDto;
+export type UpdatePaymentMethodRequest = UpdatePaymentMethodDto;
+export type ApplyPromoCodeRequest = ApplyPromoCodeDto;
+export type CompleteCheckoutRequest = CompleteCheckoutDto;
 
-/**
- * Map CheckoutStep to step number (1-4 for UI)
- */
-export function getStepNumber(step: CheckoutStep): number {
-  const stepMap: Record<CheckoutStep, number> = {
-    [CheckoutStep.CART_REVIEW]: 1,
-    [CheckoutStep.SHIPPING_ADDRESS]: 2,
-    [CheckoutStep.PAYMENT_METHOD]: 3,
-    [CheckoutStep.ORDER_REVIEW]: 4,
-    [CheckoutStep.PAYMENT]: 4,
-    [CheckoutStep.CONFIRMATION]: 4,
-  };
-  return stepMap[step] || 1;
+// Utility types
+export interface ShippingAddressFormData {
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: string;
+  saveAddress?: boolean;
 }
 
-/**
- * Map step number to CheckoutStep
- */
-export function getCheckoutStep(stepNumber: number): CheckoutStep {
-  const stepMap: Record<number, CheckoutStep> = {
-    1: CheckoutStep.CART_REVIEW,
-    2: CheckoutStep.SHIPPING_ADDRESS,
-    3: CheckoutStep.PAYMENT_METHOD,
-    4: CheckoutStep.ORDER_REVIEW,
-  };
-  return stepMap[stepNumber] || CheckoutStep.CART_REVIEW;
-}
-
-/**
- * Check if checkout session is expired
- */
-export function isCheckoutExpired(session: CheckoutSession): boolean {
-  return (
-    new Date() > new Date(session.expires_at) &&
-    session.status === CheckoutStatus.IN_PROGRESS
-  );
-}
-
-/**
- * Check if session has physical items
- */
+// Helper functions
 export function hasPhysicalItems(session: CheckoutSession): boolean {
   return session.cart_snapshot.some((item) => item.type === 'physical');
 }
 
-/**
- * Check if shipping is required
- */
 export function requiresShipping(session: CheckoutSession): boolean {
   return hasPhysicalItems(session);
 }
 
-/**
- * Format checkout price from minor units
- */
-export function formatCheckoutPrice(priceMinor: number, currency: string = 'USD'): string {
-  const price = priceMinor / 100;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(price);
+export function isExpired(session: CheckoutSession): boolean {
+  return new Date() > new Date(session.expires_at) && session.status === CheckoutStatus.IN_PROGRESS;
 }
 
-/**
- * Get total items count
- */
-export function getTotalItemsCount(session: CheckoutSession): number {
+export function getTotalItems(session: CheckoutSession): number {
   return session.cart_snapshot.reduce((sum, item) => sum + item.quantity, 0);
 }
 
-/**
- * Get unique merchant IDs
- */
-export function getMerchantIds(session: CheckoutSession): string[] {
-  return [...new Set(session.cart_snapshot.map((item) => item.merchantId))];
+export function formatAddress(address: Address): string {
+  const parts = [
+    address.street,
+    address.street2,
+    address.city,
+    address.state,
+    address.postal_code,
+    address.country,
+  ].filter(Boolean);
+
+  return parts.join(', ');
 }
 
-/**
- * Validate if can proceed to next step
- */
-export function canProceedToNextStep(session: CheckoutSession): boolean {
-  switch (session.step) {
-    case CheckoutStep.CART_REVIEW:
-      // Can always proceed from cart review if items exist
-      return session.cart_snapshot.length > 0;
+export function convertFormDataToAddress(formData: ShippingAddressFormData): UpdateShippingAddressDto {
+  const [firstName, ...lastNameParts] = formData.fullName.trim().split(' ');
+  const lastName = lastNameParts.join(' ');
 
-    case CheckoutStep.SHIPPING_ADDRESS:
-      // Need shipping address if physical items exist
-      if (requiresShipping(session)) {
-        return session.shipping_address !== null;
-      }
-      return true;
-
-    case CheckoutStep.PAYMENT_METHOD:
-      // Need payment method selected
-      return session.payment_method !== null;
-
-    case CheckoutStep.ORDER_REVIEW:
-      // Ready for payment
-      return true;
-
-    default:
-      return false;
-  }
-}
-
-/**
- * Get payment method display name
- */
-export function getPaymentMethodName(type: PaymentMethodType): string {
-  const nameMap: Record<PaymentMethodType, string> = {
-    [PaymentMethodType.CARD]: 'Credit/Debit Card',
-    [PaymentMethodType.APPLE_PAY]: 'Apple Pay',
-    [PaymentMethodType.GOOGLE_PAY]: 'Google Pay',
-    [PaymentMethodType.BANK_TRANSFER]: 'Bank Transfer',
-    [PaymentMethodType.PAYPAL]: 'PayPal',
-    [PaymentMethodType.CRYPTO]: 'Cryptocurrency',
-    [PaymentMethodType.CASH_ON_DELIVERY]: 'Cash on Delivery',
+  return {
+    first_name: firstName,
+    last_name: lastName || undefined,
+    phone: formData.phone,
+    street: formData.addressLine1,
+    street2: formData.addressLine2,
+    city: formData.city,
+    state: formData.state,
+    postal_code: formData.postalCode,
+    country: formData.country,
   };
-  return nameMap[type] || type;
 }
 
-/**
- * Get delivery method display name
- */
-export function getDeliveryMethodName(type: DeliveryMethodType): string {
-  const nameMap: Record<DeliveryMethodType, string> = {
-    [DeliveryMethodType.STANDARD]: 'Standard Delivery',
-    [DeliveryMethodType.EXPRESS]: 'Express Delivery',
-    [DeliveryMethodType.OVERNIGHT]: 'Overnight Delivery',
-    [DeliveryMethodType.PICKUP]: 'Store Pickup',
+export function convertAddressToFormData(address: Address): ShippingAddressFormData {
+  const fullName = [address.first_name, address.last_name].filter(Boolean).join(' ');
+
+  return {
+    fullName: fullName || '',
+    phone: address.phone,
+    addressLine1: address.street,
+    addressLine2: address.street2,
+    city: address.city,
+    state: address.state,
+    postalCode: address.postal_code,
+    country: address.country,
+    saveAddress: false,
   };
-  return nameMap[type] || type;
 }

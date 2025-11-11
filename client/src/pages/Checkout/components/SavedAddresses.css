@@ -1,0 +1,190 @@
+/**
+ * Saved Addresses Styles
+ */
+
+.saved-addresses {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.saved-addresses-header h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.addresses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Address Card */
+.address-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.address-card:hover {
+  border-color: var(--bs-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.address-card.selected {
+  border-color: var(--bs-primary);
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.address-card .card-body {
+  padding: 1.25rem;
+}
+
+/* Address Radio Button */
+.address-radio {
+  pointer-events: none;
+}
+
+.address-radio .form-check-input {
+  cursor: pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0;
+}
+
+/* Address Details */
+.address-details {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.address-name {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.address-company {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.address-street {
+  margin-bottom: 0.25rem;
+  color: #495057;
+}
+
+.address-location {
+  margin-bottom: 0.25rem;
+  color: #495057;
+}
+
+.address-country {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.address-phone {
+  border-top: 1px solid #e9ecef;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem !important;
+}
+
+/* Add New Address Card */
+.add-new-card {
+  border: 2px dashed #dee2e6;
+  background-color: #f8f9fa;
+  min-height: 200px;
+}
+
+.add-new-card:hover {
+  border-color: var(--bs-primary);
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+.add-new-card .card-body {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-new-card:hover .card-body {
+  color: var(--bs-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .saved-addresses {
+    padding: 1.5rem;
+  }
+
+  .addresses-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .saved-addresses {
+    padding: 1rem;
+  }
+
+  .saved-addresses-header h5 {
+    font-size: 1rem;
+  }
+
+  .address-card .card-body {
+    padding: 1rem;
+  }
+
+  .add-new-card {
+    min-height: 150px;
+  }
+}
+
+/* RTL Support */
+[dir='rtl'] .saved-addresses {
+  direction: rtl;
+}
+
+[dir='rtl'] .address-details {
+  text-align: right;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.address-card {
+  animation: fadeIn 0.3s ease;
+}
+
+.address-card:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.address-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.address-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.address-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
