@@ -11,5 +11,6 @@
 
 // Export feature components here
 export { ProductCard } from './ProductCard';
+export { OrderStatusBadge } from './OrderStatusBadge';
 // export { CartItem } from './CartItem';
 // export { CheckoutForm } from './CheckoutForm';

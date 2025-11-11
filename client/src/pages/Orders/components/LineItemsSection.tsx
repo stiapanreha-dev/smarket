@@ -7,34 +7,13 @@ import {
   type ServiceFulfillmentData,
   LineItemType,
   DigitalItemStatus,
-  getLineItemStatusText,
   formatLineItemPrice,
 } from '@/types';
+import { OrderStatusBadge } from '@/components/features/OrderStatusBadge';
 import toast from 'react-hot-toast';
 
 export interface LineItemsSectionProps {
   order: Order;
-}
-
-/**
- * Get badge variant for line item status
- */
-function getLineItemStatusVariant(
-  status: string,
-): 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
-  if (status.includes('delivered') || status.includes('completed') || status.includes('downloaded')) {
-    return 'success';
-  }
-  if (status.includes('cancelled')) {
-    return 'danger';
-  }
-  if (status.includes('pending')) {
-    return 'warning';
-  }
-  if (status.includes('refund')) {
-    return 'secondary';
-  }
-  return 'primary';
 }
 
 /**
@@ -138,9 +117,7 @@ function LineItemRow({ lineItem }: { lineItem: OrderLineItem }) {
       {/* Status & Actions */}
       <td className="align-middle">
         <div className="d-flex flex-column align-items-end gap-2">
-          <Badge variant={getLineItemStatusVariant(lineItem.status)} pill>
-            {getLineItemStatusText(lineItem.status)}
-          </Badge>
+          <OrderStatusBadge status={lineItem.status} size="sm" />
 
           {/* Digital Item Download Button */}
           {lineItem.type === LineItemType.DIGITAL &&
@@ -289,9 +266,7 @@ export function LineItemsSection({ order }: LineItemsSectionProps) {
 
                   <div className="d-flex justify-content-between align-items-center">
                     <span className="text-muted">Status:</span>
-                    <Badge variant={getLineItemStatusVariant(lineItem.status)} pill>
-                      {getLineItemStatusText(lineItem.status)}
-                    </Badge>
+                    <OrderStatusBadge status={lineItem.status} size="sm" />
                   </div>
 
                   {/* Digital Download Button */}

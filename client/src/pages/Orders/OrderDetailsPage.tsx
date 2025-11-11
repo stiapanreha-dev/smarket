@@ -5,13 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Navbar, Footer } from '@/components/layout';
 import { Button } from '@/components/common/Button';
-import { Badge } from '@/components/common/Badge';
 import { useOrder, useCancelOrder } from '@/hooks/useOrders';
 import {
-  OrderStatus,
-  getOrderStatusText,
   isOrderCancellable,
 } from '@/types';
+import { OrderStatusBadge } from '@/components/features/OrderStatusBadge';
 import { OrderTimeline } from './components/OrderTimeline';
 import { LineItemsSection } from './components/LineItemsSection';
 import { ShippingPaymentInfo } from './components/ShippingPaymentInfo';
@@ -19,30 +17,6 @@ import { PricingSummary } from './components/PricingSummary';
 import { CancelOrderModal } from './components/CancelOrderModal';
 import './OrderDetailsPage.css';
 import toast from 'react-hot-toast';
-
-/**
- * Get badge variant based on order status
- */
-function getStatusBadgeVariant(
-  status: OrderStatus,
-): 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
-  switch (status) {
-    case OrderStatus.COMPLETED:
-      return 'success';
-    case OrderStatus.PROCESSING:
-    case OrderStatus.CONFIRMED:
-      return 'primary';
-    case OrderStatus.PENDING:
-      return 'warning';
-    case OrderStatus.CANCELLED:
-      return 'danger';
-    case OrderStatus.REFUNDED:
-    case OrderStatus.PARTIALLY_REFUNDED:
-      return 'secondary';
-    default:
-      return 'secondary';
-  }
-}
 
 /**
  * Order Details Page Component
@@ -172,12 +146,11 @@ export function OrderDetailsPage() {
                       Order #{order.order_number}
                     </h1>
                     <p className="text-muted mb-2">Placed on {orderDate}</p>
-                    <Badge
-                      variant={getStatusBadgeVariant(order.status)}
+                    <OrderStatusBadge
+                      status={order.status}
+                      size="md"
                       className="order-details-header__badge"
-                    >
-                      {getOrderStatusText(order.status)}
-                    </Badge>
+                    />
                   </div>
                   {canCancel && (
                     <Button

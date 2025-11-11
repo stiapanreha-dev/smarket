@@ -247,6 +247,34 @@ const resources = {
       common: {
         loading: 'Loading...',
       },
+      order: {
+        status: {
+          // Main order statuses
+          pending: 'Pending',
+          confirmed: 'Confirmed',
+          processing: 'Processing',
+          completed: 'Completed',
+          cancelled: 'Cancelled',
+          refunded: 'Refunded',
+          partially_refunded: 'Partially Refunded',
+          // Physical item statuses
+          payment_confirmed: 'Payment Confirmed',
+          preparing: 'Preparing',
+          ready_to_ship: 'Ready to Ship',
+          shipped: 'Shipped',
+          out_for_delivery: 'Out for Delivery',
+          delivered: 'Delivered',
+          refund_requested: 'Refund Requested',
+          // Digital item statuses
+          access_granted: 'Access Granted',
+          downloaded: 'Downloaded',
+          // Service item statuses
+          booking_confirmed: 'Booking Confirmed',
+          reminder_sent: 'Reminder Sent',
+          in_progress: 'In Progress',
+          no_show: 'No Show',
+        },
+      },
     },
   },
   ru: {
@@ -496,6 +524,34 @@ const resources = {
       common: {
         loading: 'Загрузка...',
       },
+      order: {
+        status: {
+          // Main order statuses
+          pending: 'Ожидает',
+          confirmed: 'Подтвержден',
+          processing: 'Обрабатывается',
+          completed: 'Завершен',
+          cancelled: 'Отменен',
+          refunded: 'Возвращен',
+          partially_refunded: 'Частично возвращен',
+          // Physical item statuses
+          payment_confirmed: 'Оплата подтверждена',
+          preparing: 'Подготовка',
+          ready_to_ship: 'Готов к отправке',
+          shipped: 'Отправлен',
+          out_for_delivery: 'В пути',
+          delivered: 'Доставлен',
+          refund_requested: 'Запрошен возврат',
+          // Digital item statuses
+          access_granted: 'Доступ предоставлен',
+          downloaded: 'Загружен',
+          // Service item statuses
+          booking_confirmed: 'Бронирование подтверждено',
+          reminder_sent: 'Напоминание отправлено',
+          in_progress: 'Выполняется',
+          no_show: 'Не явился',
+        },
+      },
     },
   },
   ar: {
@@ -741,6 +797,34 @@ const resources = {
       },
       common: {
         loading: 'جارٍ التحميل...',
+      },
+      order: {
+        status: {
+          // Main order statuses
+          pending: 'قيد الانتظار',
+          confirmed: 'مؤكد',
+          processing: 'قيد المعالجة',
+          completed: 'مكتمل',
+          cancelled: 'ملغى',
+          refunded: 'مسترد',
+          partially_refunded: 'مسترد جزئياً',
+          // Physical item statuses
+          payment_confirmed: 'تم تأكيد الدفع',
+          preparing: 'قيد التحضير',
+          ready_to_ship: 'جاهز للشحن',
+          shipped: 'تم الشحن',
+          out_for_delivery: 'قيد التوصيل',
+          delivered: 'تم التسليم',
+          refund_requested: 'طلب استرداد',
+          // Digital item statuses
+          access_granted: 'تم منح الوصول',
+          downloaded: 'تم التنزيل',
+          // Service item statuses
+          booking_confirmed: 'تم تأكيد الحجز',
+          reminder_sent: 'تم إرسال التذكير',
+          in_progress: 'قيد التنفيذ',
+          no_show: 'لم يحضر',
+        },
       },
     },
   },
