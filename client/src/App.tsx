@@ -5,6 +5,7 @@ import { queryClient } from './lib/react-query';
 import Landing from './pages/Landing';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import CatalogPage from './pages/Catalog';
 import './i18n/config'; // Initialize i18n
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom.css';
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/catalog" element={<CatalogPage />} />
         </Routes>
       </Router>
       {/* React Query Devtools - only in development */}
