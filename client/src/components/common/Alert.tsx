@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Alert as BSAlert, AlertProps as BSAlertProps } from 'react-bootstrap';
+import { Alert as BSAlert, type AlertProps as BSAlertProps } from 'react-bootstrap';
 
-export interface AlertProps extends Omit<BSAlertProps, 'variant'> {
+export interface AlertProps extends Omit<BSAlertProps, 'variant' | 'title'> {
   /** Alert variant */
   variant?:
     | 'primary'

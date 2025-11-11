@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spinner, SpinnerProps } from 'react-bootstrap';
+import { Spinner, type SpinnerProps } from 'react-bootstrap';
 
 export interface LoadingSpinnerProps extends Omit<SpinnerProps, 'animation' | 'variant'> {
   /** Spinner animation type */

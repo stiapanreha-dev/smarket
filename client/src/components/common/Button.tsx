@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button as BSButton, ButtonProps as BSButtonProps, Spinner } from 'react-bootstrap';
+import { Button as BSButton, type ButtonProps as BSButtonProps, Spinner } from 'react-bootstrap';
 
 export interface ButtonProps extends Omit<BSButtonProps, 'variant'> {
   /** Button variant - Bootstrap variants plus custom ones */

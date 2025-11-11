@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal as BSModal, ModalProps as BSModalProps } from 'react-bootstrap';
+import { Modal as BSModal, type ModalProps as BSModalProps } from 'react-bootstrap';
 import { Button } from './Button';
 
 export interface ModalProps extends Omit<BSModalProps, 'size'> {

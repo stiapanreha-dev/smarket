@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card as BSCard, CardProps as BSCardProps } from 'react-bootstrap';
+import { Card as BSCard, type CardProps as BSCardProps } from 'react-bootstrap';
 
-export interface CardProps extends Omit<BSCardProps, 'bg' | 'border'> {
+export interface CardProps extends Omit<BSCardProps, 'bg' | 'border' | 'title'> {
   /** Card header content */
   header?: React.ReactNode;
 

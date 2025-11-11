@@ -66,7 +66,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         isInvalid={hasError}
         disabled={disabled}
         className={className}
-        {...rest}
+        {...(rest as any)}
       />
     );
 

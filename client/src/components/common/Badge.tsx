@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge as BSBadge, BadgeProps as BSBadgeProps } from 'react-bootstrap';
+import { Badge as BSBadge, type BadgeProps as BSBadgeProps } from 'react-bootstrap';
 
 export interface BadgeProps extends Omit<BSBadgeProps, 'bg'> {
   /** Badge variant */
