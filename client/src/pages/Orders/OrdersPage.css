@@ -1,0 +1,173 @@
+/* ============================================================================
+ * Orders Page Styles
+ * ============================================================================ */
+
+.orders-page {
+  min-height: calc(100vh - 200px);
+  background-color: #f8f9fa;
+}
+
+.orders-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0;
+}
+
+/* RTL Support */
+.orders-page.rtl {
+  direction: rtl;
+}
+
+.orders-page.rtl .orders-page__title {
+  text-align: right;
+}
+
+/* ============================================================================
+ * Order Card
+ * ============================================================================ */
+
+.order-card {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.order-card__number {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.order-card__total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d6efd;
+}
+
+.order-card__thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-card__thumbnail,
+.order-card__thumbnail-more {
+  flex-shrink: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .order-card .col-md-4 {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    margin-top: 1rem;
+  }
+
+  .order-card__total {
+    font-size: 1.25rem;
+  }
+}
+
+/* ============================================================================
+ * Empty Orders State
+ * ============================================================================ */
+
+.empty-orders {
+  padding: 4rem 1rem;
+}
+
+.empty-orders__icon {
+  opacity: 0.5;
+}
+
+.empty-orders__title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* ============================================================================
+ * Orders List
+ * ============================================================================ */
+
+.orders-list {
+  margin-bottom: 2rem;
+}
+
+/* ============================================================================
+ * Tabs
+ * ============================================================================ */
+
+.orders-page .nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+
+.orders-page .nav-tabs .nav-link {
+  color: #6c757d;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.orders-page .nav-tabs .nav-link:hover {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background-color: transparent;
+}
+
+.orders-page .nav-tabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background-color: transparent;
+}
+
+/* Mobile responsive tabs */
+@media (max-width: 575px) {
+  .orders-page .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ============================================================================
+ * Pagination
+ * ============================================================================ */
+
+.pagination {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pagination .page-link {
+  color: #0d6efd;
+  border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.pagination .page-link:hover {
+  background-color: #e9ecef;
+}
+
+/* ============================================================================
+ * Loading Skeleton
+ * ============================================================================ */
+
+.orders-page-skeleton .placeholder {
+  background-color: #e9ecef;
+}
+
+.orders-page-skeleton .card {
+  border: 1px solid #dee2e6;
+}
