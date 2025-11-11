@@ -19,6 +19,16 @@ export {
   useAuthError,
 } from './authStore';
 
+// Export cart store and hooks
+export {
+  useCartStore,
+  useCart,
+  useCartItems,
+  useCartSummary,
+  useCartActions,
+  useCartLoading,
+  useCartError,
+} from './cartStore';
+
 // Future stores:
-// export { useCartStore } from './cartStore';
 // export { useCatalogStore } from './catalogStore';

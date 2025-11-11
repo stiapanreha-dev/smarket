@@ -20,3 +20,6 @@ export * from './api';
 
 // Export Catalog types
 export * from './catalog';
+
+// Export Cart types
+export * from './cart';
