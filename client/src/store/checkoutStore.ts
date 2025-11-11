@@ -18,7 +18,9 @@ import type {
   CheckoutStep,
   CreateCheckoutSessionDto,
   UpdateShippingAddressDto,
+  UpdateDeliveryMethodDto,
   UpdatePaymentMethodDto,
+  DeliveryOption,
 } from '@/types';
 import { CheckoutStep as CheckoutStepEnum, requiresShipping } from '@/types';
 
@@ -29,6 +31,7 @@ interface CheckoutState {
   // State
   session: CheckoutSession | null;
   currentStep: CheckoutStep;
+  deliveryOptions: DeliveryOption[] | null;
   isLoading: boolean;
   error: string | null;
 
@@ -36,6 +39,8 @@ interface CheckoutState {
   createSession: (dto?: CreateCheckoutSessionDto) => Promise<void>;
   loadSession: (sessionId: string) => Promise<void>;
   updateShippingAddress: (address: UpdateShippingAddressDto) => Promise<void>;
+  loadDeliveryOptions: () => Promise<void>;
+  updateDeliveryMethod: (delivery: UpdateDeliveryMethodDto) => Promise<void>;
   updatePaymentMethod: (payment: UpdatePaymentMethodDto) => Promise<void>;
   applyPromoCode: (code: string) => Promise<void>;
   completeCheckout: () => Promise<void>;
@@ -55,6 +60,7 @@ interface CheckoutState {
 const initialState = {
   session: null,
   currentStep: CheckoutStepEnum.CART_REVIEW as CheckoutStep,
+  deliveryOptions: null,
   isLoading: false,
   error: null,
 };
@@ -65,6 +71,7 @@ const initialState = {
 const stepOrder: CheckoutStep[] = [
   CheckoutStepEnum.CART_REVIEW,
   CheckoutStepEnum.SHIPPING_ADDRESS,
+  CheckoutStepEnum.DELIVERY_METHOD,
   CheckoutStepEnum.PAYMENT_METHOD,
   CheckoutStepEnum.ORDER_REVIEW,
   CheckoutStepEnum.PAYMENT,
@@ -73,7 +80,7 @@ const stepOrder: CheckoutStep[] = [
 
 /**
  * Get next step in the checkout flow
- * Skips shipping_address step for digital-only orders
+ * Skips shipping_address and delivery_method steps for digital-only orders
  */
 function getNextStep(currentStep: CheckoutStep, session: CheckoutSession | null): CheckoutStep {
   const currentIndex = stepOrder.indexOf(currentStep);
@@ -81,11 +88,18 @@ function getNextStep(currentStep: CheckoutStep, session: CheckoutSession | null)
     return currentStep;
   }
 
-  let nextStep = stepOrder[currentIndex + 1];
+  let nextStepIndex = currentIndex + 1;
+  let nextStep = stepOrder[nextStepIndex];
 
-  // Skip shipping address for digital-only orders
-  if (nextStep === CheckoutStepEnum.SHIPPING_ADDRESS && session && !requiresShipping(session)) {
-    nextStep = stepOrder[currentIndex + 2];
+  // Skip shipping and delivery for digital-only orders
+  if (session && !requiresShipping(session)) {
+    while (
+      nextStepIndex < stepOrder.length &&
+      (nextStep === CheckoutStepEnum.SHIPPING_ADDRESS || nextStep === CheckoutStepEnum.DELIVERY_METHOD)
+    ) {
+      nextStepIndex++;
+      nextStep = stepOrder[nextStepIndex];
+    }
   }
 
   return nextStep;
@@ -93,7 +107,7 @@ function getNextStep(currentStep: CheckoutStep, session: CheckoutSession | null)
 
 /**
  * Get previous step in the checkout flow
- * Skips shipping_address step for digital-only orders
+ * Skips shipping_address and delivery_method steps for digital-only orders
  */
 function getPreviousStep(currentStep: CheckoutStep, session: CheckoutSession | null): CheckoutStep {
   const currentIndex = stepOrder.indexOf(currentStep);
@@ -101,11 +115,18 @@ function getPreviousStep(currentStep: CheckoutStep, session: CheckoutSession | n
     return currentStep;
   }
 
-  let prevStep = stepOrder[currentIndex - 1];
+  let prevStepIndex = currentIndex - 1;
+  let prevStep = stepOrder[prevStepIndex];
 
-  // Skip shipping address for digital-only orders
-  if (prevStep === CheckoutStepEnum.SHIPPING_ADDRESS && session && !requiresShipping(session)) {
-    prevStep = stepOrder[currentIndex - 2];
+  // Skip shipping and delivery for digital-only orders
+  if (session && !requiresShipping(session)) {
+    while (
+      prevStepIndex >= 0 &&
+      (prevStep === CheckoutStepEnum.SHIPPING_ADDRESS || prevStep === CheckoutStepEnum.DELIVERY_METHOD)
+    ) {
+      prevStepIndex--;
+      prevStep = stepOrder[prevStepIndex];
+    }
   }
 
   return prevStep;
@@ -222,6 +243,72 @@ export const useCheckoutStore = create<CheckoutState>()(
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : 'Failed to update shipping address';
+
+          set({
+            isLoading: false,
+            error: errorMessage,
+          });
+
+          throw error;
+        }
+      },
+
+      /**
+       * Load delivery options
+       * Step 2: Delivery Method
+       */
+      loadDeliveryOptions: async () => {
+        const { session } = get();
+        if (!session) {
+          throw new Error('No active checkout session');
+        }
+
+        try {
+          set({ isLoading: true, error: null });
+
+          const deliveryOptions = await checkoutApi.getDeliveryOptions(session.id);
+
+          set({
+            deliveryOptions,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Failed to load delivery options';
+
+          set({
+            isLoading: false,
+            error: errorMessage,
+          });
+
+          throw error;
+        }
+      },
+
+      /**
+       * Update delivery method
+       * Step 2: Delivery Method
+       */
+      updateDeliveryMethod: async (delivery: UpdateDeliveryMethodDto) => {
+        const { session } = get();
+        if (!session) {
+          throw new Error('No active checkout session');
+        }
+
+        try {
+          set({ isLoading: true, error: null });
+
+          const updatedSession = await checkoutApi.updateDeliveryMethod(session.id, delivery);
+
+          set({
+            session: updatedSession,
+            isLoading: false,
+            error: null,
+          });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Failed to update delivery method';
 
           set({
             isLoading: false,

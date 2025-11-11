@@ -16,9 +16,11 @@ import type {
   CheckoutSession,
   CreateCheckoutSessionRequest,
   UpdateShippingAddressRequest,
+  UpdateDeliveryMethodRequest,
   UpdatePaymentMethodRequest,
   ApplyPromoCodeRequest,
   CompleteCheckoutRequest,
+  DeliveryOption,
 } from '@/types';
 
 /**
@@ -28,6 +30,8 @@ const CHECKOUT_ENDPOINTS = {
   SESSIONS: '/checkout/sessions',
   SESSION: (sessionId: string) => `/checkout/sessions/${sessionId}`,
   SHIPPING: (sessionId: string) => `/checkout/sessions/${sessionId}/shipping`,
+  DELIVERY_OPTIONS: (sessionId: string) => `/checkout/sessions/${sessionId}/delivery-options`,
+  DELIVERY: (sessionId: string) => `/checkout/sessions/${sessionId}/delivery`,
   PAYMENT_METHOD: (sessionId: string) => `/checkout/sessions/${sessionId}/payment-method`,
   APPLY_PROMO: (sessionId: string) => `/checkout/sessions/${sessionId}/apply-promo`,
   COMPLETE: (sessionId: string) => `/checkout/sessions/${sessionId}/complete`,
@@ -67,6 +71,30 @@ export const checkoutApi = {
   ): Promise<CheckoutSession> {
     const response = await apiClient.put<CheckoutSession>(
       CHECKOUT_ENDPOINTS.SHIPPING(sessionId),
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get available delivery options
+   */
+  async getDeliveryOptions(sessionId: string): Promise<DeliveryOption[]> {
+    const response = await apiClient.get<DeliveryOption[]>(
+      CHECKOUT_ENDPOINTS.DELIVERY_OPTIONS(sessionId),
+    );
+    return response.data;
+  },
+
+  /**
+   * Update delivery method
+   */
+  async updateDeliveryMethod(
+    sessionId: string,
+    data: UpdateDeliveryMethodRequest,
+  ): Promise<CheckoutSession> {
+    const response = await apiClient.put<CheckoutSession>(
+      CHECKOUT_ENDPOINTS.DELIVERY(sessionId),
       data,
     );
     return response.data;

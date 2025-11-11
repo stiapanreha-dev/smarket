@@ -9,6 +9,8 @@ import {
   CheckoutStatus,
   CartItemSnapshot,
   Address,
+  DeliveryOption,
+  DeliveryMethodType,
 } from '../../database/entities/checkout-session.entity';
 import { CartService } from '../cart/cart.service';
 import { TotalsCalculationService } from './services/totals-calculation.service';
@@ -16,6 +18,7 @@ import { InventoryReservationService } from './services/inventory-reservation.se
 import {
   CreateCheckoutSessionDto,
   UpdateShippingAddressDto,
+  UpdateDeliveryMethodDto,
   UpdatePaymentMethodDto,
   ApplyPromoCodeDto,
   CompleteCheckoutDto,
@@ -167,11 +170,113 @@ export class CheckoutService {
       session.billing_address = billingAddress;
     }
     session.totals = totals;
-    session.step = CheckoutStep.PAYMENT_METHOD;
+    session.step = CheckoutStep.DELIVERY_METHOD;
 
     const updated = await this.checkoutSessionRepository.save(session);
 
     this.logger.log(`Updated shipping address for session ${sessionId}`);
+    return updated;
+  }
+
+  /**
+   * Get available delivery options
+   * Step 2: Delivery Method
+   */
+  async getDeliveryOptions(
+    sessionId: string,
+    userId: string | undefined,
+  ): Promise<DeliveryOption[]> {
+    const session = await this.getSession(sessionId, userId);
+
+    // Validate that session requires delivery
+    if (!session.requires_shipping) {
+      throw new BadRequestException('Delivery options not available for digital/service items');
+    }
+
+    if (!session.shipping_address) {
+      throw new BadRequestException('Shipping address required to calculate delivery options');
+    }
+
+    const currency = session.totals.currency;
+
+    // Mock delivery options (in production, calculate based on address, weight, etc.)
+    const deliveryOptions: DeliveryOption[] = [
+      {
+        type: DeliveryMethodType.STANDARD,
+        name: 'Standard Shipping',
+        description: 'Delivery within 5-7 business days',
+        price: 599, // $5.99 in cents
+        currency,
+        estimatedDays: { min: 5, max: 7 },
+      },
+      {
+        type: DeliveryMethodType.EXPRESS,
+        name: 'Express Shipping',
+        description: 'Delivery within 2-3 business days',
+        price: 1299, // $12.99 in cents
+        currency,
+        estimatedDays: { min: 2, max: 3 },
+      },
+      {
+        type: DeliveryMethodType.PICKUP,
+        name: 'Pickup from store',
+        description: 'Pick up your order from our store',
+        price: 0, // Free
+        currency,
+        estimatedDays: { min: 1, max: 2 },
+      },
+    ];
+
+    return deliveryOptions;
+  }
+
+  /**
+   * Update delivery method
+   * Step 2: Delivery Method
+   */
+  async updateDeliveryMethod(
+    sessionId: string,
+    userId: string | undefined,
+    dto: UpdateDeliveryMethodDto,
+  ): Promise<CheckoutSession> {
+    const session = await this.getSession(sessionId, userId);
+
+    // Validate that session requires delivery
+    if (!session.requires_shipping) {
+      throw new BadRequestException('Delivery method not required for digital/service items');
+    }
+
+    // Validate step progression
+    if (!session.shipping_address) {
+      throw new BadRequestException('Please provide shipping address before selecting delivery method');
+    }
+
+    // Get available delivery options to find the selected one
+    const deliveryOptions = await this.getDeliveryOptions(sessionId, userId);
+    const selectedOption = deliveryOptions.find((opt) => opt.type === dto.delivery_method);
+
+    if (!selectedOption) {
+      throw new BadRequestException('Invalid delivery method');
+    }
+
+    // Update session
+    session.delivery_method = dto.delivery_method;
+
+    // Recalculate totals with delivery cost
+    const totals = await this.totalsService.recalculateTotals(
+      session.totals,
+      session.cart_snapshot,
+      session.shipping_address,
+      session.promo_codes || undefined,
+      selectedOption.price,
+    );
+
+    session.totals = totals;
+    session.step = CheckoutStep.PAYMENT_METHOD;
+
+    const updated = await this.checkoutSessionRepository.save(session);
+
+    this.logger.log(`Updated delivery method for session ${sessionId} to ${dto.delivery_method}`);
     return updated;
   }
 
@@ -190,6 +295,12 @@ export class CheckoutService {
     if (session.requires_shipping && session.step === CheckoutStep.CART_REVIEW) {
       throw new BadRequestException(
         'Please provide shipping address before selecting payment method',
+      );
+    }
+
+    if (session.requires_shipping && !session.delivery_method) {
+      throw new BadRequestException(
+        'Please select delivery method before selecting payment method',
       );
     }
 
