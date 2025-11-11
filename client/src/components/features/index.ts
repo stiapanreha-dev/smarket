@@ -10,7 +10,6 @@
  */
 
 // Export feature components here
-// Example:
-// export { ProductCard } from './ProductCard';
+export { ProductCard } from './ProductCard';
 // export { CartItem } from './CartItem';
 // export { CheckoutForm } from './CheckoutForm';
