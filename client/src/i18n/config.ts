@@ -147,6 +147,11 @@ const resources = {
         location: 'Location',
         features: 'Features',
         minutesShort: 'min',
+        toast: {
+          addedToCart: 'Added to cart!',
+          addToCartError: 'Failed to add to cart',
+          stockExceeded: 'Cannot add more than {{stock}} items',
+        },
       },
       catalog: {
         filters: {
@@ -388,6 +393,11 @@ const resources = {
         location: 'Местоположение',
         features: 'Особенности',
         minutesShort: 'мин',
+        toast: {
+          addedToCart: 'Добавлено в корзину!',
+          addToCartError: 'Не удалось добавить в корзину',
+          stockExceeded: 'Нельзя добавить больше {{stock}} товаров',
+        },
       },
       catalog: {
         filters: {
@@ -632,6 +642,11 @@ const resources = {
         location: 'الموقع',
         features: 'المميزات',
         minutesShort: 'دقيقة',
+        toast: {
+          addedToCart: 'تمت الإضافة إلى السلة!',
+          addToCartError: 'فشل في الإضافة إلى السلة',
+          stockExceeded: 'لا يمكن إضافة أكثر من {{stock}} عناصر',
+        },
       },
       catalog: {
         filters: {

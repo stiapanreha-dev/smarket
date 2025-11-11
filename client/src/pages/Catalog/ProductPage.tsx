@@ -13,8 +13,10 @@ import {
   Card,
   Breadcrumb,
   Placeholder,
+  Spinner,
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import {
   FaStar,
   FaStarHalfAlt,
@@ -24,6 +26,7 @@ import {
   FaDownload,
   FaMapMarkerAlt,
   FaClock,
+  FaBolt,
 } from 'react-icons/fa';
 import { useProduct, useRelatedProducts } from '@/hooks/useCatalog';
 import {
@@ -35,6 +38,7 @@ import {
   isCourseProduct,
   isProductInStock,
 } from '@/types/catalog';
+import { useCartStore } from '@/store/cartStore';
 import { Navbar, Footer } from '@/components/layout';
 import { ProductCard } from '@/components/features';
 import './ProductPage.css';
@@ -60,6 +64,11 @@ export function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
+
+  // Cart store
+  const { addItem } = useCartStore();
 
   // Fetch product data
   const { data: product, isLoading, error } = useProduct(id || '', {
@@ -165,28 +174,122 @@ export function ProductPage() {
     );
   };
 
+  // Get available stock
+  const getAvailableStock = () => {
+    if (!product.variants || product.variants.length === 0) {
+      return 99; // Default max if no variants
+    }
+    const variant = product.variants[0];
+    return variant.inventory_quantity || 0;
+  };
+
+  const availableStock = getAvailableStock();
+  const maxQuantity = isPhysicalProduct(product) ? availableStock : isCourseProduct(product) ? 1 : 99;
+
   // Handle quantity change
   const handleQuantityChange = (value: number) => {
-    const newQuantity = Math.max(1, Math.min(value, 99));
+    // For digital products, quantity is always 1
+    if (isCourseProduct(product)) {
+      setQuantity(1);
+      return;
+    }
+
+    // Validate against stock for physical products
+    let newQuantity = Math.max(1, value);
+
+    if (isPhysicalProduct(product) && newQuantity > availableStock) {
+      toast.error(t('product.toast.stockExceeded', { stock: availableStock }));
+      newQuantity = availableStock;
+    } else if (newQuantity > 99) {
+      newQuantity = 99;
+    }
+
     setQuantity(newQuantity);
   };
 
   // Handle add to cart
-  const handleAddToCart = () => {
-    // TODO: Implement add to cart logic
-    console.log('Add to cart:', product.id, 'quantity:', quantity);
+  const handleAddToCart = async () => {
+    if (!product.variants || product.variants.length === 0) {
+      toast.error(t('product.toast.addToCartError'));
+      return;
+    }
+
+    const variant = product.variants[0];
+
+    // Validate stock for physical products
+    if (isPhysicalProduct(product) && quantity > availableStock) {
+      toast.error(t('product.toast.stockExceeded', { stock: availableStock }));
+      return;
+    }
+
+    setIsAddingToCart(true);
+
+    try {
+      await addItem(
+        {
+          productId: product.id,
+          variantId: variant.id,
+          quantity,
+        },
+        product,
+        variant
+      );
+
+      toast.success(t('product.toast.addedToCart'));
+
+      // Reset quantity to 1 after successful add
+      setQuantity(1);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      toast.error(t('product.toast.addToCartError'));
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   // Handle buy now
-  const handleBuyNow = () => {
-    // TODO: Implement quick checkout logic
-    console.log('Buy now:', product.id, 'quantity:', quantity);
+  const handleBuyNow = async () => {
+    if (!product.variants || product.variants.length === 0) {
+      toast.error(t('product.toast.addToCartError'));
+      return;
+    }
+
+    const variant = product.variants[0];
+
+    // Validate stock for physical products
+    if (isPhysicalProduct(product) && quantity > availableStock) {
+      toast.error(t('product.toast.stockExceeded', { stock: availableStock }));
+      return;
+    }
+
+    setIsBuyingNow(true);
+
+    try {
+      await addItem(
+        {
+          productId: product.id,
+          variantId: variant.id,
+          quantity,
+        },
+        product,
+        variant
+      );
+
+      // Redirect to cart/checkout
+      navigate('/cart');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      toast.error(t('product.toast.addToCartError'));
+      setIsBuyingNow(false);
+    }
   };
 
   // Handle book now (for services)
   const handleBookNow = () => {
-    // TODO: Implement booking logic
-    console.log('Book now:', product.id);
+    // TODO: Implement booking logic - redirect to booking flow
+    // For now, navigate to a booking page (to be implemented)
+    toast('Booking flow coming soon!', { icon: 'ℹ️' });
+    // navigate(`/booking/${product.id}`);
   };
 
   // Get specifications from product attrs or translation
@@ -361,8 +464,8 @@ export function ProductPage() {
                   </Card>
                 </div>
 
-                {/* Quantity Selector (for physical and digital) */}
-                {!isServiceProduct(product) && (
+                {/* Quantity Selector (only for physical products) */}
+                {isPhysicalProduct(product) && (
                   <div className="quantity-selector mb-4">
                     <Form.Label>{t('product.quantity')}</Form.Label>
                     <div className="d-flex align-items-center gap-2">
@@ -370,30 +473,36 @@ export function ProductPage() {
                         variant="outline-secondary"
                         size="sm"
                         onClick={() => handleQuantityChange(quantity - 1)}
-                        disabled={quantity <= 1}
+                        disabled={quantity <= 1 || isAddingToCart || isBuyingNow}
                       >
                         -
                       </Button>
                       <Form.Control
                         type="number"
                         min="1"
-                        max="99"
+                        max={maxQuantity}
                         value={quantity}
                         onChange={(e) =>
                           handleQuantityChange(parseInt(e.target.value) || 1)
                         }
                         className="text-center quantity-input"
                         style={{ width: '80px' }}
+                        disabled={isAddingToCart || isBuyingNow}
                       />
                       <Button
                         variant="outline-secondary"
                         size="sm"
                         onClick={() => handleQuantityChange(quantity + 1)}
-                        disabled={quantity >= 99}
+                        disabled={quantity >= maxQuantity || isAddingToCart || isBuyingNow}
                       >
                         +
                       </Button>
                     </div>
+                    {isPhysicalProduct(product) && availableStock <= 10 && availableStock > 0 && (
+                      <Form.Text className="text-warning">
+                        Only {availableStock} left in stock
+                      </Form.Text>
+                    )}
                   </div>
                 )}
 
@@ -415,19 +524,52 @@ export function ProductPage() {
                         size="lg"
                         className="w-100"
                         onClick={handleAddToCart}
-                        disabled={!inStock}
+                        disabled={!inStock || isAddingToCart || isBuyingNow}
                       >
-                        <FaShoppingCart className="me-2" />
-                        {t('product.addToCart')}
+                        {isAddingToCart ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
+                            {t('common.loading')}
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingCart className="me-2" />
+                            {t('product.addToCart')}
+                          </>
+                        )}
                       </Button>
                       <Button
                         variant="success"
                         size="lg"
                         className="w-100"
                         onClick={handleBuyNow}
-                        disabled={!inStock}
+                        disabled={!inStock || isAddingToCart || isBuyingNow}
                       >
-                        {t('product.buyNow')}
+                        {isBuyingNow ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
+                            {t('common.loading')}
+                          </>
+                        ) : (
+                          <>
+                            <FaBolt className="me-2" />
+                            {t('product.buyNow')}
+                          </>
+                        )}
                       </Button>
                     </>
                   )}
