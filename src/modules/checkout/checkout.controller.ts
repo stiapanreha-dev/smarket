@@ -22,6 +22,7 @@ import {
   UpdatePaymentMethodDto,
   ApplyPromoCodeDto,
   CompleteCheckoutDto,
+  CompleteCheckoutResponseDto,
 } from './dto';
 import { CheckoutSession, DeliveryOption } from '../../database/entities/checkout-session.entity';
 
@@ -178,12 +179,18 @@ export class CheckoutController {
     @Request() req: any,
     @Param('id') sessionId: string,
     @Body() dto: CompleteCheckoutDto,
-  ): Promise<CheckoutSession> {
+  ): Promise<CompleteCheckoutResponseDto> {
     const userId = req.user?.userId;
 
     this.logger.log(`Completing checkout for session ${sessionId}`);
 
-    return await this.checkoutService.completeCheckout(sessionId, userId, dto);
+    const session = await this.checkoutService.completeCheckout(sessionId, userId, dto);
+
+    return {
+      order_id: session.order_id!,
+      order_number: session.order_number!,
+      status: session.status,
+    };
   }
 
   /**

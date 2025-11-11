@@ -571,8 +571,12 @@ export class CheckoutService {
   private async createOrder(session: CheckoutSession, _queryRunner: any): Promise<string> {
     // Mock order creation
     const orderId = uuid();
+    const orderNumber = this.generateOrderNumber();
 
-    this.logger.log(`Created order ${orderId} for checkout session ${session.id}`);
+    // Store order details in session
+    session.order_number = orderNumber;
+
+    this.logger.log(`Created order ${orderId} (${orderNumber}) for checkout session ${session.id}`);
 
     // In production:
     // const order = queryRunner.manager.create(Order, {
@@ -587,6 +591,15 @@ export class CheckoutService {
     // return order.id;
 
     return orderId;
+  }
+
+  /**
+   * Generate a human-readable order number
+   */
+  private generateOrderNumber(): string {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `ORD-${timestamp}-${random}`;
   }
 
   /**
