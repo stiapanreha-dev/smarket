@@ -21,6 +21,15 @@ export {
   catalogKeys,
 } from './useCatalog';
 
+// Export order hooks
+export {
+  useOrders,
+  useOrder,
+  useCancelOrder,
+  useRequestRefund,
+  orderKeys,
+} from './useOrders';
+
 // Export hooks here
 // Example:
 // export { useAuth } from './useAuth';
