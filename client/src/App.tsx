@@ -9,7 +9,7 @@ import Register from './pages/Auth/Register';
 import { CatalogPage, ProductPage } from './pages/Catalog';
 import { CartPage } from './pages/Cart';
 import { CheckoutPage } from './pages/Checkout';
-import { OrdersPage } from './pages/Orders';
+import { OrdersPage, OrderDetailsPage } from './pages/Orders';
 import './i18n/config'; // Initialize i18n
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom.css';
@@ -27,6 +27,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
         </Routes>
       </Router>
       {/* React Query Devtools - only in development */}
