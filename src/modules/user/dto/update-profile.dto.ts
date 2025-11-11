@@ -8,6 +8,7 @@ import {
   MaxLength,
   IsDateString,
   IsUrl,
+  IsObject,
 } from 'class-validator';
 import { UserLocale, UserCurrency } from '@/database/entities/user.entity';
 
@@ -54,4 +55,23 @@ export class UpdateProfileDto {
   @IsEnum(UserCurrency)
   @IsOptional()
   currency?: UserCurrency;
+
+  @ApiPropertyOptional({
+    example: {
+      notifications: {
+        email_notifications: true,
+        order_updates: true,
+        promotions: false,
+        newsletter: false,
+      },
+      privacy: {
+        profile_visibility: 'public',
+        show_email: false,
+        show_phone: false,
+      },
+    },
+  })
+  @IsObject()
+  @IsOptional()
+  metadata?: Record<string, any>;
 }

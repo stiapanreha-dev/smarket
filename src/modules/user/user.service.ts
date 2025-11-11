@@ -184,6 +184,12 @@ export class UserService {
       user.date_of_birth = updateDto.date_of_birth ? new Date(updateDto.date_of_birth) : null;
     }
 
+    if (updateDto.metadata !== undefined) {
+      oldValues.metadata = user.metadata;
+      newValues.metadata = updateDto.metadata;
+      user.metadata = updateDto.metadata;
+    }
+
     await this.userRepository.save(user);
 
     // Log profile update if not already logged (email/phone)

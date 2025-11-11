@@ -56,6 +56,7 @@ export interface User {
   currency: UserCurrency;
   email_verified?: boolean;
   phone_verified?: boolean;
+  metadata?: Record<string, any> | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -71,6 +72,7 @@ export interface UpdateProfileRequest {
   date_of_birth?: string;
   locale?: UserLocale;
   currency?: UserCurrency;
+  metadata?: Record<string, any>;
 }
 
 /**

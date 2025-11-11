@@ -10,6 +10,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { Navbar, Footer } from '@/components/layout';
 import { ProfileSidebar } from './components/ProfileSidebar';
 import { PersonalInformation } from './components/PersonalInformation';
+import { SettingsPage } from './SettingsPage';
 import './ProfilePage.css';
 
 export type ProfileSection =
@@ -31,7 +32,7 @@ export const ProfilePage: React.FC = () => {
       case 'payment-methods':
         return <div className="p-4">Payment Methods section - Coming soon</div>;
       case 'settings':
-        return <div className="p-4">Settings section - Coming soon</div>;
+        return <SettingsPage />;
       case 'security':
         return <div className="p-4">Security section - Coming soon</div>;
       default:
