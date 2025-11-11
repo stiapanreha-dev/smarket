@@ -17,3 +17,6 @@ export interface NavLink {
 
 // Export API types
 export * from './api';
+
+// Export Catalog types
+export * from './catalog';
