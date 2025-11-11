@@ -1,0 +1,82 @@
+.addresses-page {
+  max-width: 1200px;
+}
+
+.page-header h2 {
+  font-weight: 600;
+  color: #212529;
+}
+
+.address-card {
+  transition: all 0.2s ease;
+  border: 2px solid #dee2e6;
+}
+
+.address-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #0d6efd;
+}
+
+.address-card.default-address {
+  border-color: #0d6efd;
+  background-color: #f8f9ff;
+}
+
+.address-header h6 {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.default-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.address-details {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.address-details div {
+  margin-bottom: 0.25rem;
+}
+
+.address-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.address-actions .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* RTL Support */
+[dir='rtl'] .address-card {
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .address-actions {
+    flex-direction: column;
+  }
+
+  .address-actions .btn {
+    width: 100%;
+  }
+}

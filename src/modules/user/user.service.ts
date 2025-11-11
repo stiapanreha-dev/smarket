@@ -6,18 +6,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository, MoreThan, DataSource } from 'typeorm';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import { User } from '@/database/entities/user.entity';
 import { Merchant } from '@/database/entities/merchant.entity';
 import { RefreshToken } from '@/database/entities/refresh-token.entity';
+import { UserAddress } from '@/database/entities/user-address.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
+import { UpdateAddressDto } from './dto/update-address.dto';
+import { AddressResponseDto } from './dto/address-response.dto';
 import { EmailService } from '@/common/services/email.service';
 import { AuditLogService } from '@/common/services/audit-log.service';
 import { AuditAction } from '@/database/entities/audit-log.entity';
@@ -31,8 +35,11 @@ export class UserService {
     private readonly merchantRepository: Repository<Merchant>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(UserAddress)
+    private readonly addressRepository: Repository<UserAddress>,
     private readonly emailService: EmailService,
     private readonly auditLogService: AuditLogService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -459,5 +466,211 @@ export class UserService {
     }
 
     return response;
+  }
+
+  // ==================== Address Management ====================
+
+  /**
+   * Get all addresses for a user
+   */
+  async getUserAddresses(userId: string): Promise<AddressResponseDto[]> {
+    const addresses = await this.addressRepository.find({
+      where: { user_id: userId },
+      order: { is_default: 'DESC', created_at: 'DESC' },
+    });
+
+    return addresses;
+  }
+
+  /**
+   * Get a specific address by ID
+   */
+  async getUserAddress(userId: string, addressId: string): Promise<AddressResponseDto> {
+    const address = await this.addressRepository.findOne({
+      where: { id: addressId, user_id: userId },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    return address;
+  }
+
+  /**
+   * Create a new address
+   */
+  async createAddress(userId: string, createDto: CreateAddressDto): Promise<AddressResponseDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // If this is marked as default or user has no addresses, set it as default
+      const existingAddresses = await queryRunner.manager.count(UserAddress, {
+        where: { user_id: userId },
+      });
+
+      const shouldBeDefault = createDto.is_default || existingAddresses === 0;
+
+      // If setting as default, unset other defaults
+      if (shouldBeDefault) {
+        await queryRunner.manager.update(
+          UserAddress,
+          { user_id: userId, is_default: true },
+          { is_default: false },
+        );
+      }
+
+      // Create the new address
+      const address = queryRunner.manager.create(UserAddress, {
+        user_id: userId,
+        full_name: createDto.full_name,
+        phone: createDto.phone,
+        address_line1: createDto.address_line1,
+        address_line2: createDto.address_line2 || null,
+        city: createDto.city,
+        state: createDto.state || null,
+        postal_code: createDto.postal_code,
+        country: createDto.country,
+        is_default: shouldBeDefault,
+      });
+
+      const savedAddress = await queryRunner.manager.save(address);
+
+      await queryRunner.commitTransaction();
+
+      return savedAddress;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * Update an existing address
+   */
+  async updateAddress(
+    userId: string,
+    addressId: string,
+    updateDto: UpdateAddressDto,
+  ): Promise<AddressResponseDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const address = await queryRunner.manager.findOne(UserAddress, {
+        where: { id: addressId, user_id: userId },
+      });
+
+      if (!address) {
+        throw new NotFoundException('Address not found');
+      }
+
+      // If setting as default, unset other defaults
+      if (updateDto.is_default && !address.is_default) {
+        await queryRunner.manager.update(
+          UserAddress,
+          { user_id: userId, is_default: true },
+          { is_default: false },
+        );
+      }
+
+      // Update fields
+      if (updateDto.full_name !== undefined) address.full_name = updateDto.full_name;
+      if (updateDto.phone !== undefined) address.phone = updateDto.phone;
+      if (updateDto.address_line1 !== undefined) address.address_line1 = updateDto.address_line1;
+      if (updateDto.address_line2 !== undefined)
+        address.address_line2 = updateDto.address_line2 || null;
+      if (updateDto.city !== undefined) address.city = updateDto.city;
+      if (updateDto.state !== undefined) address.state = updateDto.state || null;
+      if (updateDto.postal_code !== undefined) address.postal_code = updateDto.postal_code;
+      if (updateDto.country !== undefined) address.country = updateDto.country;
+      if (updateDto.is_default !== undefined) address.is_default = updateDto.is_default;
+
+      const updatedAddress = await queryRunner.manager.save(address);
+
+      await queryRunner.commitTransaction();
+
+      return updatedAddress;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
+   * Delete an address
+   */
+  async deleteAddress(userId: string, addressId: string): Promise<{ message: string }> {
+    const address = await this.addressRepository.findOne({
+      where: { id: addressId, user_id: userId },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
+    }
+
+    await this.addressRepository.remove(address);
+
+    // If deleted address was default, set another as default
+    if (address.is_default) {
+      const remainingAddresses = await this.addressRepository.find({
+        where: { user_id: userId },
+        order: { created_at: 'DESC' },
+        take: 1,
+      });
+
+      if (remainingAddresses.length > 0) {
+        remainingAddresses[0].is_default = true;
+        await this.addressRepository.save(remainingAddresses[0]);
+      }
+    }
+
+    return { message: 'Address deleted successfully' };
+  }
+
+  /**
+   * Set an address as default
+   */
+  async setDefaultAddress(userId: string, addressId: string): Promise<AddressResponseDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const address = await queryRunner.manager.findOne(UserAddress, {
+        where: { id: addressId, user_id: userId },
+      });
+
+      if (!address) {
+        throw new NotFoundException('Address not found');
+      }
+
+      // Unset all other defaults
+      await queryRunner.manager.update(
+        UserAddress,
+        { user_id: userId, is_default: true },
+        { is_default: false },
+      );
+
+      // Set this as default
+      address.is_default = true;
+      const updatedAddress = await queryRunner.manager.save(address);
+
+      await queryRunner.commitTransaction();
+
+      return updatedAddress;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

@@ -3,14 +3,17 @@ import {
   Get,
   Put,
   Post,
+  Patch,
+  Delete,
   Body,
+  Param,
   UseGuards,
   Req,
   Ip,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { UserService } from './user.service';
@@ -23,6 +26,9 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { UserProfileResponseDto } from './dto/user-profile-response.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
+import { UpdateAddressDto } from './dto/update-address.dto';
+import { AddressResponseDto } from './dto/address-response.dto';
 
 @ApiTags('Users')
 @Controller('api/v1/users')
@@ -252,5 +258,198 @@ export class UserController {
   ): Promise<{ message: string }> {
     const userAgent = req.headers['user-agent'];
     return this.userService.resendVerification(resendDto, ip, userAgent);
+  }
+
+  // ==================== Address Management ====================
+
+  /**
+   * Get all addresses for current user
+   */
+  @Get('me/addresses')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get all user addresses',
+    description: 'Returns all saved addresses for the current user, ordered by default status and creation date.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Addresses retrieved successfully',
+    type: [AddressResponseDto],
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  async getUserAddresses(@CurrentUser('sub') userId: string): Promise<AddressResponseDto[]> {
+    return this.userService.getUserAddresses(userId);
+  }
+
+  /**
+   * Get a specific address
+   */
+  @Get('me/addresses/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get address by ID',
+    description: 'Returns a specific address by its ID.',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Address retrieved successfully',
+    type: AddressResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  async getUserAddress(
+    @CurrentUser('sub') userId: string,
+    @Param('id') addressId: string,
+  ): Promise<AddressResponseDto> {
+    return this.userService.getUserAddress(userId, addressId);
+  }
+
+  /**
+   * Create a new address
+   */
+  @Post('me/addresses')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Create new address',
+    description: 'Create a new address for the current user. First address is automatically set as default.',
+  })
+  @ApiBody({ type: CreateAddressDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Address created successfully',
+    type: AddressResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  async createAddress(
+    @CurrentUser('sub') userId: string,
+    @Body() createAddressDto: CreateAddressDto,
+  ): Promise<AddressResponseDto> {
+    return this.userService.createAddress(userId, createAddressDto);
+  }
+
+  /**
+   * Update an address
+   */
+  @Patch('me/addresses/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update address',
+    description: 'Update an existing address. All fields are optional.',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiBody({ type: UpdateAddressDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Address updated successfully',
+    type: AddressResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid input data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  async updateAddress(
+    @CurrentUser('sub') userId: string,
+    @Param('id') addressId: string,
+    @Body() updateAddressDto: UpdateAddressDto,
+  ): Promise<AddressResponseDto> {
+    return this.userService.updateAddress(userId, addressId, updateAddressDto);
+  }
+
+  /**
+   * Delete an address
+   */
+  @Delete('me/addresses/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete address',
+    description: 'Delete an address. If deleting the default address, another will be set as default automatically.',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Address deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Address deleted successfully' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  async deleteAddress(
+    @CurrentUser('sub') userId: string,
+    @Param('id') addressId: string,
+  ): Promise<{ message: string }> {
+    return this.userService.deleteAddress(userId, addressId);
+  }
+
+  /**
+   * Set an address as default
+   */
+  @Post('me/addresses/:id/set-default')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Set address as default',
+    description: 'Set an address as the default address. Other addresses will be unset as default.',
+  })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Default address set successfully',
+    type: AddressResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  async setDefaultAddress(
+    @CurrentUser('sub') userId: string,
+    @Param('id') addressId: string,
+  ): Promise<AddressResponseDto> {
+    return this.userService.setDefaultAddress(userId, addressId);
   }
 }

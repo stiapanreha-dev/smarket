@@ -12,6 +12,7 @@ import { ProfileSidebar } from './components/ProfileSidebar';
 import { PersonalInformation } from './components/PersonalInformation';
 import { SettingsPage } from './SettingsPage';
 import { ChangePasswordPage } from './ChangePasswordPage';
+import { AddressesPage } from './AddressesPage';
 import './ProfilePage.css';
 
 export type ProfileSection =
@@ -29,7 +30,7 @@ export const ProfilePage: React.FC = () => {
       case 'personal':
         return <PersonalInformation />;
       case 'addresses':
-        return <div className="p-4">Addresses section - Coming soon</div>;
+        return <AddressesPage />;
       case 'payment-methods':
         return <div className="p-4">Payment Methods section - Coming soon</div>;
       case 'settings':
