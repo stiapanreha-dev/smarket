@@ -133,6 +133,24 @@ export class CheckoutController {
   }
 
   /**
+   * POST /api/v1/checkout/sessions/:id/payment-intent
+   * Create a Stripe Payment Intent for the checkout session
+   */
+  @Post('sessions/:id/payment-intent')
+  @UseGuards(OptionalJwtAuthGuard)
+  async createPaymentIntent(
+    @Request() req: any,
+    @Param('id') sessionId: string,
+    @Body() dto: CreatePaymentIntentDto,
+  ): Promise<{ clientSecret: string; paymentIntentId: string }> {
+    const userId = req.user?.userId;
+
+    this.logger.log(`Creating payment intent for session ${sessionId}`);
+
+    return await this.checkoutService.createPaymentIntent(sessionId, userId, dto);
+  }
+
+  /**
    * POST /api/v1/checkout/sessions/:id/apply-promo
    * Apply promo code
    */
