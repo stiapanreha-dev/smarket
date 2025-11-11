@@ -23,10 +23,12 @@ export {
   getErrorMessage,
 } from './axios.config';
 
+// Export API clients
+export * from './catalog.api';
+
 // Export API clients here as they are created
 // Example:
 // export * from './auth';
-// export * from './catalog';
 // export * from './cart';
 // export * from './checkout';
 // export * from './orders';
