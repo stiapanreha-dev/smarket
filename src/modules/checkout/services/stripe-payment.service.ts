@@ -21,7 +21,7 @@ export class StripePaymentService {
     if (!stripeConfig.secretKey) {
       this.logger.warn(
         'STRIPE_SECRET_KEY is not set. Stripe functionality will not work. ' +
-        'Please add it to your .env file. Get your key from: https://dashboard.stripe.com/test/apikeys'
+          'Please add it to your .env file. Get your key from: https://dashboard.stripe.com/test/apikeys',
       );
     }
 
@@ -213,11 +213,7 @@ export class StripePaymentService {
    */
   verifyWebhookSignature(payload: string | Buffer, signature: string): Stripe.Event {
     try {
-      return this.stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        stripeConfig.webhookSecret,
-      );
+      return this.stripe.webhooks.constructEvent(payload, signature, stripeConfig.webhookSecret);
     } catch (error) {
       this.logger.error('Failed to verify webhook signature:', error);
       throw new BadRequestException(
