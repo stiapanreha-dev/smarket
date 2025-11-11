@@ -1,0 +1,23 @@
+/* Catalog Sidebar Styles */
+
+.catalog-sidebar {
+  background: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: 1rem;
+}
+
+.catalog-sidebar h5 {
+  font-weight: 600;
+  color: var(--bs-heading-color);
+}
+
+/* Mobile drawer styles */
+@media (max-width: 991px) {
+  .catalog-sidebar {
+    position: static;
+  }
+}

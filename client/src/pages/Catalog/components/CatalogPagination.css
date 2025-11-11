@@ -1,0 +1,15 @@
+/* Catalog Pagination Styles */
+
+.catalog-pagination {
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.catalog-pagination .pagination {
+  margin-bottom: 0;
+}
+
+/* RTL Support */
+[dir='rtl'] .pagination {
+  direction: rtl;
+}

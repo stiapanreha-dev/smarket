@@ -1,0 +1,60 @@
+/* Filter Components Styles */
+
+.filter-section {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-title {
+  font-weight: 600;
+  color: var(--bs-heading-color);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-options {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.filter-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-options::-webkit-scrollbar-track {
+  background: var(--bs-light);
+  border-radius: 3px;
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+  background: var(--bs-secondary);
+  border-radius: 3px;
+}
+
+.filter-options::-webkit-scrollbar-thumb:hover {
+  background: var(--bs-dark);
+}
+
+.search-icon {
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* RTL Support */
+[dir='rtl'] .search-icon {
+  right: 0;
+  left: auto;
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+[dir='rtl'] .filter-section input[type='text'] {
+  padding-right: 2.5rem;
+  padding-left: 0.75rem;
+}
