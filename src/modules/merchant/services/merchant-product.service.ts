@@ -36,7 +36,7 @@ export class MerchantProductService {
     if (search) {
       queryBuilder.andWhere(
         '(LOWER(product.title) LIKE LOWER(:search) OR LOWER(product.description) LIKE LOWER(:search))',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 

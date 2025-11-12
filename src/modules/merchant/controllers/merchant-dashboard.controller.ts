@@ -1,16 +1,5 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-  Request,
-  NotFoundException,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { Controller, Get, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -45,9 +34,7 @@ export class MerchantDashboardController {
     status: 404,
     description: 'Merchant profile not found',
   })
-  async getDashboardStats(
-    @Request() req: AuthenticatedRequest,
-  ): Promise<DashboardStatsDto> {
+  async getDashboardStats(@Request() req: AuthenticatedRequest): Promise<DashboardStatsDto> {
     // Get merchant profile for the authenticated user
     const merchant = await this.merchantRepository.findOne({
       where: { user_id: req.user.id },

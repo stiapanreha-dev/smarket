@@ -461,6 +461,46 @@ body {
   animation: badgePop 0.3s ease;
 }
 
+/* Wishlist Icon */
+.wishlist-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+}
+
+.wishlist-icon-wrapper:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.wishlist-icon {
+  font-size: 24px;
+  color: var(--main-color);
+  transition: all 0.3s ease;
+}
+
+.wishlist-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: #dc3545;
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: badgePop 0.3s ease;
+}
+
 @keyframes badgePop {
   0% {
     transform: scale(0);

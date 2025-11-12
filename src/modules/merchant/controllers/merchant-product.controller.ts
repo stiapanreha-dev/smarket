@@ -49,7 +49,7 @@ export class MerchantProductController {
   @Get()
   @ApiOperation({
     summary: "Get merchant's products",
-    description: 'Get paginated list of products for the authenticated merchant with filters'
+    description: 'Get paginated list of products for the authenticated merchant with filters',
   })
   @ApiResponse({
     status: 200,
@@ -84,7 +84,7 @@ export class MerchantProductController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete a product',
-    description: 'Soft delete a product by setting its status to DELETED'
+    description: 'Soft delete a product by setting its status to DELETED',
   })
   @ApiParam({
     name: 'id',
@@ -124,7 +124,7 @@ export class MerchantProductController {
   @Patch(':id/toggle-status')
   @ApiOperation({
     summary: 'Toggle product status',
-    description: 'Toggle product between active and inactive status'
+    description: 'Toggle product between active and inactive status',
   })
   @ApiParam({
     name: 'id',

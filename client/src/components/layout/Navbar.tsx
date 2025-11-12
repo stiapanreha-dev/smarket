@@ -3,13 +3,16 @@ import { Container, Navbar as BootstrapNavbar, Nav, Modal } from 'react-bootstra
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BsCart, BsSearch } from 'react-icons/bs';
+import { AiOutlineHeart } from 'react-icons/ai';
 import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 import SearchBar from '@/components/features/SearchBar';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const itemsCount = useCartStore((state) => state.itemsCount);
+  const wishlistCount = useWishlistStore((state) => state.itemCount);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const handleLanguageChange = (lang: string) => {
@@ -46,6 +49,14 @@ const Navbar = () => {
                 onClick={() => setShowMobileSearch(true)}
               >
                 <BsSearch className="search-icon-mobile" />
+              </div>
+
+              {/* Wishlist Icon with Badge */}
+              <div className="wishlist-icon-wrapper ms-3" onClick={() => navigate('/wishlist')}>
+                <AiOutlineHeart className="wishlist-icon" />
+                {wishlistCount > 0 && (
+                  <span className="wishlist-badge">{wishlistCount}</span>
+                )}
               </div>
 
               {/* Cart Icon with Badge */}

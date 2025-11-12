@@ -35,3 +35,6 @@ export * from './address';
 
 // Export Merchant types
 export * from './merchant';
+
+// Export Wishlist types
+export * from './wishlist';

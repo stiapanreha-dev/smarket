@@ -10,9 +10,7 @@ import { MerchantDashboardService } from './services/merchant-dashboard.service'
 import { MerchantProductService } from './services/merchant-product.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Merchant, Order, OrderLineItem, Product]),
-  ],
+  imports: [TypeOrmModule.forFeature([Merchant, Order, OrderLineItem, Product])],
   controllers: [MerchantDashboardController, MerchantProductController],
   providers: [MerchantDashboardService, MerchantProductService],
   exports: [MerchantDashboardService, MerchantProductService],

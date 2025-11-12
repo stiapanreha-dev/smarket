@@ -13,7 +13,14 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { UserService } from './user.service';
@@ -270,7 +277,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get all user addresses',
-    description: 'Returns all saved addresses for the current user, ordered by default status and creation date.',
+    description:
+      'Returns all saved addresses for the current user, ordered by default status and creation date.',
   })
   @ApiResponse({
     status: 200,
@@ -325,7 +333,8 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create new address',
-    description: 'Create a new address for the current user. First address is automatically set as default.',
+    description:
+      'Create a new address for the current user. First address is automatically set as default.',
   })
   @ApiBody({ type: CreateAddressDto })
   @ApiResponse({
@@ -393,7 +402,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete address',
-    description: 'Delete an address. If deleting the default address, another will be set as default automatically.',
+    description:
+      'Delete an address. If deleting the default address, another will be set as default automatically.',
   })
   @ApiParam({ name: 'id', description: 'Address ID' })
   @ApiResponse({

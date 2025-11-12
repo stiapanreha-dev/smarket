@@ -2,8 +2,11 @@ import { Card, Badge, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
+import { toast } from 'react-toastify';
 import type { Product } from '@/types/catalog';
 import { ProductType, formatPrice, getProductPrice } from '@/types/catalog';
+import { useWishlistStore } from '@/store/wishlistStore';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -19,6 +22,10 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+
+  // Wishlist functionality
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const inWishlist = isInWishlist(product.id);
 
   // Get product image with fallback
   const getProductImage = (): string => {
@@ -99,6 +106,27 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
     console.log('Action clicked for product:', product.id);
   };
 
+  // Handle wishlist toggle
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(product.id);
+        toast.success(t('wishlist.removed') || 'Removed from wishlist');
+      } else {
+        await addToWishlist(product.id);
+        toast.success(t('wishlist.added') || 'Added to wishlist');
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('wishlist.error') || 'Failed to update wishlist'
+      );
+    }
+  };
+
   const typeBadge = getProductTypeBadge();
   const price = getProductPrice(product);
   const formattedPrice = formatPrice(
@@ -116,15 +144,31 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
       >
         <div className="row g-0">
           <div className="col-md-3">
-            <Card.Img
-              variant="top"
-              src={getProductImage()}
-              alt={product.title}
-              className="product-card-image-list"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/placeholder-product.svg';
-              }}
-            />
+            <div className="position-relative">
+              <Card.Img
+                variant="top"
+                src={getProductImage()}
+                alt={product.title}
+                className="product-card-image-list"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-product.svg';
+                }}
+              />
+              <Button
+                variant="light"
+                size="sm"
+                className="position-absolute top-0 m-2 rounded-circle p-2 wishlist-btn"
+                style={{ [isRTL ? 'right' : 'left']: '8px' }}
+                onClick={handleWishlistToggle}
+                aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                {inWishlist ? (
+                  <AiFillHeart size={20} className="text-danger" />
+                ) : (
+                  <AiOutlineHeart size={20} />
+                )}
+              </Button>
+            </div>
           </div>
           <div className="col-md-9">
             <Card.Body className="d-flex flex-column h-100">
@@ -194,6 +238,20 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
         >
           {typeBadge.text}
         </Badge>
+        <Button
+          variant="light"
+          size="sm"
+          className="position-absolute top-0 m-2 rounded-circle p-2 wishlist-btn"
+          style={{ [isRTL ? 'right' : 'left']: '8px' }}
+          onClick={handleWishlistToggle}
+          aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          {inWishlist ? (
+            <AiFillHeart size={20} className="text-danger" />
+          ) : (
+            <AiOutlineHeart size={20} />
+          )}
+        </Button>
       </div>
 
       <Card.Body className="d-flex flex-column">
