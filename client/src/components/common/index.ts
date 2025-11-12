@@ -38,3 +38,11 @@ export { PageLoader } from './PageLoader';
 export { SkeletonLoader, ProductCardSkeleton, OrderCardSkeleton } from './SkeletonLoader';
 
 export { LazyImage } from './LazyImage';
+
+// Error handling components
+export { ErrorBoundary } from './ErrorBoundary';
+
+export { FieldError, FormErrorSummary, InlineError, useFormErrors, scrollToError } from './FormError';
+export type { InlineErrorProps } from './FormError';
+
+export { OfflineBanner } from './OfflineBanner';
