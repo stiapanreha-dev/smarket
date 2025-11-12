@@ -28,7 +28,7 @@ export interface RefreshTokenResponse {
 /**
  * User roles
  */
-export type UserRole = 'customer' | 'merchant' | 'admin';
+export type UserRole = 'buyer' | 'merchant' | 'admin';
 
 /**
  * Supported locales
