@@ -6,6 +6,7 @@ import { Navbar, Footer } from '@/components/layout';
 import { useOrders } from '@/hooks/useOrders';
 import { OrderStatus, type OrderFilters } from '@/types';
 import { OrderCard } from './components/OrderCard';
+import { VirtualizedOrdersList } from './components/VirtualizedOrdersList';
 import { EmptyOrders } from './components/EmptyOrders';
 import { OrdersPageSkeleton } from './components/OrdersPageSkeleton';
 import { Pagination } from './components/Pagination';
@@ -123,15 +124,23 @@ export function OrdersPage() {
             <>
               <Row>
                 <Col>
-                  <div className="orders-list">
-                    {orders.map((order) => (
-                      <OrderCard
-                        key={order.id}
-                        order={order}
-                        onClick={() => handleOrderClick(order.id)}
-                      />
-                    ))}
-                  </div>
+                  {/* Use virtualized list for better performance with many orders */}
+                  {pagination && pagination.total > 50 ? (
+                    <VirtualizedOrdersList
+                      orders={orders}
+                      onOrderClick={handleOrderClick}
+                    />
+                  ) : (
+                    <div className="orders-list">
+                      {orders.map((order) => (
+                        <OrderCard
+                          key={order.id}
+                          order={order}
+                          onClick={() => handleOrderClick(order.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </Col>
               </Row>
 

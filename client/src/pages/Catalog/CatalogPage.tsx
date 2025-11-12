@@ -1,13 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Container, Row, Col, Button, Dropdown, Offcanvas } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFilter, FaTh, FaList } from 'react-icons/fa';
 import { ProductType, ProductSortOption } from '@/types/catalog';
 import { useProducts } from '@/hooks/useCatalog';
+import { useWindowResize } from '@/hooks/usePerformance';
 import { Navbar, Footer } from '@/components/layout';
 import { CatalogSidebar, CatalogFilters } from './components/CatalogSidebar';
 import { ProductsGrid } from './components/ProductsGrid';
+import { VirtualizedProductsGrid } from './components/VirtualizedProductsGrid';
 import { ProductsGridSkeleton } from './components/ProductsGridSkeleton';
 import { EmptyState } from './components/EmptyState';
 import { CatalogPagination } from './components/CatalogPagination';
@@ -31,6 +33,18 @@ export function CatalogPage() {
   // State
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Track window resize with throttling (200ms) for better performance
+  const { width: windowWidth } = useWindowResize(200);
+
+  // Calculate container width for virtualized grid based on window width
+  const containerWidth = useMemo(() => {
+    // Approximate container width based on Bootstrap breakpoints
+    if (windowWidth >= 1400) return 1320 * 0.75; // XXL container * 9/12 columns
+    if (windowWidth >= 1200) return 1140 * 0.75; // XL container * 9/12 columns
+    if (windowWidth >= 992) return 960 * 0.75;   // LG container * 9/12 columns
+    return windowWidth * 0.9; // Smaller screens with padding
+  }, [windowWidth]);
 
   // Parse filters from URL
   const filters = useMemo<CatalogFilters>(() => {
@@ -70,8 +84,8 @@ export function CatalogPage() {
     locale: i18n.language as any,
   });
 
-  // Update URL params when filters change
-  const updateFilters = (newFilters: CatalogFilters) => {
+  // Update URL params when filters change - memoized with useCallback
+  const updateFilters = useCallback((newFilters: CatalogFilters) => {
     const params = new URLSearchParams(searchParams);
 
     // Update or remove search param
@@ -112,33 +126,33 @@ export function CatalogPage() {
     params.set('page', '1');
 
     setSearchParams(params);
-  };
+  }, [searchParams, setSearchParams]);
 
-  // Clear all filters
-  const clearFilters = () => {
+  // Clear all filters - memoized with useCallback
+  const clearFilters = useCallback(() => {
     const params = new URLSearchParams();
     params.set('page', '1');
     params.set('sort', sortBy);
     setSearchParams(params);
-  };
+  }, [sortBy, setSearchParams]);
 
-  // Update sort
-  const updateSort = (newSort: ProductSortOption) => {
+  // Update sort - memoized with useCallback
+  const updateSort = useCallback((newSort: ProductSortOption) => {
     const params = new URLSearchParams(searchParams);
     params.set('sort', newSort);
     params.set('page', '1'); // Reset to page 1
     setSearchParams(params);
-  };
+  }, [searchParams, setSearchParams]);
 
-  // Update page
-  const updatePage = (newPage: number) => {
+  // Update page - memoized with useCallback
+  const updatePage = useCallback((newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
     setSearchParams(params);
 
     // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [searchParams, setSearchParams]);
 
   // Check if any filters are active
   const hasActiveFilters =
@@ -256,7 +270,15 @@ export function CatalogPage() {
               <>
                 {data.data.length > 0 ? (
                   <>
-                    <ProductsGrid products={data.data} viewMode={viewMode} />
+                    {/* Use virtualized grid for large lists in grid mode for better performance */}
+                    {viewMode === 'grid' && data.pagination.total > 100 ? (
+                      <VirtualizedProductsGrid
+                        products={data.data}
+                        containerWidth={containerWidth}
+                      />
+                    ) : (
+                      <ProductsGrid products={data.data} viewMode={viewMode} />
+                    )}
                     <CatalogPagination
                       currentPage={currentPage}
                       totalPages={data.pagination.pages}
