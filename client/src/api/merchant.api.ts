@@ -269,7 +269,7 @@ export const exportOrdersToCSV = async (
 
 export const merchantApi = {
   getMerchantProducts,
-  getProduct,
+  getMerchantProduct,
   createProduct,
   updateProduct,
   deleteProduct,
