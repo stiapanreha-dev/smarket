@@ -30,9 +30,30 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Simplified chunking: put ALL node_modules in vendor
-        // This eliminates React dependency resolution issues
-        manualChunks: undefined,
+        // Manual chunks: React MUST load before any React-dependent code
+        manualChunks: (id) => {
+          // React and ALL packages starting with 'react' in ONE chunk
+          // This includes react, react-dom, react-router-dom, react-bootstrap, etc.
+          if (id.includes('node_modules/react')) {
+            return 'react-vendor';
+          }
+
+          // Packages that depend on React
+          if (
+            id.includes('node_modules/@tanstack/react-query') ||
+            id.includes('node_modules/@hookform') ||
+            id.includes('node_modules/@stripe/react-stripe-js') ||
+            id.includes('node_modules/recharts') ||
+            id.includes('node_modules/zustand')
+          ) {
+            return 'react-vendor';
+          }
+
+          // All other node_modules
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
 
         // Consistent naming for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
