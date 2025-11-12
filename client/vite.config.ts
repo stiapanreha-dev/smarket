@@ -32,14 +32,20 @@ export default defineConfig({
       output: {
         // Manual chunks for optimal code splitting
         manualChunks: (id) => {
-          // React core - separate chunk
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+          // React core - separate chunk (must be first to ensure all react libs can access it)
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
             return 'react-vendor';
           }
 
-          // React Router - separate chunk
-          if (id.includes('node_modules/react-router-dom')) {
-            return 'router-vendor';
+          // React Router and related react-* libraries
+          if (
+            id.includes('node_modules/react-router-dom') ||
+            id.includes('node_modules/react-dropzone') ||
+            id.includes('node_modules/react-helmet-async') ||
+            id.includes('node_modules/react-hot-toast') ||
+            id.includes('node_modules/react-window')
+          ) {
+            return 'vendor';
           }
 
           // Bootstrap & React Bootstrap - separate chunk
