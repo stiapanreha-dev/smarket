@@ -32,23 +32,28 @@ export default defineConfig({
       output: {
         // Manual chunks for optimal code splitting
         manualChunks: (id) => {
-          // React and ALL React-dependent libraries in ONE chunk
-          // This prevents "Cannot read properties of undefined" errors
+          // CRITICAL: React and ALL libraries that use React (directly or indirectly) MUST be in ONE chunk
+          // This includes: react, react-dom, and ALL react-* packages, plus libraries like zustand, recharts
+          // that may use React context or hooks internally
           if (
             id.includes('node_modules/react') ||
             id.includes('node_modules/react-dom') ||
-            id.includes('node_modules/react-router-dom') ||
+            id.includes('node_modules/react-router') ||
+            id.includes('node_modules/react-bootstrap') ||
             id.includes('node_modules/react-dropzone') ||
-            id.includes('node_modules/react-helmet-async') ||
+            id.includes('node_modules/react-helmet') ||
             id.includes('node_modules/react-hot-toast') ||
             id.includes('node_modules/react-window') ||
-            id.includes('node_modules/react-bootstrap') ||
-            id.includes('node_modules/@popperjs') ||
-            id.includes('node_modules/@tanstack/react-query') ||
             id.includes('node_modules/react-hook-form') ||
+            id.includes('node_modules/react-icons') ||
+            id.includes('node_modules/react-i18next') ||
+            id.includes('node_modules/react-editor-js') ||
             id.includes('node_modules/@hookform') ||
+            id.includes('node_modules/@tanstack/react-query') ||
             id.includes('node_modules/@stripe/react-stripe-js') ||
-            id.includes('node_modules/react-editor-js')
+            id.includes('node_modules/@popperjs') ||
+            id.includes('node_modules/recharts') ||
+            id.includes('node_modules/zustand')
           ) {
             return 'react-vendor';
           }
@@ -58,28 +63,12 @@ export default defineConfig({
             return 'bootstrap-vendor';
           }
 
-          // Charts library (recharts) - separate chunk (lazy loaded on dashboard)
-          if (id.includes('node_modules/recharts')) {
-            return 'charts-vendor';
-          }
-
-          // Icons - separate chunk
-          if (
-            id.includes('node_modules/react-icons') ||
-            id.includes('node_modules/@react-icons')
-          ) {
-            return 'icons-vendor';
-          }
-
-          // i18n libraries - separate chunk
-          if (
-            id.includes('node_modules/i18next') ||
-            id.includes('node_modules/react-i18next')
-          ) {
+          // i18n core (non-React) - separate chunk
+          if (id.includes('node_modules/i18next') && !id.includes('react-i18next')) {
             return 'i18n-vendor';
           }
 
-          // Form validation libraries (yup only - react-hook-form already in vendor)
+          // Form validation libraries (yup) - separate chunk
           if (id.includes('node_modules/yup')) {
             return 'form-vendor';
           }
@@ -94,7 +83,7 @@ export default defineConfig({
             return 'editor-vendor';
           }
 
-          // All other node_modules - common vendor chunk
+          // All other node_modules - common vendor chunk (axios, date-fns, etc.)
           if (id.includes('node_modules')) {
             return 'vendor';
           }
