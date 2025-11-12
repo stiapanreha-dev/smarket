@@ -32,13 +32,11 @@ export default defineConfig({
       output: {
         // Manual chunks for optimal code splitting
         manualChunks: (id) => {
-          // React core - separate chunk (must be first to ensure all react libs can access it)
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
-            return 'react-vendor';
-          }
-
-          // All React-dependent libraries - must be in same chunk or loaded after react-vendor
+          // React and ALL React-dependent libraries in ONE chunk
+          // This prevents "Cannot read properties of undefined" errors
           if (
+            id.includes('node_modules/react') ||
+            id.includes('node_modules/react-dom') ||
             id.includes('node_modules/react-router-dom') ||
             id.includes('node_modules/react-dropzone') ||
             id.includes('node_modules/react-helmet-async') ||
@@ -52,7 +50,7 @@ export default defineConfig({
             id.includes('node_modules/@stripe/react-stripe-js') ||
             id.includes('node_modules/react-editor-js')
           ) {
-            return 'vendor';
+            return 'react-vendor';
           }
 
           // Bootstrap CSS only - separate chunk
