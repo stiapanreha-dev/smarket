@@ -23,6 +23,22 @@ export class RegisterDto {
   })
   password: string;
 
+  @ApiProperty({
+    example: 'John',
+    description: 'User first name',
+  })
+  @IsString()
+  @MinLength(1, { message: 'First name is required' })
+  first_name: string;
+
+  @ApiProperty({
+    example: 'Doe',
+    description: 'User last name',
+  })
+  @IsString()
+  @MinLength(1, { message: 'Last name is required' })
+  last_name: string;
+
   @ApiPropertyOptional({
     example: '+1234567890',
     description: 'Phone number (optional)',
