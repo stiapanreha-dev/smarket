@@ -49,6 +49,7 @@ import {
   Booking,
   Wishlist,
   WishlistItem,
+  Notification,
 } from './database/entities';
 
 @Module({
@@ -107,6 +108,7 @@ import {
           Booking,
           Wishlist,
           WishlistItem,
+          Notification,
         ],
         // Disable synchronize to avoid duplicate index errors
         // Use migrations instead: npm run migration:run

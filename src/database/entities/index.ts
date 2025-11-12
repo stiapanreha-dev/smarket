@@ -36,3 +36,4 @@ export { Booking, BookingStatus } from './booking.entity';
 export { UserAddress } from './user-address.entity';
 export { Wishlist } from './wishlist.entity';
 export { WishlistItem } from './wishlist-item.entity';
+export { Notification, NotificationType } from './notification.entity';
