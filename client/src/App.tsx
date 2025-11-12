@@ -7,6 +7,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import { CatalogPage, ProductPage } from './pages/Catalog';
+import { SearchPage } from './pages/Search';
 import { CartPage } from './pages/Cart';
 import { CheckoutPage } from './pages/Checkout';
 import { OrdersPage, OrderDetailsPage } from './pages/Orders';
@@ -32,6 +33,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/catalog/:id" element={<ProductPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrdersPage />} />
