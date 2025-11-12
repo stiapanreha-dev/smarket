@@ -31,3 +31,4 @@ export * from './checkout.api';
 export * from './order.api';
 export * from './profile.api';
 export * from './merchant.api';
+export * from './wishlist.api';

@@ -28,6 +28,7 @@ import {
   FaClock,
   FaBolt,
 } from 'react-icons/fa';
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { useProduct, useRelatedProducts } from '@/hooks/useCatalog';
 import {
   ProductType,
@@ -39,6 +40,7 @@ import {
   isProductInStock,
 } from '@/types/catalog';
 import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 import { Navbar, Footer } from '@/components/layout';
 import { ProductCard } from '@/components/features';
 import './ProductPage.css';
@@ -69,6 +71,10 @@ export function ProductPage() {
 
   // Cart store
   const { addItem } = useCartStore();
+
+  // Wishlist store
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
+  const inWishlist = id ? isInWishlist(id) : false;
 
   // Fetch product data
   const { data: product, isLoading, error } = useProduct(id || '', {
@@ -290,6 +296,27 @@ export function ProductPage() {
     // For now, navigate to a booking page (to be implemented)
     toast('Booking flow coming soon!', { icon: 'ℹ️' });
     // navigate(`/booking/${product.id}`);
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async () => {
+    if (!id) return;
+
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(id);
+        toast.success(t('wishlist.removed') || 'Removed from wishlist');
+      } else {
+        await addToWishlist(id);
+        toast.success(t('wishlist.added') || 'Added to wishlist');
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('wishlist.error') || 'Failed to update wishlist'
+      );
+    }
   };
 
   // Get specifications from product attrs or translation
@@ -573,6 +600,26 @@ export function ProductPage() {
                       </Button>
                     </>
                   )}
+
+                  {/* Wishlist Button */}
+                  <Button
+                    variant={inWishlist ? 'outline-danger' : 'outline-secondary'}
+                    size="lg"
+                    className="w-100"
+                    onClick={handleWishlistToggle}
+                  >
+                    {inWishlist ? (
+                      <>
+                        <AiFillHeart className="me-2" size={20} />
+                        {t('wishlist.removeFromWishlist') || 'Remove from Wishlist'}
+                      </>
+                    ) : (
+                      <>
+                        <AiOutlineHeart className="me-2" size={20} />
+                        {t('wishlist.addToWishlist') || 'Add to Wishlist'}
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </Col>

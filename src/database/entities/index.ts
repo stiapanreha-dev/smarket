@@ -34,3 +34,5 @@ export { Service, ServiceStatus, ServiceCategory } from './service.entity';
 export { Schedule, TimeSlot, WeeklySlots, ScheduleException } from './schedule.entity';
 export { Booking, BookingStatus } from './booking.entity';
 export { UserAddress } from './user-address.entity';
+export { Wishlist } from './wishlist.entity';
+export { WishlistItem } from './wishlist-item.entity';

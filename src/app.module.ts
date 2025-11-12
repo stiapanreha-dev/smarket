@@ -20,6 +20,7 @@ import { CartModule } from '@modules/cart/cart.module';
 import { CheckoutModule } from '@modules/checkout/checkout.module';
 import { PayoutModule } from '@modules/payout/payout.module';
 import { MerchantModule } from '@modules/merchant/merchant.module';
+import { WishlistModule } from '@modules/wishlist/wishlist.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
   User,
@@ -46,6 +47,8 @@ import {
   Service,
   Schedule,
   Booking,
+  Wishlist,
+  WishlistItem,
 } from './database/entities';
 
 @Module({
@@ -102,6 +105,8 @@ import {
           Service,
           Schedule,
           Booking,
+          Wishlist,
+          WishlistItem,
         ],
         // Disable synchronize to avoid duplicate index errors
         // Use migrations instead: npm run migration:run
@@ -126,6 +131,7 @@ import {
     PaymentModule,
     PayoutModule,
     MerchantModule,
+    WishlistModule,
     NotificationModule,
   ],
   controllers: [AppController, HealthController],
