@@ -103,6 +103,34 @@ export const getRelatedProducts = async (
   return response.data;
 };
 
+/**
+ * Get autocomplete search suggestions
+ */
+export interface AutocompleteItem {
+  id: string;
+  title: string;
+  image_url?: string;
+  price: number;
+  currency: string;
+  type: string;
+}
+
+export interface AutocompleteResponse {
+  products: AutocompleteItem[];
+  services: AutocompleteItem[];
+  categories: string[];
+}
+
+export const getAutocomplete = async (
+  query: string,
+  locale: string = 'en'
+): Promise<AutocompleteResponse> => {
+  const response = await apiClient.get<AutocompleteResponse>('/products/autocomplete', {
+    params: { q: query, locale },
+  });
+  return response.data;
+};
+
 // ============================================================================
 // Export all methods
 // ============================================================================
@@ -115,6 +143,7 @@ export const catalogApi = {
   getProductBySlug,
   getFeaturedProducts,
   getRelatedProducts,
+  getAutocomplete,
 };
 
 export default catalogApi;

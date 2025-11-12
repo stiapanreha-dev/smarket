@@ -11,6 +11,9 @@ const resources = {
         about: 'About',
         contact: 'Contact',
       },
+      search: {
+        placeholder: 'Search products, services...',
+      },
       hero: {
         title: 'Welcome to SnailMarketplace',
         subtitle: 'A modern marketplace platform for physical goods, digital products, and professional services. Built for speed, security, and seamless user experience.',
@@ -324,6 +327,9 @@ const resources = {
         services: 'Услуги',
         about: 'О нас',
         contact: 'Контакты',
+      },
+      search: {
+        placeholder: 'Поиск товаров, услуг...',
       },
       hero: {
         title: 'Добро пожаловать в SnailMarketplace',
@@ -641,6 +647,9 @@ const resources = {
         services: 'الخدمات',
         about: 'عن',
         contact: 'اتصل',
+      },
+      search: {
+        placeholder: 'البحث عن المنتجات والخدمات...',
       },
       hero: {
         title: 'مرحبًا بك في SnailMarketplace',

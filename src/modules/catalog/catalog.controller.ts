@@ -306,4 +306,33 @@ export class CatalogController {
   getModuleInfo(): string {
     return this.catalogService.getModuleInfo();
   }
+
+  @Get('autocomplete')
+  @ApiOperation({
+    summary: 'Autocomplete search suggestions',
+    description: 'Get search suggestions for products, services, and categories as user types',
+  })
+  @ApiQuery({
+    name: 'q',
+    description: 'Search query',
+    required: true,
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'locale',
+    description: 'Locale for translations',
+    required: false,
+    enum: ['en', 'ru', 'ar'],
+    type: 'string',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Search suggestions retrieved successfully',
+  })
+  async autocomplete(
+    @Query('q') query: string,
+    @Query('locale') locale: string = 'en',
+  ) {
+    return this.productSearchService.autocomplete(query, locale);
+  }
 }
