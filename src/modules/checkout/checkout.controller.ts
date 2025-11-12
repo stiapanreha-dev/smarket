@@ -23,6 +23,7 @@ import {
   ApplyPromoCodeDto,
   CompleteCheckoutDto,
   CompleteCheckoutResponseDto,
+  CreatePaymentIntentDto,
 } from './dto';
 import { CheckoutSession, DeliveryOption } from '../../database/entities/checkout-session.entity';
 

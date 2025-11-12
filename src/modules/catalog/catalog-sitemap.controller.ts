@@ -1,8 +1,8 @@
 import { Controller, Get, Header } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from '@/database/entities';
-import { Public } from '@/common/decorators/public.decorator';
+import { Product, ProductStatus } from '@/database/entities';
+import { Public } from '../auth/decorators/public.decorator';
 
 /**
  * Catalog Sitemap Controller
@@ -38,7 +38,7 @@ export class CatalogSitemapController {
     // Fetch all active products (limit to prevent huge sitemaps)
     // Note: For large catalogs, consider splitting into multiple sitemaps
     const products = await this.productRepository.find({
-      where: { is_active: true },
+      where: { status: ProductStatus.ACTIVE },
       select: ['id', 'updated_at'],
       take: 50000, // Google's sitemap limit
       order: { updated_at: 'DESC' },

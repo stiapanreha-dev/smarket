@@ -37,7 +37,7 @@ export class MerchantDashboardController {
   async getDashboardStats(@Request() req: AuthenticatedRequest): Promise<DashboardStatsDto> {
     // Get merchant profile for the authenticated user
     const merchant = await this.merchantRepository.findOne({
-      where: { user_id: req.user.id },
+      where: { owner_id: req.user.id },
     });
 
     if (!merchant) {

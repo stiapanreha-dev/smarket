@@ -273,7 +273,6 @@ export class CheckoutService {
       session.cart_snapshot,
       session.shipping_address,
       session.promo_codes || undefined,
-      selectedOption.price,
     );
 
     session.totals = totals;

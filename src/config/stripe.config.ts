@@ -14,7 +14,7 @@ export const stripeConfig = {
   /**
    * Stripe API Version
    */
-  apiVersion: '2024-11-20.acacia' as const,
+  apiVersion: '2025-10-29.clover' as const,
 
   /**
    * Webhook Secret (for Stripe webhook signature verification)
