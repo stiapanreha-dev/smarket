@@ -6,7 +6,8 @@ echo "🚀 Starting deployment to production..."
 
 # Configuration
 APP_DIR="$HOME/apps/smarket/backend"
-CLIENT_DIR="$HOME/apps/smarket/client"
+CLIENT_SOURCE_DIR="$APP_DIR/client"
+CLIENT_DEPLOY_DIR="$HOME/apps/smarket/frontend"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -49,16 +50,22 @@ else
   echo -e "${YELLOW}⚠ No process manager found. Please restart manually.${NC}"
 fi
 
-echo -e "${BLUE}Step 6/7: Updating frontend...${NC}"
-if [ -d "$CLIENT_DIR/.git" ]; then
-  cd "$CLIENT_DIR"
-  git fetch origin
-  git reset --hard origin/master
-  npm install
+echo -e "${BLUE}Step 6/7: Building and deploying frontend...${NC}"
+if [ -d "$CLIENT_SOURCE_DIR" ]; then
+  cd "$CLIENT_SOURCE_DIR"
+  echo "Installing client dependencies..."
+  npm install --production=false
+  echo "Building client..."
   npm run build
-  echo -e "${GREEN}✓ Frontend built and updated${NC}"
+
+  # Copy built files to deployment directory
+  echo "Deploying built files..."
+  mkdir -p "$CLIENT_DEPLOY_DIR"
+  rsync -av --delete dist/ "$CLIENT_DEPLOY_DIR/"
+
+  echo -e "${GREEN}✓ Frontend built and deployed${NC}"
 else
-  echo -e "${YELLOW}⚠ Frontend directory not found at $CLIENT_DIR (skipping)${NC}"
+  echo -e "${YELLOW}⚠ Client source directory not found at $CLIENT_SOURCE_DIR (skipping)${NC}"
 fi
 
 echo -e "${BLUE}Step 7/7: Verifying deployment...${NC}"
