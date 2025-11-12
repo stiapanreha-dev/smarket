@@ -37,29 +37,27 @@ export default defineConfig({
             return 'react-vendor';
           }
 
-          // React Router and related react-* libraries
+          // All React-dependent libraries - must be in same chunk or loaded after react-vendor
           if (
             id.includes('node_modules/react-router-dom') ||
             id.includes('node_modules/react-dropzone') ||
             id.includes('node_modules/react-helmet-async') ||
             id.includes('node_modules/react-hot-toast') ||
-            id.includes('node_modules/react-window')
+            id.includes('node_modules/react-window') ||
+            id.includes('node_modules/react-bootstrap') ||
+            id.includes('node_modules/@popperjs') ||
+            id.includes('node_modules/@tanstack/react-query') ||
+            id.includes('node_modules/react-hook-form') ||
+            id.includes('node_modules/@hookform') ||
+            id.includes('node_modules/@stripe/react-stripe-js') ||
+            id.includes('node_modules/react-editor-js')
           ) {
             return 'vendor';
           }
 
-          // Bootstrap & React Bootstrap - separate chunk
-          if (
-            id.includes('node_modules/bootstrap') ||
-            id.includes('node_modules/react-bootstrap') ||
-            id.includes('node_modules/@popperjs')
-          ) {
+          // Bootstrap CSS only - separate chunk
+          if (id.includes('node_modules/bootstrap')) {
             return 'bootstrap-vendor';
-          }
-
-          // React Query - separate chunk
-          if (id.includes('node_modules/@tanstack/react-query')) {
-            return 'query-vendor';
           }
 
           // Charts library (recharts) - separate chunk (lazy loaded on dashboard)
@@ -83,28 +81,18 @@ export default defineConfig({
             return 'i18n-vendor';
           }
 
-          // Form libraries - separate chunk
-          if (
-            id.includes('node_modules/react-hook-form') ||
-            id.includes('node_modules/@hookform') ||
-            id.includes('node_modules/yup')
-          ) {
+          // Form validation libraries (yup only - react-hook-form already in vendor)
+          if (id.includes('node_modules/yup')) {
             return 'form-vendor';
           }
 
-          // Stripe - separate chunk (only loaded on checkout)
-          if (
-            id.includes('node_modules/@stripe/stripe-js') ||
-            id.includes('node_modules/@stripe/react-stripe-js')
-          ) {
+          // Stripe JS SDK (non-React version) - separate chunk
+          if (id.includes('node_modules/@stripe/stripe-js')) {
             return 'stripe-vendor';
           }
 
-          // Editor.js - separate chunk (only loaded on product form)
-          if (
-            id.includes('node_modules/@editorjs') ||
-            id.includes('node_modules/react-editor-js')
-          ) {
+          // Editor.js core (non-React plugins) - separate chunk
+          if (id.includes('node_modules/@editorjs')) {
             return 'editor-vendor';
           }
 
