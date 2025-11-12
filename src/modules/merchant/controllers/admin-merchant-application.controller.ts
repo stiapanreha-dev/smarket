@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/modules/auth/guards/roles.guard';
 import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
+import { UserRole } from '@/database/entities/user.entity';
 import { MerchantApplicationService } from '../services/merchant-application.service';
 import {
   ApproveMerchantApplicationDto,
@@ -14,7 +15,7 @@ import { ApplicationStatus } from '@/database/entities/merchant-application.enti
 @ApiTags('Admin - Merchant Applications')
 @Controller('admin/merchant-applications')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
+@Roles(UserRole.ADMIN)
 @ApiBearerAuth()
 export class AdminMerchantApplicationController {
   constructor(private readonly applicationService: MerchantApplicationService) {}
