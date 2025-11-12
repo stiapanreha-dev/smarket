@@ -329,10 +329,7 @@ export class CatalogController {
     status: HttpStatus.OK,
     description: 'Search suggestions retrieved successfully',
   })
-  async autocomplete(
-    @Query('q') query: string,
-    @Query('locale') locale: string = 'en',
-  ) {
+  async autocomplete(@Query('q') query: string, @Query('locale') locale: string = 'en') {
     return this.productSearchService.autocomplete(query, locale);
   }
 }

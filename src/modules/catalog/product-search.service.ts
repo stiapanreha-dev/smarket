@@ -563,10 +563,9 @@ export class ProductSearchService {
       .leftJoinAndSelect('product.variants', 'variant')
       .where('translation.locale = :locale', { locale })
       .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
-      .andWhere(
-        `(translation.title ILIKE :query OR translation.description ILIKE :query)`,
-        { query: `%${query}%` },
-      )
+      .andWhere(`(translation.title ILIKE :query OR translation.description ILIKE :query)`, {
+        query: `%${query}%`,
+      })
       .andWhere('product.type IN (:...types)', { types: ['PHYSICAL', 'DIGITAL'] })
       .orderBy('product.sales_count', 'DESC')
       .addOrderBy('product.view_count', 'DESC')
@@ -580,10 +579,9 @@ export class ProductSearchService {
       .leftJoinAndSelect('product.variants', 'variant')
       .where('translation.locale = :locale', { locale })
       .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
-      .andWhere(
-        `(translation.title ILIKE :query OR translation.description ILIKE :query)`,
-        { query: `%${query}%` },
-      )
+      .andWhere(`(translation.title ILIKE :query OR translation.description ILIKE :query)`, {
+        query: `%${query}%`,
+      })
       .andWhere('product.type = :type', { type: 'SERVICE' })
       .orderBy('product.sales_count', 'DESC')
       .addOrderBy('product.view_count', 'DESC')
@@ -593,7 +591,7 @@ export class ProductSearchService {
     // Get unique categories from product attributes
     const categoriesResult = await this.productRepository
       .createQueryBuilder('product')
-      .select('DISTINCT product.attrs->>\'category\'', 'category')
+      .select("DISTINCT product.attrs->>'category'", 'category')
       .leftJoin('product.translations', 'translation')
       .where('translation.locale = :locale', { locale })
       .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
