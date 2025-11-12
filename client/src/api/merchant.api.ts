@@ -5,7 +5,7 @@
  */
 
 import { apiClient } from './axios.config';
-import type { Product, ProductType, ProductStatus, PaginatedProducts } from '@/types/catalog';
+import type { Product, ProductType, ProductStatus, PaginatedProducts, InventoryPolicy } from '@/types/catalog';
 
 // ============================================================================
 // Types
@@ -17,6 +17,78 @@ export interface MerchantProductFilters {
   search?: string;
   page?: number;
   limit?: number;
+}
+
+export interface CreateProductDto {
+  // Basic Information
+  title: string;
+  description?: string;
+  type: ProductType;
+  status?: ProductStatus;
+  attrs?: {
+    category?: string[];
+    tags?: string[];
+    [key: string]: any;
+  };
+
+  // Images
+  image_url?: string;
+  images?: string[];
+
+  // Pricing & Inventory
+  base_price_minor?: number;
+  currency?: string;
+  variants?: CreateVariantDto[];
+
+  // SEO
+  seo?: {
+    meta_title?: string;
+    meta_description?: string;
+    keywords?: string[];
+  };
+  slug?: string;
+
+  // Metadata
+  metadata?: Record<string, any>;
+}
+
+export interface UpdateProductDto extends Partial<CreateProductDto> {
+  id: string;
+}
+
+export interface CreateVariantDto {
+  sku: string;
+  title?: string;
+  price_minor: number;
+  currency: string;
+  compare_at_price_minor?: number;
+  inventory_quantity?: number;
+  inventory_policy?: InventoryPolicy;
+  attrs?: {
+    // For Physical
+    weight?: number;
+    barcode?: string;
+    cost_per_item?: number;
+    // For Digital
+    file_url?: string;
+    file_size?: number;
+    file_format?: string;
+    download_limit?: number;
+    // For Service
+    duration?: number; // in minutes
+    location?: string;
+    capacity?: number;
+    [key: string]: any;
+  };
+  image_url?: string;
+  requires_shipping?: boolean;
+  taxable?: boolean;
+}
+
+export interface UploadImageResponse {
+  url: string;
+  file_name: string;
+  size: number;
 }
 
 export interface MerchantProductsResponse {
@@ -61,14 +133,62 @@ export const toggleProductStatus = async (productId: string): Promise<Product> =
   return response.data;
 };
 
+/**
+ * Get a single product by ID
+ */
+export const getProduct = async (productId: string): Promise<Product> => {
+  const response = await apiClient.get<Product>(`/merchant/products/${productId}`);
+  return response.data;
+};
+
+/**
+ * Create a new product
+ */
+export const createProduct = async (data: CreateProductDto): Promise<Product> => {
+  const response = await apiClient.post<Product>('/merchant/products', data);
+  return response.data;
+};
+
+/**
+ * Update an existing product
+ */
+export const updateProduct = async (productId: string, data: Partial<CreateProductDto>): Promise<Product> => {
+  const response = await apiClient.patch<Product>(`/merchant/products/${productId}`, data);
+  return response.data;
+};
+
+/**
+ * Upload product image
+ */
+export const uploadProductImage = async (file: File): Promise<UploadImageResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await apiClient.post<UploadImageResponse>(
+    '/merchant/products/upload-image',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+
+  return response.data;
+};
+
 // ============================================================================
 // Export all methods
 // ============================================================================
 
 export const merchantApi = {
   getMerchantProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
   deleteProduct,
   toggleProductStatus,
+  uploadProductImage,
 };
 
 export default merchantApi;
