@@ -137,7 +137,7 @@ export const toggleProductStatus = async (productId: string): Promise<Product> =
 /**
  * Get a single product by ID
  */
-export const getProduct = async (productId: string): Promise<Product> => {
+export const getMerchantProduct = async (productId: string): Promise<Product> => {
   const response = await apiClient.get<Product>(`/merchant/products/${productId}`);
   return response.data;
 };

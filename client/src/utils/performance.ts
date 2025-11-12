@@ -97,3 +97,59 @@ export function useDebounceValue<T>(value: T, delay: number = 300): T {
 
 // Re-export React for the hook
 import React from 'react';
+
+/**
+ * Initialize performance monitoring
+ * Sets up Web Vitals and performance observers
+ */
+export function initPerformanceMonitoring(): void {
+  // Check if we're in browser environment
+  if (typeof window === 'undefined') return;
+
+  // Only monitor in production or when explicitly enabled
+  const shouldMonitor = import.meta.env.PROD || import.meta.env.VITE_ENABLE_PERFORMANCE === 'true';
+
+  if (!shouldMonitor) {
+    console.log('[Performance] Monitoring disabled in development');
+    return;
+  }
+
+  // Monitor Core Web Vitals
+  if ('PerformanceObserver' in window) {
+    try {
+      // Largest Contentful Paint (LCP)
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lastEntry = entries[entries.length - 1] as any;
+        console.log('[Performance] LCP:', lastEntry.renderTime || lastEntry.loadTime);
+      });
+      lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+
+      // First Input Delay (FID)
+      const fidObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry: any) => {
+          console.log('[Performance] FID:', entry.processingStart - entry.startTime);
+        });
+      });
+      fidObserver.observe({ entryTypes: ['first-input'] });
+
+      // Cumulative Layout Shift (CLS)
+      let clsScore = 0;
+      const clsObserver = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (!(entry as any).hadRecentInput) {
+            clsScore += (entry as any).value;
+          }
+        }
+        console.log('[Performance] CLS:', clsScore);
+      });
+      clsObserver.observe({ entryTypes: ['layout-shift'] });
+
+    } catch (error) {
+      console.error('[Performance] Failed to initialize observers:', error);
+    }
+  }
+
+  console.log('[Performance] Monitoring initialized');
+}

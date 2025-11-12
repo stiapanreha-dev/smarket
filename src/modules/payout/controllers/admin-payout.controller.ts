@@ -21,7 +21,7 @@ import { Payout, PayoutStatus } from '../../../database/entities/payout.entity';
 import { PayoutBatch } from '../../../database/entities/payout-batch.entity';
 import { UserRole } from '../../../database/entities/user.entity';
 
-@Controller('api/v1/admin/payouts')
+@Controller('admin/payouts')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AdminPayoutController {

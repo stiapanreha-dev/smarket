@@ -21,7 +21,7 @@ import {
 import { parseISO } from 'date-fns';
 
 @ApiTags('Bookings')
-@Controller('api/v1/bookings')
+@Controller('bookings')
 export class BookingController {
   constructor(
     private readonly bookingService: BookingService,

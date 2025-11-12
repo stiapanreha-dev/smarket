@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": false,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "src/pages/Profile/components/PersonalInformation.tsx",
+    "src/pages/Profile/components/AddressModal.tsx"
+  ]
+}

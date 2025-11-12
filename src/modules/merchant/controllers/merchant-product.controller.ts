@@ -32,7 +32,7 @@ import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-req
 import { MerchantProductFiltersDto } from '../dto/merchant-product-filters.dto';
 
 @ApiTags('Merchant Products')
-@Controller('api/v1/merchant/products')
+@Controller('merchant/products')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MERCHANT)
 @ApiBearerAuth()

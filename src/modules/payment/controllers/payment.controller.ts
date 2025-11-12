@@ -21,7 +21,7 @@ import { RefundPaymentDto } from '../dto/refund-payment.dto';
 import { PaymentResponseDto, RefundResponseDto } from '../dto/payment-response.dto';
 
 @ApiTags('Payments')
-@Controller('api/v1/payments')
+@Controller('payments')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,

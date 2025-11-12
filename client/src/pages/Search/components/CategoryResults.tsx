@@ -1,4 +1,4 @@
-import { Card, Row, Col, Badge } from 'react-bootstrap';
+import { Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFolder, FaArrowRight } from 'react-icons/fa';
@@ -14,7 +14,7 @@ interface CategoryResultsProps {
  * Shows categories as clickable cards that link to filtered catalog
  */
 export function CategoryResults({ categories, maxDisplay }: CategoryResultsProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
   const displayCategories = maxDisplay ? categories.slice(0, maxDisplay) : categories;

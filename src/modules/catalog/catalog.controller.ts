@@ -33,7 +33,7 @@ import { User } from '../../common/decorators/user.decorator';
 import { UserRole } from '../../database/entities/user.entity';
 
 @ApiTags('Products')
-@Controller('api/v1/products')
+@Controller('products')
 export class CatalogController {
   constructor(
     private readonly catalogService: CatalogService,

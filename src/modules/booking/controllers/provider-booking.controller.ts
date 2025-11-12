@@ -24,7 +24,7 @@ import { CreateScheduleDto, UpdateScheduleDto, CompleteBookingDto } from '../dto
 import { BookingStatus } from '@database/entities';
 
 @ApiTags('Provider Bookings')
-@Controller('api/v1/provider')
+@Controller('provider')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ProviderBookingController {

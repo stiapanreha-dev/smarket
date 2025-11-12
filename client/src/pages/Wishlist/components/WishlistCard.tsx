@@ -2,7 +2,7 @@ import { Card, Button, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaTimes, FaShoppingCart, FaExchangeAlt } from 'react-icons/fa';
-import { WishlistItem } from '@/types/wishlist';
+import type { WishlistItem } from '@/types/wishlist';
 import { ProductType, formatPrice } from '@/types/catalog';
 import './WishlistCard.css';
 

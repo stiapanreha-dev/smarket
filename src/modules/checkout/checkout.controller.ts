@@ -27,7 +27,7 @@ import {
 } from './dto';
 import { CheckoutSession, DeliveryOption } from '../../database/entities/checkout-session.entity';
 
-@Controller('api/v1/checkout')
+@Controller('checkout')
 export class CheckoutController {
   private readonly logger = new Logger(CheckoutController.name);
 

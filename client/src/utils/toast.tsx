@@ -1,4 +1,4 @@
-import toast, { Toast, ToastOptions } from 'react-hot-toast';
+import toast, { type Toast, type ToastOptions } from 'react-hot-toast';
 
 /**
  * Enhanced toast notification utilities
@@ -116,18 +116,21 @@ export const updateToast = (
   type: 'success' | 'error' | 'loading' | 'blank',
   options?: ToastOptions
 ): void => {
-  const typeOptions = {
-    success: SUCCESS_OPTIONS,
-    error: ERROR_OPTIONS,
-    loading: LOADING_OPTIONS,
-    blank: DEFAULT_OPTIONS,
-  };
-
-  toast[type](message, {
-    id: toastId,
-    ...typeOptions[type],
-    ...options,
-  });
+  // Call appropriate toast method based on type
+  switch (type) {
+    case 'success':
+      toast.success(message, { id: toastId, ...SUCCESS_OPTIONS, ...options });
+      break;
+    case 'error':
+      toast.error(message, { id: toastId, ...ERROR_OPTIONS, ...options });
+      break;
+    case 'loading':
+      toast.loading(message, { id: toastId, ...LOADING_OPTIONS, ...options });
+      break;
+    case 'blank':
+      toast(message, { id: toastId, ...DEFAULT_OPTIONS, ...options });
+      break;
+  }
 };
 
 /**

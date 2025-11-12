@@ -5,7 +5,7 @@ import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 import { NotificationQueryDto } from './dto/notification-query.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
 
-@Controller('api/v1/notifications')
+@Controller('notifications')
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}

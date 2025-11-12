@@ -12,7 +12,7 @@ import { ApiTags, ApiOperation, ApiParam, ApiExcludeEndpoint } from '@nestjs/swa
 import { WebhookService } from '../services/webhook.service';
 
 @ApiTags('Webhooks')
-@Controller('api/v1/webhooks')
+@Controller('webhooks')
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 

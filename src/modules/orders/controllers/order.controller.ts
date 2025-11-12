@@ -19,7 +19,7 @@ import { CancelOrderDto } from '../dto/cancel-order.dto';
 import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Orders')
-@Controller('api/v1/orders')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 

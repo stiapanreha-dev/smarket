@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { FaHeart, FaArrowLeft, FaShare, FaFilter, FaSort } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import {
-  useWishlistStore,
   useWishlistItems,
   useWishlistActions,
   useWishlistLoading,

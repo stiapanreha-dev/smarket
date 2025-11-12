@@ -3,7 +3,7 @@
  * Based on backend interfaces: Cart, CartItem, CartSummary
  */
 
-import { Product, ProductVariant } from './catalog';
+import type { Product, ProductVariant } from './catalog';
 
 // ============================================================================
 // Enums
@@ -95,7 +95,7 @@ export interface CartWithProducts extends Cart {
  */
 export interface AddToCartRequest {
   productId: string;
-  variantId: string;
+  variantId?: string; // Optional - not all products have variants
   quantity: number;
   metadata?: CartItemMetadata;
 }

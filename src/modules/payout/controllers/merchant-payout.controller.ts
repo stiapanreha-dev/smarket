@@ -21,7 +21,7 @@ import { Merchant } from '../../../database/entities/merchant.entity';
 import { UserRole } from '../../../database/entities/user.entity';
 import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
-@Controller('api/v1/merchant')
+@Controller('merchant')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class MerchantPayoutController {
   constructor(

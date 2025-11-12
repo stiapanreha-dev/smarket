@@ -24,7 +24,7 @@ import { AddShippingInfoDto } from '../dto/add-shipping-info.dto';
 import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Merchant Orders')
-@Controller('api/v1/merchant/orders')
+@Controller('merchant/orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MERCHANT)
 @ApiBearerAuth()

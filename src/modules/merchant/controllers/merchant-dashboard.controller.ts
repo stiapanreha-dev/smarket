@@ -12,7 +12,7 @@ import { DashboardStatsDto } from '../dto/dashboard-stats.dto';
 import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Merchant Dashboard')
-@Controller('api/v1/merchant/dashboard')
+@Controller('merchant/dashboard')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.MERCHANT)
 @ApiBearerAuth()

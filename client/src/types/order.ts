@@ -6,6 +6,7 @@
  */
 
 import type { Product } from './catalog';
+import type { Address } from './checkout';
 
 // ============================================================================
 // Enums
@@ -109,21 +110,7 @@ export enum FulfillmentStatus {
 // Interfaces
 // ============================================================================
 
-/**
- * Shipping/Billing address (reused from checkout)
- */
-export interface Address {
-  country: string;
-  state?: string;
-  city: string;
-  street: string;
-  street2?: string;
-  postal_code: string;
-  phone: string;
-  first_name?: string;
-  last_name?: string;
-  company?: string;
-}
+// Address is imported from checkout.ts to avoid duplication
 
 /**
  * Status history entry for line item FSM tracking
@@ -423,7 +410,7 @@ export function getOrderMerchantIds(order: Order): string[] {
 /**
  * Check if order has physical items
  */
-export function hasPhysicalItems(order: Order): boolean {
+export function orderHasPhysicalItems(order: Order): boolean {
   return order.line_items?.some((item) => item.type === LineItemType.PHYSICAL) || false;
 }
 

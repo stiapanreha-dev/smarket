@@ -3,12 +3,12 @@ import { Container, Row, Col, Button, Dropdown, Offcanvas, Nav, Badge } from 're
 import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFilter, FaTh, FaList, FaArrowRight, FaSearch } from 'react-icons/fa';
-import { ProductSortOption } from '@/types/catalog';
+import { type ProductSortOption } from '@/types/catalog';
 import { useSearch, useSearchSuggestions } from '@/hooks/useSearch';
 import type { SearchType } from '@/api/search.api';
 import { Navbar, Footer } from '@/components/layout';
 import { SearchBar } from '@/components/features/SearchBar';
-import { CatalogSidebar, CatalogFilters } from '@/pages/Catalog/components/CatalogSidebar';
+import { CatalogSidebar, type CatalogFilters } from '@/pages/Catalog/components/CatalogSidebar';
 import { ProductsGrid } from '@/pages/Catalog/components/ProductsGrid';
 import { CatalogPagination } from '@/pages/Catalog/components/CatalogPagination';
 import { SearchResultsSkeleton } from './components/SearchResultsSkeleton';
@@ -167,11 +167,12 @@ export function SearchPage() {
   };
 
   // Check if any filters are active
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     (filters.categories && filters.categories.length > 0) ||
     filters.productType ||
     filters.minPrice ||
-    filters.maxPrice;
+    filters.maxPrice
+  );
 
   // Sort options
   const sortOptions: { value: ProductSortOption; label: string }[] = [

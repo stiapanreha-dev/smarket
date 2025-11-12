@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { ApiError, getErrorMessage, isApiError } from '../types/api';
+import { getErrorMessage, isApiError } from '../api/axios.config';
+import type { ApiError, ApiErrorResponse } from '../types/api';
 import { useNavigate } from 'react-router-dom';
 
 export interface ErrorHandlerOptions {
@@ -174,8 +175,7 @@ export function useErrorHandler() {
         context: {
           ...options.context,
           statusCode: apiError.statusCode,
-          endpoint: apiError.response?.config?.url,
-          method: apiError.response?.config?.method,
+          // Note: config details are not available in ApiError
         },
       };
 
@@ -183,14 +183,12 @@ export function useErrorHandler() {
       switch (apiError.statusCode) {
         case 400:
           // Bad Request - show validation errors if available
-          if (apiError.response?.data?.errors) {
-            const validationErrors = apiError.response.data.errors;
-            if (Array.isArray(validationErrors)) {
-              validationErrors.forEach((err: any) => {
-                toast.error(err.message || err, { duration: 5000 });
-              });
-              return;
-            }
+          if (apiError.response?.message && Array.isArray(apiError.response.message)) {
+            const validationErrors = apiError.response.message;
+            validationErrors.forEach((msg: string) => {
+              toast.error(msg, { duration: 5000 });
+            });
+            return;
           }
           break;
 

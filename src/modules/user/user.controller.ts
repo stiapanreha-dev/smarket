@@ -38,7 +38,7 @@ import { UpdateAddressDto } from './dto/update-address.dto';
 import { AddressResponseDto } from './dto/address-response.dto';
 
 @ApiTags('Users')
-@Controller('api/v1/users')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

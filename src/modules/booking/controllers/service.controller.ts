@@ -24,7 +24,7 @@ import { CreateServiceDto, UpdateServiceDto, GetAvailableSlotsDto } from '../dto
 import { parseISO } from 'date-fns';
 
 @ApiTags('Services')
-@Controller('api/v1/services')
+@Controller('services')
 export class ServiceController {
   constructor(
     private readonly serviceService: ServiceService,

@@ -11,10 +11,11 @@ interface SearchBarProps {
   onSearch?: (query: string) => void;
   placeholder?: string;
   className?: string;
+  defaultValue?: string;
 }
 
-export const SearchBar = ({ onSearch, placeholder, className = '' }: SearchBarProps) => {
-  const [query, setQuery] = useState('');
+export const SearchBar = ({ onSearch, placeholder, className = '', defaultValue = '' }: SearchBarProps) => {
+  const [query, setQuery] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<AutocompleteResponse | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
