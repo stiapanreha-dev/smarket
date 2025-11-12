@@ -30,27 +30,9 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        // Manual chunks: React MUST load before any React-dependent code
+        // Simple solution: ALL node_modules in ONE vendor chunk
+        // This eliminates any dependency resolution issues
         manualChunks: (id) => {
-          // React and ALL packages starting with 'react' in ONE chunk
-          // This includes react, react-dom, react-router-dom, react-bootstrap, etc.
-          if (id.includes('node_modules/react')) {
-            return 'react-vendor';
-          }
-
-          // Packages that depend on React (including @editorjs which uses React hooks)
-          if (
-            id.includes('node_modules/@tanstack/react-query') ||
-            id.includes('node_modules/@hookform') ||
-            id.includes('node_modules/@stripe/react-stripe-js') ||
-            id.includes('node_modules/recharts') ||
-            id.includes('node_modules/zustand') ||
-            id.includes('node_modules/@editorjs')
-          ) {
-            return 'react-vendor';
-          }
-
-          // All other node_modules
           if (id.includes('node_modules')) {
             return 'vendor';
           }
