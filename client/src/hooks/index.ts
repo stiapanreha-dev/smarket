@@ -36,6 +36,14 @@ export {
   merchantDashboardKeys,
 } from './useMerchantDashboard';
 
+// Export merchant product hooks
+export {
+  useMerchantProducts,
+  useDeleteProduct,
+  useToggleProductStatus,
+  merchantProductKeys,
+} from './useMerchantProducts';
+
 // Export hooks here
 // Example:
 // export { useAuth } from './useAuth';
