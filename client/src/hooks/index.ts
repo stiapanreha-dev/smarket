@@ -39,8 +39,12 @@ export {
 // Export merchant product hooks
 export {
   useMerchantProducts,
+  useProduct as useMerchantProduct,
+  useCreateProduct,
+  useUpdateProduct,
   useDeleteProduct,
   useToggleProductStatus,
+  useUploadProductImage,
   merchantProductKeys,
 } from './useMerchantProducts';
 

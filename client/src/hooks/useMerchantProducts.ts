@@ -6,7 +6,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { merchantApi } from '@/api/merchant.api';
-import type { MerchantProductFilters } from '@/api/merchant.api';
+import type { MerchantProductFilters, CreateProductDto } from '@/api/merchant.api';
+import toast from 'react-hot-toast';
 
 /**
  * Query keys for merchant products
@@ -16,6 +17,8 @@ export const merchantProductKeys = {
   lists: () => [...merchantProductKeys.all, 'list'] as const,
   list: (filters: MerchantProductFilters) =>
     [...merchantProductKeys.lists(), filters] as const,
+  details: () => [...merchantProductKeys.all, 'detail'] as const,
+  detail: (id: string) => [...merchantProductKeys.details(), id] as const,
 };
 
 /**
@@ -88,6 +91,107 @@ export const useToggleProductStatus = () => {
       queryClient.invalidateQueries({
         queryKey: merchantProductKeys.lists(),
       });
+    },
+  });
+};
+
+/**
+ * Hook to get a single product by ID
+ *
+ * @param productId - Product ID to fetch
+ * @returns Product data with loading and error states
+ *
+ * @example
+ * ```tsx
+ * const { data: product, isLoading } = useProduct(productId);
+ * ```
+ */
+export const useProduct = (productId: string | undefined) => {
+  return useQuery({
+    queryKey: merchantProductKeys.detail(productId || ''),
+    queryFn: () => merchantApi.getProduct(productId!),
+    enabled: !!productId,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Hook to create a new product
+ *
+ * @returns Mutation for creating a product
+ *
+ * @example
+ * ```tsx
+ * const createProduct = useCreateProduct();
+ * createProduct.mutate(productData);
+ * ```
+ */
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateProductDto) => merchantApi.createProduct(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: merchantProductKeys.lists(),
+      });
+      toast.success('Product created successfully!');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to create product');
+    },
+  });
+};
+
+/**
+ * Hook to update an existing product
+ *
+ * @returns Mutation for updating a product
+ *
+ * @example
+ * ```tsx
+ * const updateProduct = useUpdateProduct();
+ * updateProduct.mutate({ id: productId, data: updatedData });
+ * ```
+ */
+export const useUpdateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreateProductDto> }) =>
+      merchantApi.updateProduct(id, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: merchantProductKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: merchantProductKeys.detail(variables.id),
+      });
+      toast.success('Product updated successfully!');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to update product');
+    },
+  });
+};
+
+/**
+ * Hook to upload product image
+ *
+ * @returns Mutation for uploading an image
+ *
+ * @example
+ * ```tsx
+ * const uploadImage = useUploadProductImage();
+ * uploadImage.mutate(file);
+ * ```
+ */
+export const useUploadProductImage = () => {
+  return useMutation({
+    mutationFn: (file: File) => merchantApi.uploadProductImage(file),
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to upload image');
     },
   });
 };
