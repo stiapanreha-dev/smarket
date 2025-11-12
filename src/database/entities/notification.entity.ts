@@ -44,7 +44,7 @@ export class Notification {
   message: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   related_url: string;

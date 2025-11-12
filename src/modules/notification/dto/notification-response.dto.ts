@@ -6,7 +6,7 @@ export class NotificationResponseDto {
   type: NotificationType;
   title: string;
   message: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   related_url?: string;
   is_read: boolean;
   read_at?: Date;
