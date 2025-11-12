@@ -58,8 +58,14 @@ export {
   merchantOrderKeys,
 } from './useMerchantOrders';
 
-// Export hooks here
-// Example:
+// Export error handling hooks
+export { useErrorHandler } from './useErrorHandler';
+export type { ErrorHandlerOptions } from './useErrorHandler';
+
+// Export network status hooks
+export { useNetworkStatus } from './useNetworkStatus';
+
+// Additional hooks
 // export { useAuth } from './useAuth';
 // export { useCart } from './useCart';
 // export { useLocale } from './useLocale';

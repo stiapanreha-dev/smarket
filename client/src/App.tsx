@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -6,7 +6,11 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { queryClient } from './lib/react-query';
 import { PageLoader } from './components/common';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { OfflineBanner } from './components/common/OfflineBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { initSentry } from './utils/sentry';
+import { initPerformanceMonitoring } from './utils/performance';
 import './i18n/config'; // Initialize i18n
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom.css';
@@ -72,12 +76,25 @@ const MerchantOrdersPage = lazy(() =>
 );
 
 function App() {
+  // Initialize monitoring on mount
+  useEffect(() => {
+    // Initialize Sentry for error tracking
+    initSentry();
+
+    // Initialize performance monitoring
+    initPerformanceMonitoring();
+  }, []);
+
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Suspense fallback={<PageLoader text="Loading page..." />}>
-            <Routes>
+    <ErrorBoundary level="global">
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            {/* Network status banner */}
+            <OfflineBanner />
+
+            <Suspense fallback={<PageLoader text="Loading page..." />}>
+              <Routes>
             {/* Landing - No Suspense needed (eager loaded) */}
             <Route path="/" element={<Landing />} />
 
@@ -260,8 +277,9 @@ function App() {
           },
         }}
       />
-      </QueryClientProvider>
-    </HelmetProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 }
 

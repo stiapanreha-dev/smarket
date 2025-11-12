@@ -6,10 +6,12 @@
  * - JWT token authentication
  * - Automatic token refresh on 401
  * - Global error handling
+ * - Exponential backoff retry logic
+ * - Offline detection and request queueing
  */
 
 import axios, { AxiosError } from 'axios';
-import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ApiError, HttpStatus } from '@/types';
 import type { ApiErrorResponse, RefreshTokenResponse } from '@/types';
 
@@ -39,6 +41,83 @@ const processQueue = (error: Error | null, token: string | null = null) => {
   });
 
   failedRequestsQueue = [];
+};
+
+// Retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // Base delay in ms
+const RETRY_STATUS_CODES = [408, 429, 500, 502, 503, 504]; // Retryable HTTP status codes
+
+/**
+ * Calculate exponential backoff delay
+ */
+const getRetryDelay = (retryCount: number): number => {
+  return RETRY_DELAY * Math.pow(2, retryCount); // 1s, 2s, 4s
+};
+
+/**
+ * Check if request should be retried
+ */
+const shouldRetry = (error: AxiosError, retryCount: number): boolean => {
+  // Don't retry if max retries reached
+  if (retryCount >= MAX_RETRIES) {
+    return false;
+  }
+
+  // Retry on network errors (no response)
+  if (!error.response) {
+    return true;
+  }
+
+  // Retry on specific status codes
+  const status = error.response.status;
+  return RETRY_STATUS_CODES.includes(status);
+};
+
+/**
+ * Delay helper for retry logic
+ */
+const delay = (ms: number): Promise<void> => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+/**
+ * Check if browser is online
+ */
+export const isOnline = (): boolean => {
+  return navigator.onLine;
+};
+
+// Offline request queue
+interface OfflineRequest {
+  config: InternalAxiosRequestConfig;
+  resolve: (value: AxiosResponse) => void;
+  reject: (error: Error) => void;
+}
+
+let offlineRequestQueue: OfflineRequest[] = [];
+
+/**
+ * Process offline queue when connection is restored
+ */
+export const processOfflineQueue = async (instance: AxiosInstance) => {
+  if (offlineRequestQueue.length === 0) {
+    return;
+  }
+
+  console.log(`Processing ${offlineRequestQueue.length} queued requests...`);
+
+  const queue = [...offlineRequestQueue];
+  offlineRequestQueue = [];
+
+  for (const request of queue) {
+    try {
+      const response = await instance(request.config);
+      request.resolve(response);
+    } catch (error) {
+      request.reject(error as Error);
+    }
+  }
 };
 
 /**
@@ -106,7 +185,7 @@ const createAxiosInstance = (): AxiosInstance => {
 
   /**
    * Response Interceptor
-   * Handles errors and automatic token refresh
+   * Handles errors, automatic token refresh, and retry logic
    */
   instance.interceptors.response.use(
     (response) => {
@@ -115,11 +194,43 @@ const createAxiosInstance = (): AxiosInstance => {
     async (error: AxiosError<ApiErrorResponse>) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & {
         _retry?: boolean;
+        _retryCount?: number;
       };
 
-      // Handle network errors
+      // Initialize retry count
+      if (!originalRequest._retryCount) {
+        originalRequest._retryCount = 0;
+      }
+
+      // Handle network errors with retry
       if (!error.response) {
         console.error('Network error:', error.message);
+
+        // Check if browser is offline
+        if (!isOnline()) {
+          // Queue request for when connection is restored
+          return new Promise((resolve, reject) => {
+            offlineRequestQueue.push({
+              config: originalRequest,
+              resolve,
+              reject,
+            });
+          });
+        }
+
+        // Retry network errors with exponential backoff
+        if (shouldRetry(error, originalRequest._retryCount)) {
+          originalRequest._retryCount++;
+          const retryDelay = getRetryDelay(originalRequest._retryCount - 1);
+
+          console.log(
+            `Retrying request (${originalRequest._retryCount}/${MAX_RETRIES}) after ${retryDelay}ms...`
+          );
+
+          await delay(retryDelay);
+          return instance(originalRequest);
+        }
+
         return Promise.reject(
           new ApiError(
             HttpStatus.SERVICE_UNAVAILABLE,
@@ -133,6 +244,22 @@ const createAxiosInstance = (): AxiosInstance => {
       }
 
       const { status, data } = error.response;
+
+      // Retry on retryable status codes (except 401 which is handled separately)
+      if (
+        status !== HttpStatus.UNAUTHORIZED &&
+        shouldRetry(error, originalRequest._retryCount)
+      ) {
+        originalRequest._retryCount++;
+        const retryDelay = getRetryDelay(originalRequest._retryCount - 1);
+
+        console.log(
+          `Retrying request (${originalRequest._retryCount}/${MAX_RETRIES}) for status ${status} after ${retryDelay}ms...`
+        );
+
+        await delay(retryDelay);
+        return instance(originalRequest);
+      }
 
       // Handle 401 Unauthorized - Attempt token refresh
       if (status === HttpStatus.UNAUTHORIZED && !originalRequest._retry) {
