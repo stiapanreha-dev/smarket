@@ -1,0 +1,62 @@
+.notifications-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.notifications-header h1 {
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.notifications-list {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+  color: #6c757d;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  background: transparent;
+  border-bottom-color: #0d6efd;
+}
+
+.nav-tabs .badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .notifications-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .notifications-list {
+    padding: 0.5rem;
+  }
+}

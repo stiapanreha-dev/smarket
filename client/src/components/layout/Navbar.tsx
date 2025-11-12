@@ -7,6 +7,7 @@ import { AiOutlineHeart } from 'react-icons/ai';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import SearchBar from '@/components/features/SearchBar';
+import { NotificationBell } from '@/components/notifications';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -49,6 +50,11 @@ const Navbar = () => {
                 onClick={() => setShowMobileSearch(true)}
               >
                 <BsSearch className="search-icon-mobile" />
+              </div>
+
+              {/* Notification Bell */}
+              <div className="ms-3">
+                <NotificationBell />
               </div>
 
               {/* Wishlist Icon with Badge */}

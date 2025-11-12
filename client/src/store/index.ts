@@ -39,3 +39,6 @@ export {
   useCheckoutLoading,
   useCheckoutError,
 } from './checkoutStore';
+
+// Export notification store
+export { useNotificationStore } from './notificationStore';
