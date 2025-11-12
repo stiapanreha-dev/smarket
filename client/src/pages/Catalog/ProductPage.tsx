@@ -43,6 +43,8 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { Navbar, Footer } from '@/components/layout';
 import { ProductCard } from '@/components/features';
+import { SEO } from '@/components/SEO';
+import { StructuredData } from '@/components/StructuredData';
 import './ProductPage.css';
 
 /**
@@ -326,8 +328,67 @@ export function ProductPage() {
   // Get variant attributes (for digital and service types)
   const variantAttrs = product.variants?.[0]?.attrs || {};
 
+  // Generate SEO data
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://snailmarketplace.com';
+  const productUrl = `${baseUrl}/catalog/${product.id}`;
+  const productImage = hasImages ? images[0] : `${baseUrl}/placeholder-product.svg`;
+
+  // Create meta description from product description
+  const metaDescription = product.description
+    ? product.description.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+    : `Buy ${product.title} for ${formattedPrice} on SnailMarketplace. ${
+        inStock ? 'In stock and ready to ship.' : 'Check availability.'
+      }`;
+
+  // Generate product title for SEO
+  const seoTitle = `${product.title} - ${formattedPrice}`;
+
+  // Get availability status for structured data
+  const structuredAvailability = inStock ? 'InStock' : 'OutOfStock';
+
   return (
     <>
+      {/* SEO Meta Tags */}
+      <SEO
+        title={seoTitle}
+        description={metaDescription}
+        keywords={`${product.title}, ${product.type}, buy online, ${product.category || 'marketplace'}`}
+        image={productImage}
+        type="product"
+        price={price.toString()}
+        currency={product.currency}
+        availability={inStock ? 'in stock' : 'out of stock'}
+        url={productUrl}
+      />
+
+      {/* Product Structured Data */}
+      <StructuredData
+        type="product"
+        product={{
+          name: product.title,
+          description: metaDescription,
+          image: productImage,
+          sku: product.variants?.[0]?.id || product.id,
+          brand: 'SnailMarketplace', // TODO: Add merchant/brand name when available
+          price: (price / 100).toFixed(2),
+          currency: product.currency,
+          availability: structuredAvailability,
+          rating: product.rating || undefined,
+          reviewCount: product.review_count || undefined,
+          url: productUrl,
+        }}
+      />
+
+      {/* Breadcrumb Structured Data */}
+      <StructuredData
+        type="breadcrumb"
+        breadcrumbs={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Catalog', url: `${baseUrl}/catalog` },
+          { name: product.title, url: productUrl },
+        ]}
+      />
+
       <Navbar />
       <div className={`product-page ${isRTL ? 'rtl' : ''}`}>
         <Container className="py-4">

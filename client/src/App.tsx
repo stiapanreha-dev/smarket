@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { queryClient } from './lib/react-query';
 import { PageLoader } from './components/common';
@@ -72,10 +73,11 @@ const MerchantOrdersPage = lazy(() =>
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Suspense fallback={<PageLoader text="Loading page..." />}>
-          <Routes>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Suspense fallback={<PageLoader text="Loading page..." />}>
+            <Routes>
             {/* Landing - No Suspense needed (eager loaded) */}
             <Route path="/" element={<Landing />} />
 
@@ -258,7 +260,8 @@ function App() {
           },
         }}
       />
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 
