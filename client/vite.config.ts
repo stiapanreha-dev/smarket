@@ -38,13 +38,14 @@ export default defineConfig({
             return 'react-vendor';
           }
 
-          // Packages that depend on React
+          // Packages that depend on React (including @editorjs which uses React hooks)
           if (
             id.includes('node_modules/@tanstack/react-query') ||
             id.includes('node_modules/@hookform') ||
             id.includes('node_modules/@stripe/react-stripe-js') ||
             id.includes('node_modules/recharts') ||
-            id.includes('node_modules/zustand')
+            id.includes('node_modules/zustand') ||
+            id.includes('node_modules/@editorjs')
           ) {
             return 'react-vendor';
           }
