@@ -11,7 +11,12 @@ import { CartPage } from './pages/Cart';
 import { CheckoutPage } from './pages/Checkout';
 import { OrdersPage, OrderDetailsPage } from './pages/Orders';
 import { ProfilePage } from './pages/Profile';
-import { DashboardPage, ProductsPage, ProductFormPage } from './pages/Merchant';
+import {
+  DashboardPage,
+  ProductsPage,
+  ProductFormPage,
+  OrdersPage as MerchantOrdersPage,
+} from './pages/Merchant';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import './i18n/config'; // Initialize i18n
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -38,6 +43,7 @@ function App() {
             <Route path="/merchant/products" element={<ProductsPage />} />
             <Route path="/merchant/products/new" element={<ProductFormPage />} />
             <Route path="/merchant/products/:id/edit" element={<ProductFormPage />} />
+            <Route path="/merchant/orders" element={<MerchantOrdersPage />} />
           </Route>
         </Routes>
       </Router>

@@ -48,6 +48,16 @@ export {
   merchantProductKeys,
 } from './useMerchantProducts';
 
+// Export merchant order hooks
+export {
+  useMerchantOrders,
+  useMerchantOrder,
+  useUpdateOrderStatus,
+  useAddTrackingNumber,
+  useExportOrdersCSV,
+  merchantOrderKeys,
+} from './useMerchantOrders';
+
 // Export hooks here
 // Example:
 // export { useAuth } from './useAuth';
