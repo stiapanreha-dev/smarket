@@ -9,7 +9,7 @@
  * - Featured and related products
  */
 
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import {
   getProducts,
   getProduct,
@@ -58,6 +58,7 @@ export const catalogKeys = {
 
 /**
  * Hook to fetch paginated products with filters
+ * Optimized with placeholderData to keep previous data during pagination
  *
  * @param filters - Product filters (type, price range, category, etc.)
  * @param options - React Query options
@@ -79,6 +80,7 @@ export const useProducts = (
   options?: {
     enabled?: boolean;
     staleTime?: number;
+    keepPreviousData?: boolean;
   }
 ): UseQueryResult<PaginatedProducts, Error> => {
   return useQuery({
@@ -86,6 +88,10 @@ export const useProducts = (
     queryFn: () => getProducts(filters),
     staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled,
+    // Keep previous data during pagination for smoother UX
+    placeholderData: options?.keepPreviousData !== false
+      ? (previousData) => previousData
+      : undefined,
   });
 };
 
@@ -178,6 +184,7 @@ export const useCategories = (
 
 /**
  * Hook to search products by query
+ * Optimized with placeholderData for smoother pagination
  *
  * @param query - Search query string
  * @param filters - Additional filters to apply
@@ -200,6 +207,7 @@ export const useSearchProducts = (
   options?: {
     enabled?: boolean;
     staleTime?: number;
+    keepPreviousData?: boolean;
   }
 ): UseQueryResult<PaginatedProducts, Error> => {
   return useQuery({
@@ -207,6 +215,10 @@ export const useSearchProducts = (
     queryFn: () => searchProducts(query, filters),
     staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5 minutes
     enabled: options?.enabled !== false && query.length > 0,
+    // Keep previous data during pagination for smoother UX
+    placeholderData: options?.keepPreviousData !== false
+      ? (previousData) => previousData
+      : undefined,
   });
 };
 
@@ -267,6 +279,64 @@ export const useRelatedProducts = (
 };
 
 // ============================================================================
+// Prefetch Utilities
+// ============================================================================
+
+/**
+ * Hook to prefetch products for next page
+ * Useful for pagination to preload next page data
+ *
+ * @returns Prefetch function
+ *
+ * @example
+ * ```tsx
+ * const prefetchNextPage = usePrefetchProducts();
+ *
+ * // On hover or when approaching next page
+ * prefetchNextPage({ page: currentPage + 1, ...otherFilters });
+ * ```
+ */
+export const usePrefetchProducts = () => {
+  const queryClient = useQueryClient();
+
+  return (filters: ProductFilters) => {
+    queryClient.prefetchQuery({
+      queryKey: catalogKeys.productsList(filters),
+      queryFn: () => getProducts(filters),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  };
+};
+
+/**
+ * Hook to prefetch product details
+ * Useful for preloading product pages on hover
+ *
+ * @returns Prefetch function
+ *
+ * @example
+ * ```tsx
+ * const prefetchProduct = usePrefetchProduct();
+ *
+ * <ProductCard
+ *   onMouseEnter={() => prefetchProduct(product.id)}
+ *   product={product}
+ * />
+ * ```
+ */
+export const usePrefetchProduct = () => {
+  const queryClient = useQueryClient();
+
+  return (id: string) => {
+    queryClient.prefetchQuery({
+      queryKey: catalogKeys.product(id),
+      queryFn: () => getProduct(id),
+      staleTime: 10 * 60 * 1000, // 10 minutes
+    });
+  };
+};
+
+// ============================================================================
 // Export all hooks
 // ============================================================================
 
@@ -278,4 +348,6 @@ export default {
   useSearchProducts,
   useFeaturedProducts,
   useRelatedProducts,
+  usePrefetchProducts,
+  usePrefetchProduct,
 };

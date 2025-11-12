@@ -1,4 +1,5 @@
 import { Row, Col } from 'react-bootstrap';
+import { memo } from 'react';
 import { Product } from '@/types/catalog';
 import { ProductCard } from '@/components/features/ProductCard';
 import './ProductsGrid.css';
@@ -10,8 +11,9 @@ interface ProductsGridProps {
 
 /**
  * Products grid/list display component
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
-export function ProductsGrid({ products, viewMode = 'grid' }: ProductsGridProps) {
+function ProductsGridComponent({ products, viewMode = 'grid' }: ProductsGridProps) {
   if (viewMode === 'list') {
     return (
       <div className="products-list">
@@ -32,3 +34,6 @@ export function ProductsGrid({ products, viewMode = 'grid' }: ProductsGridProps)
     </Row>
   );
 }
+
+// Export memoized component
+export const ProductsGrid = memo(ProductsGridComponent);

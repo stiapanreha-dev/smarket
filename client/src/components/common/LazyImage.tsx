@@ -12,6 +12,12 @@ interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string;
   /** Aspect ratio for placeholder (e.g., '16/9', '1/1') */
   aspectRatio?: string;
+  /** Srcset for responsive images */
+  srcSet?: string;
+  /** Sizes attribute for responsive images */
+  sizes?: string;
+  /** WebP source for better compression */
+  webpSrc?: string;
 }
 
 /**
@@ -19,6 +25,8 @@ interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
  *
  * Features:
  * - Native lazy loading with loading="lazy"
+ * - WebP format with fallback to original format
+ * - Responsive images with srcset and sizes
  * - Blur placeholder while image loads
  * - Smooth fade-in transition
  * - Error handling with fallback
@@ -30,16 +38,26 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   className = '',
   aspectRatio,
   style,
+  srcSet,
+  sizes,
+  webpSrc,
   ...rest
 }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [useWebP, setUseWebP] = useState(!!webpSrc);
 
   const handleLoad = () => {
     setLoaded(true);
   };
 
   const handleError = () => {
+    // If WebP failed, try original format
+    if (useWebP && webpSrc) {
+      setUseWebP(false);
+      return;
+    }
+
     setError(true);
     setLoaded(true); // Show fallback
   };
@@ -72,6 +90,9 @@ export const LazyImage: React.FC<LazyImageProps> = ({
     transition: 'opacity 0.3s ease-in-out',
   };
 
+  // Determine which source to use
+  const imageSrc = useWebP && webpSrc ? webpSrc : src;
+
   return (
     <div className={className} style={containerStyle}>
       {/* Blur placeholder */}
@@ -80,7 +101,9 @@ export const LazyImage: React.FC<LazyImageProps> = ({
       {/* Actual image */}
       {!error ? (
         <img
-          src={src}
+          src={imageSrc}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={alt}
           loading="lazy"
           decoding="async"

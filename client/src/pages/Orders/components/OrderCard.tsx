@@ -1,5 +1,6 @@
 import { Card, Button, Row, Col } from 'react-bootstrap';
 import { format } from 'date-fns';
+import { memo, useMemo, useCallback } from 'react';
 import {
   type Order,
   formatOrderTotal,
@@ -20,19 +21,26 @@ export interface OrderCardProps {
  * - Product thumbnails (max 3, with +N indicator)
  * - Total amount
  * - View Details button
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
-export function OrderCard({ order, onClick }: OrderCardProps) {
-  // Get product thumbnails from line items
-  const lineItems = order.line_items || [];
+function OrderCardComponent({ order, onClick }: OrderCardProps) {
+  // Get product thumbnails from line items - memoized
+  const lineItems = useMemo(() => order.line_items || [], [order.line_items]);
   const maxThumbnails = 3;
-  const visibleItems = lineItems.slice(0, maxThumbnails);
-  const remainingCount = lineItems.length - maxThumbnails;
+  const visibleItems = useMemo(() => lineItems.slice(0, maxThumbnails), [lineItems]);
+  const remainingCount = useMemo(() => lineItems.length - maxThumbnails, [lineItems.length]);
 
-  // Format date
-  const orderDate = format(new Date(order.created_at), 'MMM dd, yyyy');
+  // Format date - memoized
+  const orderDate = useMemo(() => format(new Date(order.created_at), 'MMM dd, yyyy'), [order.created_at]);
 
-  // Format total
-  const total = formatOrderTotal(order);
+  // Format total - memoized
+  const total = useMemo(() => formatOrderTotal(order), [order]);
+
+  // Handle click - memoized with useCallback
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick();
+  }, [onClick]);
 
   return (
     <Card className="order-card mb-3" onClick={onClick} style={{ cursor: 'pointer' }}>
@@ -127,10 +135,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
             <Button
               variant="outline-primary"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick();
-              }}
+              onClick={handleClick}
             >
               View Details
             </Button>
@@ -141,4 +146,6 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
   );
 }
 
+// Export memoized component to prevent unnecessary re-renders
+export const OrderCard = memo(OrderCardComponent);
 export default OrderCard;

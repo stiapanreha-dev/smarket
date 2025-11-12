@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
+import { memo, useCallback, useMemo } from 'react';
 import type { Product } from '@/types/catalog';
 import { ProductType, formatPrice, getProductPrice } from '@/types/catalog';
 import { useWishlistStore } from '@/store/wishlistStore';
+import { usePrefetchProduct } from '@/hooks/useCatalog';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -17,8 +19,10 @@ interface ProductCardProps {
 /**
  * ProductCard component for displaying product information
  * Supports grid and list layouts with RTL support
+ * Optimized with React.memo to prevent unnecessary re-renders
+ * Prefetches product details on hover for instant navigation
  */
-export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
+function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -27,15 +31,18 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
   const inWishlist = isInWishlist(product.id);
 
-  // Get product image with fallback
-  const getProductImage = (): string => {
+  // Prefetch product details on hover for instant navigation
+  const prefetchProduct = usePrefetchProduct();
+
+  // Get product image with fallback - memoized to avoid recalculation
+  const productImage = useMemo((): string => {
     if (product.image_url) return product.image_url;
     if (product.images && product.images.length > 0) return product.images[0];
     return '/placeholder-product.svg'; // Fallback image
-  };
+  }, [product.image_url, product.images]);
 
-  // Get product type badge variant and text
-  const getProductTypeBadge = () => {
+  // Get product type badge variant and text - memoized
+  const typeBadge = useMemo(() => {
     switch (product.type) {
       case ProductType.PHYSICAL:
         return { variant: 'primary', text: t('product.type.physical') };
@@ -46,7 +53,7 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
       default:
         return { variant: 'secondary', text: product.type };
     }
-  };
+  }, [product.type, t]);
 
   // Render rating stars
   const renderRating = (rating: number | null) => {
@@ -90,24 +97,24 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
     return t('product.addToCart');
   };
 
-  // Handle card click - navigate to product detail
-  const handleCardClick = (e: React.MouseEvent) => {
+  // Handle card click - navigate to product detail - memoized with useCallback
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Don't navigate if button was clicked
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
     navigate(`/catalog/${product.id}`);
-  };
+  }, [navigate, product.id]);
 
-  // Handle add to cart / book now
-  const handleAction = (e: React.MouseEvent) => {
+  // Handle add to cart / book now - memoized with useCallback
+  const handleAction = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     // TODO: Implement add to cart / booking logic
     console.log('Action clicked for product:', product.id);
-  };
+  }, [product.id]);
 
-  // Handle wishlist toggle
-  const handleWishlistToggle = async (e: React.MouseEvent) => {
+  // Handle wishlist toggle - memoized with useCallback
+  const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
 
     try {
@@ -125,15 +132,15 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
           : t('wishlist.error') || 'Failed to update wishlist'
       );
     }
-  };
+  }, [inWishlist, product.id, removeFromWishlist, addToWishlist, t]);
 
-  const typeBadge = getProductTypeBadge();
-  const price = getProductPrice(product);
-  const formattedPrice = formatPrice(
+  // Calculate price and formatted price - memoized
+  const price = useMemo(() => getProductPrice(product), [product]);
+  const formattedPrice = useMemo(() => formatPrice(
     price,
     product.currency,
     i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US'
-  );
+  ), [price, product.currency, i18n.language]);
 
   // List variant rendering
   if (variant === 'list') {
@@ -141,13 +148,14 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
       <Card
         className={`product-card product-card-list cursor-pointer mb-3 ${isRTL ? 'rtl' : ''}`}
         onClick={handleCardClick}
+        onMouseEnter={() => prefetchProduct(product.id)}
       >
         <div className="row g-0">
           <div className="col-md-3">
             <div className="position-relative">
               <Card.Img
                 variant="top"
-                src={getProductImage()}
+                src={productImage}
                 alt={product.title}
                 className="product-card-image-list"
                 onError={(e) => {
@@ -220,11 +228,12 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
     <Card
       className={`product-card product-card-grid cursor-pointer h-100 ${isRTL ? 'rtl' : ''}`}
       onClick={handleCardClick}
+      onMouseEnter={() => prefetchProduct(product.id)}
     >
       <div className="product-card-image-wrapper">
         <Card.Img
           variant="top"
-          src={getProductImage()}
+          src={productImage}
           alt={product.title}
           className="product-card-image"
           onError={(e) => {
@@ -280,4 +289,6 @@ export function ProductCard({ product, variant = 'grid' }: ProductCardProps) {
   );
 }
 
+// Export memoized component to prevent unnecessary re-renders
+export const ProductCard = memo(ProductCardComponent);
 export default ProductCard;
