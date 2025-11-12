@@ -537,4 +537,98 @@ export class ProductSearchService {
     await this.cacheService.invalidateSearchCache();
     this.logger.log('Search cache invalidated');
   }
+
+  /**
+   * Autocomplete search suggestions
+   */
+  async autocomplete(query: string, locale: string = 'en') {
+    if (!query || query.length < 2) {
+      return {
+        products: [],
+        services: [],
+        categories: [],
+      };
+    }
+
+    const cacheKey = `autocomplete:${locale}:${query.toLowerCase()}`;
+    const cached = await this.cacheService.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // Search for products (top 5)
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.translations', 'translation')
+      .leftJoinAndSelect('product.variants', 'variant')
+      .where('translation.locale = :locale', { locale })
+      .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
+      .andWhere(
+        `(translation.title ILIKE :query OR translation.description ILIKE :query)`,
+        { query: `%${query}%` },
+      )
+      .andWhere('product.type IN (:...types)', { types: ['PHYSICAL', 'DIGITAL'] })
+      .orderBy('product.sales_count', 'DESC')
+      .addOrderBy('product.view_count', 'DESC')
+      .take(5)
+      .getMany();
+
+    // Search for services (top 3)
+    const services = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.translations', 'translation')
+      .leftJoinAndSelect('product.variants', 'variant')
+      .where('translation.locale = :locale', { locale })
+      .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
+      .andWhere(
+        `(translation.title ILIKE :query OR translation.description ILIKE :query)`,
+        { query: `%${query}%` },
+      )
+      .andWhere('product.type = :type', { type: 'SERVICE' })
+      .orderBy('product.sales_count', 'DESC')
+      .addOrderBy('product.view_count', 'DESC')
+      .take(3)
+      .getMany();
+
+    // Get unique categories from product attributes
+    const categoriesResult = await this.productRepository
+      .createQueryBuilder('product')
+      .select('DISTINCT product.attrs->>\'category\'', 'category')
+      .leftJoin('product.translations', 'translation')
+      .where('translation.locale = :locale', { locale })
+      .andWhere('product.status = :status', { status: ProductStatus.ACTIVE })
+      .andWhere(`product.attrs->>\'category\' ILIKE :query`, { query: `%${query}%` })
+      .andWhere(`product.attrs->>\'category\' IS NOT NULL`)
+      .limit(5)
+      .getRawMany();
+
+    const categories = categoriesResult
+      .map((item) => item.category)
+      .filter((cat) => cat && cat.trim() !== '');
+
+    const result = {
+      products: products.map((p) => ({
+        id: p.id,
+        title: p.getTranslation(locale)?.title || '',
+        image_url: p.image_url,
+        price: p.variants?.[0]?.price_minor || p.base_price_minor,
+        currency: p.currency,
+        type: p.type,
+      })),
+      services: services.map((s) => ({
+        id: s.id,
+        title: s.getTranslation(locale)?.title || '',
+        image_url: s.image_url,
+        price: s.variants?.[0]?.price_minor || s.base_price_minor,
+        currency: s.currency,
+        type: s.type,
+      })),
+      categories,
+    };
+
+    // Cache for 5 minutes
+    await this.cacheService.set(cacheKey, result, 300);
+
+    return result;
+  }
 }
