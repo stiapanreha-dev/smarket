@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import type { Product } from '@/types/catalog';
 import { ProductType, formatPrice, getProductPrice } from '@/types/catalog';
 import { useWishlistStore } from '@/store/wishlistStore';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Navbar as BootstrapNavbar, Nav, Modal } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,17 @@ import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import SearchBar from '@/components/features/SearchBar';
 import { NotificationBell } from '@/components/notifications';
+import { prefetchRoute } from '@/utils/prefetch';
+
+// Prefetch functions for critical routes
+const prefetchCatalog = () =>
+  prefetchRoute(() => import('@/pages/Catalog'), 'catalog');
+
+const prefetchCart = () =>
+  prefetchRoute(() => import('@/pages/Cart'), 'cart');
+
+const prefetchWishlist = () =>
+  prefetchRoute(() => import('@/pages/Wishlist'), 'wishlist');
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -57,16 +68,26 @@ const Navbar = () => {
                 <NotificationBell />
               </div>
 
-              {/* Wishlist Icon with Badge */}
-              <div className="wishlist-icon-wrapper ms-3" onClick={() => navigate('/wishlist')}>
+              {/* Wishlist Icon with Badge - Prefetch on hover */}
+              <div
+                className="wishlist-icon-wrapper ms-3"
+                onClick={() => navigate('/wishlist')}
+                onMouseEnter={prefetchWishlist}
+                onFocus={prefetchWishlist}
+              >
                 <AiOutlineHeart className="wishlist-icon" />
                 {wishlistCount > 0 && (
                   <span className="wishlist-badge">{wishlistCount}</span>
                 )}
               </div>
 
-              {/* Cart Icon with Badge */}
-              <div className="cart-icon-wrapper ms-3" onClick={() => navigate('/cart')}>
+              {/* Cart Icon with Badge - Prefetch on hover */}
+              <div
+                className="cart-icon-wrapper ms-3"
+                onClick={() => navigate('/cart')}
+                onMouseEnter={prefetchCart}
+                onFocus={prefetchCart}
+              >
                 <BsCart className="cart-icon" />
                 {itemsCount > 0 && (
                   <span className="cart-badge">{itemsCount}</span>
