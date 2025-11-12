@@ -3,7 +3,7 @@
  * Type definitions for wishlist functionality
  */
 
-import { Product } from './catalog';
+import { Product, ProductType } from './catalog';
 
 /**
  * Wishlist item product details
@@ -17,6 +17,7 @@ export interface WishlistItemProduct {
   currency: string;
   status: string;
   merchantId: string;
+  type?: ProductType;
 }
 
 /**
