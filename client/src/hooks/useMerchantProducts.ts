@@ -109,7 +109,7 @@ export const useToggleProductStatus = () => {
 export const useProduct = (productId: string | undefined) => {
   return useQuery({
     queryKey: merchantProductKeys.detail(productId || ''),
-    queryFn: () => merchantApi.getProduct(productId!),
+    queryFn: () => merchantApi.getMerchantProduct(productId!),
     enabled: !!productId,
     staleTime: 30 * 1000,
     gcTime: 5 * 60 * 1000,
