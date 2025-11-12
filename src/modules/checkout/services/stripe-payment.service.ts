@@ -23,6 +23,11 @@ export class StripePaymentService {
         'STRIPE_SECRET_KEY is not set. Stripe functionality will not work. ' +
           'Please add it to your .env file. Get your key from: https://dashboard.stripe.com/test/apikeys',
       );
+      // Use a dummy key to prevent initialization errors when Stripe is not configured
+      this.stripe = new Stripe('sk_test_dummy_key_for_initialization', {
+        apiVersion: stripeConfig.apiVersion,
+      });
+      return;
     }
 
     this.stripe = new Stripe(stripeConfig.secretKey, {
@@ -43,6 +48,12 @@ export class StripePaymentService {
     currency: string,
     metadata: Record<string, string> = {},
   ): Promise<Stripe.PaymentIntent> {
+    if (!stripeConfig.secretKey) {
+      throw new BadRequestException(
+        'Stripe is not configured. Please contact support.',
+      );
+    }
+
     try {
       this.logger.log(`Creating payment intent for ${amount} ${currency}`);
 
