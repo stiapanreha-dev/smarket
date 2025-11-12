@@ -30,3 +30,4 @@ export * from './cart.api';
 export * from './checkout.api';
 export * from './order.api';
 export * from './profile.api';
+export * from './merchant.api';
