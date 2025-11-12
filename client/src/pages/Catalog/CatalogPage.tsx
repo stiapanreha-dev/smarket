@@ -13,6 +13,8 @@ import { VirtualizedProductsGrid } from './components/VirtualizedProductsGrid';
 import { ProductsGridSkeleton } from './components/ProductsGridSkeleton';
 import { EmptyState } from './components/EmptyState';
 import { CatalogPagination } from './components/CatalogPagination';
+import { SEO } from '@/components/SEO';
+import { StructuredData } from '@/components/StructuredData';
 import './CatalogPage.css';
 
 /**
@@ -174,8 +176,68 @@ export function CatalogPage() {
   const currentSortLabel =
     sortOptions.find((opt) => opt.value === sortBy)?.label || sortOptions[0].label;
 
+  // Generate dynamic SEO based on filters
+  const generatePageTitle = () => {
+    if (filters.productType) {
+      const typeLabel = filters.productType === ProductType.PHYSICAL
+        ? t('product.type.physical')
+        : filters.productType === ProductType.SERVICE
+        ? t('product.type.service')
+        : t('product.type.course');
+      return `Shop ${typeLabel} Products`;
+    }
+    if (filters.search) {
+      return `Search Results for "${filters.search}"`;
+    }
+    return 'Shop All Products';
+  };
+
+  const generatePageDescription = () => {
+    const parts = ['Discover and shop'];
+
+    if (filters.productType) {
+      const typeLabel = filters.productType === ProductType.PHYSICAL
+        ? 'physical goods'
+        : filters.productType === ProductType.SERVICE
+        ? 'professional services'
+        : 'digital products and courses';
+      parts.push(typeLabel);
+    } else {
+      parts.push('physical goods, digital products, and services');
+    }
+
+    if (filters.search) {
+      parts.push(`matching "${filters.search}"`);
+    }
+
+    parts.push('on SnailMarketplace. Wide selection, secure checkout, multi-language support.');
+
+    return parts.join(' ');
+  };
+
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://snailmarketplace.com';
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : `${baseUrl}/catalog`;
+
   return (
     <>
+      {/* SEO Meta Tags */}
+      <SEO
+        title={generatePageTitle()}
+        description={generatePageDescription()}
+        keywords="catalog, products, buy online, marketplace, shopping, physical goods, digital products, services"
+        type="website"
+        url={currentUrl}
+      />
+
+      {/* Breadcrumb Structured Data */}
+      <StructuredData
+        type="breadcrumb"
+        breadcrumbs={[
+          { name: 'Home', url: baseUrl },
+          { name: 'Catalog', url: `${baseUrl}/catalog` },
+        ]}
+      />
+
       <Navbar />
       <div className={`catalog-page ${isRTL ? 'rtl' : ''}`}>
         <Container fluid="xl" className="py-4">
