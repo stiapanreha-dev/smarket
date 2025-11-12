@@ -29,6 +29,7 @@ import { AdvancedSearchProductsDto } from './dto/advanced-search-products.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Public } from '../auth/decorators/public.decorator';
 import { User } from '../../common/decorators/user.decorator';
 import { UserRole } from '../../database/entities/user.entity';
 
@@ -73,6 +74,7 @@ export class CatalogController {
     return this.catalogService.createProduct(merchantId, createProductDto, user.id);
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'Search and filter products (basic)',
@@ -87,6 +89,7 @@ export class CatalogController {
     return this.catalogService.searchProducts(searchDto);
   }
 
+  @Public()
   @Get('search')
   @ApiOperation({
     summary: 'Advanced product search with facets',
@@ -162,6 +165,7 @@ export class CatalogController {
     return this.productSearchService.search(searchDto);
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get product by ID',
@@ -185,6 +189,7 @@ export class CatalogController {
     return this.catalogService.findOneById(id);
   }
 
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get product by slug',
@@ -294,6 +299,7 @@ export class CatalogController {
     await this.catalogService.deleteProduct(id, merchantId, user.id);
   }
 
+  @Public()
   @Get('info/module')
   @ApiOperation({
     summary: 'Get module info',
@@ -307,6 +313,7 @@ export class CatalogController {
     return this.catalogService.getModuleInfo();
   }
 
+  @Public()
   @Get('autocomplete')
   @ApiOperation({
     summary: 'Autocomplete search suggestions',
