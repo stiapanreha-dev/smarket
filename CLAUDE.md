@@ -83,6 +83,156 @@ npm run lint
 npm run format
 ```
 
+### Product Import Scripts
+
+Import products from external sources (e.g., american-creator.ru):
+
+```bash
+# One-time setup: Create credentials file
+cp scripts/.env.example scripts/.env
+# Edit scripts/.env with merchant credentials
+
+# Import product to production
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+
+# The script automatically:
+# - Reads credentials from scripts/.env
+# - Parses product info using Puppeteer
+# - Creates product via API
+# - Uploads images
+# - Fixes image URLs (localhost → production)
+```
+
+See `scripts/README.md` for detailed documentation.
+
+## Production Deployment
+
+### Server Information
+
+- **Server**: Pi4-2 (Raspberry Pi)
+- **Location**: `/home/lexun/apps/smarket`
+- **Domain**: https://smarket.sh3.su
+- **Backend Port**: 3003 (Docker container)
+- **Frontend**: Static files served by nginx
+
+### Deployment Process
+
+```bash
+# 1. Push changes to repository
+git add .
+git commit -m "Your changes"
+git push origin master
+
+# 2. Pull changes on server
+ssh Pi4-2 "cd /home/lexun/apps/smarket && git pull origin master"
+
+# 3. Build frontend (locally or on server)
+cd client && npm run build
+
+# 4. Sync frontend to server
+rsync -avz client/dist/ Pi4-2:/home/lexun/apps/smarket.backup/frontend/
+
+# 5. Rebuild backend Docker containers
+ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
+
+# 6. Reload nginx
+ssh Pi4-2 "sudo systemctl reload nginx"
+```
+
+### Production Database Migrations
+
+**CRITICAL**: Migrations cannot be run automatically in production Docker containers because:
+- Source files are not available (only compiled `dist/main.js`)
+- TypeORM migration runner requires source files
+
+**Manual migration process:**
+
+1. Check migration files in `src/database/migrations/`
+2. Extract SQL from migration files
+3. Execute SQL directly on production database:
+
+```bash
+# Connect to production database
+ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket"
+
+# Or execute SQL command directly
+ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'YOUR SQL HERE'"
+```
+
+**Example - Adding missing table:**
+```bash
+# Create notifications table
+ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+CREATE TYPE notification_type_enum AS ENUM ('ORDER_UPDATE', 'PAYMENT_SUCCESS', 'SHIPPING_UPDATE', 'BOOKING_REMINDER', 'PROMO');
+CREATE TABLE notifications (...);
+\""
+```
+
+### Nginx Configuration
+
+Production nginx config at `/etc/nginx/sites-available/smarket.sh3.su`:
+
+```nginx
+# Backend API
+location /api/ {
+    proxy_pass http://localhost:3003/api/;
+    # ... proxy headers
+}
+
+# Uploaded files (product images, etc.)
+location /uploads/ {
+    proxy_pass http://localhost:3003/uploads/;
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+
+# Frontend static files
+location / {
+    root /home/lexun/apps/smarket.backup/frontend;
+    try_files $uri $uri/ /index.html;
+}
+```
+
+**Important**: Image URLs in database may need fixing after import:
+```bash
+# Fix localhost URLs to production
+./scripts/fix-image-urls.sh
+```
+
+### Production Docker Containers
+
+Containers managed via `docker-compose.prod.yml`:
+
+- `smarket-backend-prod` - NestJS backend (port 3003)
+- `smarket-postgres-prod` - PostgreSQL (port 5434)
+- `smarket-redis-prod` - Redis (port 6381)
+
+```bash
+# View logs
+ssh Pi4-2 "docker logs smarket-backend-prod --tail 50"
+
+# Restart container
+ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
+
+# Check container status
+ssh Pi4-2 "docker ps | grep smarket"
+```
+
+### Common Production Issues
+
+**1. Missing database tables** (500 errors)
+- Symptom: `relation "table_name" does not exist`
+- Solution: Run migration SQL manually (see Database Migrations above)
+- Common missing tables: `notifications`, `wishlists`, `wishlist_items`
+
+**2. Wrong image URLs** (images not loading)
+- Symptom: Image URLs point to `http://localhost:3000`
+- Solution: Run `./scripts/fix-image-urls.sh`
+
+**3. Node not available on server**
+- Symptom: Product import fails with `node: command not found`
+- Solution: Run import scripts locally with `API_BASE="https://smarket.sh3.su/api/v1"`
+
 ## Architecture
 
 ### Modular Monolith Structure
