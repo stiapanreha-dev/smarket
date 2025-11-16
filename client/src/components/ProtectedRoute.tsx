@@ -48,7 +48,8 @@ export const ProtectedRoute = ({ requiredRole }: ProtectedRouteProps) => {
   }
 
   // Check role if required
-  if (requiredRole && user?.role !== requiredRole) {
+  // Admins have access to all routes
+  if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {
     // User is authenticated but doesn't have the required role
     // Redirect to home page or show forbidden page
     return <Navigate to="/" replace />;

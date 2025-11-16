@@ -6,11 +6,14 @@ import { FaHeart, FaArrowLeft, FaShare, FaFilter, FaSort } from 'react-icons/fa'
 import toast from 'react-hot-toast';
 import {
   useWishlistItems,
-  useWishlistActions,
+  useLoadWishlist,
+  useRemoveFromWishlist,
   useWishlistLoading,
   useWishlistError,
+  useClearWishlistError,
 } from '@/store/wishlistStore';
-import { useCartActions } from '@/store/cartStore';
+import { useAddToCart } from '@/store/cartStore';
+import { wishlistApi } from '@/api';
 import { ProductType } from '@/types/catalog';
 import { Navbar, Footer } from '@/components/layout';
 import { WishlistCard } from './components/WishlistCard';
@@ -40,12 +43,14 @@ export function WishlistPage() {
 
   // Wishlist state
   const items = useWishlistItems();
-  const { loadWishlist, removeFromWishlist } = useWishlistActions();
+  const loadWishlist = useLoadWishlist();
+  const removeFromWishlist = useRemoveFromWishlist();
   const isLoading = useWishlistLoading();
-  const { error, clearError } = useWishlistError();
+  const error = useWishlistError();
+  const clearError = useClearWishlistError();
 
   // Cart actions
-  const { addItem: addToCart } = useCartActions();
+  const addToCart = useAddToCart();
 
   // Local state
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
@@ -62,7 +67,8 @@ export function WishlistPage() {
   // Load wishlist on mount
   useEffect(() => {
     loadWishlist().catch(console.error);
-  }, [loadWishlist]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Clear error after 5 seconds
   useEffect(() => {
@@ -70,7 +76,8 @@ export function WishlistPage() {
       const timer = setTimeout(clearError, 5000);
       return () => clearTimeout(timer);
     }
-  }, [error, clearError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
 
   // Filter and sort items
   const filteredAndSortedItems = useMemo(() => {
@@ -159,16 +166,21 @@ export function WishlistPage() {
   };
 
   // Handle share wishlist
-  const handleShare = () => {
-    const url = window.location.href;
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        toast.success(t('wishlist.linkCopied') || 'Wishlist link copied to clipboard');
-      })
-      .catch(() => {
-        toast.error(t('wishlist.linkCopyError') || 'Failed to copy link');
-      });
+  const handleShare = async () => {
+    try {
+      // Generate share token
+      const { shareToken } = await wishlistApi.generateShareToken();
+
+      // Create shareable URL
+      const shareUrl = `${window.location.origin}/wishlist/shared/${shareToken}`;
+
+      // Copy to clipboard
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t('wishlist.linkCopied') || 'Wishlist link copied to clipboard');
+    } catch (error) {
+      console.error('Failed to generate share link:', error);
+      toast.error(t('wishlist.linkCopyError') || 'Failed to copy link');
+    }
   };
 
   // Empty wishlist state

@@ -5,6 +5,7 @@
  */
 
 import { Card, Row, Col } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { FaDollarSign, FaShoppingCart, FaBoxes, FaStar } from 'react-icons/fa';
 import type { DashboardStats } from '@/types';
 import './StatsCards.css';
@@ -39,6 +40,8 @@ const StatCard = ({ title, value, icon, color, subtitle }: StatCardProps) => {
 };
 
 export const StatsCards = ({ stats }: StatsCardsProps) => {
+  const { t } = useTranslation('merchant');
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -55,38 +58,38 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
     <Row className="g-3 mb-4">
       <Col xs={12} sm={6} xl={3}>
         <StatCard
-          title="Total Revenue"
+          title={t('dashboard.stats.totalRevenue')}
           value={formatCurrency(stats.total_revenue)}
           icon={<FaDollarSign />}
           color="primary"
-          subtitle="This month"
+          subtitle={t('dashboard.stats.thisMonth')}
         />
       </Col>
       <Col xs={12} sm={6} xl={3}>
         <StatCard
-          title="Total Orders"
+          title={t('dashboard.stats.totalOrders')}
           value={stats.total_orders}
           icon={<FaShoppingCart />}
           color="success"
-          subtitle={`${stats.pending_orders} pending, ${stats.completed_orders} completed`}
+          subtitle={`${stats.pending_orders} ${t('dashboard.stats.pending')}, ${stats.completed_orders} ${t('dashboard.stats.completed')}`}
         />
       </Col>
       <Col xs={12} sm={6} xl={3}>
         <StatCard
-          title="Total Products"
+          title={t('dashboard.stats.totalProducts')}
           value={stats.total_products}
           icon={<FaBoxes />}
           color="warning"
-          subtitle="Active listings"
+          subtitle={t('dashboard.stats.activeListings')}
         />
       </Col>
       <Col xs={12} sm={6} xl={3}>
         <StatCard
-          title="Average Rating"
+          title={t('dashboard.stats.averageRating')}
           value={formatRating(stats.average_rating)}
           icon={<FaStar />}
           color="info"
-          subtitle="Customer feedback"
+          subtitle={t('dashboard.stats.customerFeedback')}
         />
       </Col>
     </Row>

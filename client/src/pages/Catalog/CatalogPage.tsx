@@ -3,16 +3,15 @@ import { Container, Row, Col, Button, Dropdown, Offcanvas } from 'react-bootstra
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaFilter, FaTh, FaList } from 'react-icons/fa';
-import { ProductType, ProductSortOption } from '@/types/catalog';
+import { ProductType } from '@/types/catalog';
+import type { ProductSortOption } from '@/types/catalog';
 import { useProducts } from '@/hooks/useCatalog';
-import { useWindowResize } from '@/hooks/usePerformance';
 import { Navbar, Footer } from '@/components/layout';
-import { CatalogSidebar, CatalogFilters } from './components/CatalogSidebar';
+import { CatalogSidebar } from './components/CatalogSidebar';
+import type { CatalogFilters } from './components/CatalogSidebar';
 import { ProductsGrid } from './components/ProductsGrid';
-import { VirtualizedProductsGrid } from './components/VirtualizedProductsGrid';
 import { ProductsGridSkeleton } from './components/ProductsGridSkeleton';
 import { EmptyState } from './components/EmptyState';
-import { CatalogPagination } from './components/CatalogPagination';
 import { SEO } from '@/components/SEO';
 import { StructuredData } from '@/components/StructuredData';
 import './CatalogPage.css';
@@ -23,7 +22,7 @@ import './CatalogPage.css';
  * - Filters (search, categories, product type, price range)
  * - Sorting options
  * - Grid/List view toggle
- * - Pagination
+ * - Infinite scroll with "Show more" button
  * - URL query params sync
  * - Responsive mobile drawer
  */
@@ -35,18 +34,6 @@ export function CatalogPage() {
   // State
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-
-  // Track window resize with throttling (200ms) for better performance
-  const { width: windowWidth } = useWindowResize(200);
-
-  // Calculate container width for virtualized grid based on window width
-  const containerWidth = useMemo(() => {
-    // Approximate container width based on Bootstrap breakpoints
-    if (windowWidth >= 1400) return 1320 * 0.75; // XXL container * 9/12 columns
-    if (windowWidth >= 1200) return 1140 * 0.75; // XL container * 9/12 columns
-    if (windowWidth >= 992) return 960 * 0.75;   // LG container * 9/12 columns
-    return windowWidth * 0.9; // Smaller screens with padding
-  }, [windowWidth]);
 
   // Parse filters from URL
   const filters = useMemo<CatalogFilters>(() => {
@@ -69,10 +56,15 @@ export function CatalogPage() {
     };
   }, [searchParams]);
 
-  // Parse sort and pagination from URL
+  // Parse sort from URL
   const sortBy = (searchParams.get('sort') as ProductSortOption) || 'newest';
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '20', 10);
+
+  // State for infinite scroll
+  const [displayedProducts, setDisplayedProducts] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const limit = 12; // Load 12 items at a time (3 rows of 4)
 
   // Fetch products
   const { data, isLoading, error } = useProducts({
@@ -85,6 +77,37 @@ export function CatalogPage() {
     limit,
     locale: i18n.language as any,
   });
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    setDisplayedProducts([]);
+    setHasMore(true);
+  }, [filters.search, filters.productType, filters.minPrice, filters.maxPrice, sortBy]);
+
+  // Update displayed products when data changes
+  useEffect(() => {
+    if (!data) return;
+
+    if (currentPage === 1) {
+      // First page - replace all products
+      setDisplayedProducts(data.data);
+    } else {
+      // Subsequent pages - append products
+      setDisplayedProducts(prev => [...prev, ...data.data]);
+      setIsLoadingMore(false);
+    }
+
+    setHasMore(data.pagination.page < data.pagination.pages);
+  }, [data]);
+
+  // Load more products
+  const handleLoadMore = useCallback(() => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+    setCurrentPage(prev => prev + 1);
+  }, [isLoadingMore, hasMore]);
 
   // Update URL params when filters change - memoized with useCallback
   const updateFilters = useCallback((newFilters: CatalogFilters) => {
@@ -124,16 +147,12 @@ export function CatalogPage() {
       params.delete('max_price');
     }
 
-    // Reset to page 1 when filters change
-    params.set('page', '1');
-
     setSearchParams(params);
   }, [searchParams, setSearchParams]);
 
   // Clear all filters - memoized with useCallback
   const clearFilters = useCallback(() => {
     const params = new URLSearchParams();
-    params.set('page', '1');
     params.set('sort', sortBy);
     setSearchParams(params);
   }, [sortBy, setSearchParams]);
@@ -142,18 +161,7 @@ export function CatalogPage() {
   const updateSort = useCallback((newSort: ProductSortOption) => {
     const params = new URLSearchParams(searchParams);
     params.set('sort', newSort);
-    params.set('page', '1'); // Reset to page 1
     setSearchParams(params);
-  }, [searchParams, setSearchParams]);
-
-  // Update page - memoized with useCallback
-  const updatePage = useCallback((newPage: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', newPage.toString());
-    setSearchParams(params);
-
-    // Scroll to top when page changes
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [searchParams, setSearchParams]);
 
   // Check if any filters are active
@@ -271,8 +279,8 @@ export function CatalogPage() {
                   <span className="text-muted">
                     {t('catalog.resultsCount', {
                       count: data.pagination.total,
-                      start: (currentPage - 1) * limit + 1,
-                      end: Math.min(currentPage * limit, data.pagination.total),
+                      start: 1,
+                      end: displayedProducts.length,
                     })}
                   </span>
                 )}
@@ -330,22 +338,24 @@ export function CatalogPage() {
 
             {!isLoading && !error && data && (
               <>
-                {data.data.length > 0 ? (
+                {displayedProducts.length > 0 ? (
                   <>
-                    {/* Use virtualized grid for large lists in grid mode for better performance */}
-                    {viewMode === 'grid' && data.pagination.total > 100 ? (
-                      <VirtualizedProductsGrid
-                        products={data.data}
-                        containerWidth={containerWidth}
-                      />
-                    ) : (
-                      <ProductsGrid products={data.data} viewMode={viewMode} />
+                    <ProductsGrid products={displayedProducts} viewMode={viewMode} />
+
+                    {/* Show More Button */}
+                    {hasMore && (
+                      <div className="text-center mt-4 mb-4">
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          onClick={handleLoadMore}
+                          disabled={isLoadingMore}
+                          className="px-5"
+                        >
+                          {isLoadingMore ? t('catalog.loading') : t('catalog.showMore')}
+                        </Button>
+                      </div>
                     )}
-                    <CatalogPagination
-                      currentPage={currentPage}
-                      totalPages={data.pagination.pages}
-                      onPageChange={updatePage}
-                    />
                   </>
                 ) : (
                   <EmptyState

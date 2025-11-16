@@ -26,6 +26,9 @@ export class Wishlist {
   @Column({ type: 'uuid' })
   user_id: string;
 
+  @Column({ type: 'varchar', length: 64, unique: true, nullable: true })
+  share_token: string;
+
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
 

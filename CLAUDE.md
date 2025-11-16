@@ -180,6 +180,113 @@ Always use these aliases for imports across the codebase.
 - User information available via `@CurrentUser()` decorator
 - Passwords hashed with argon2 (more secure than bcrypt)
 
+### Cart Module - Guest Session Management
+
+**CRITICAL:** The cart system supports both authenticated users and guest users through session management.
+
+**Backend Implementation:**
+- Cart data is stored in Redis using keys: `cart:user:{userId}` or `cart:session:{sessionId}`
+- All cart endpoints are marked as `@Public()` to allow guest access
+- Session ID is read from `x-session-id` header (NOT from express-session)
+- Controllers in `cart.controller.ts` use `@Headers('x-session-id')` to get session ID
+
+**Frontend Implementation:**
+- Session ID is generated once and stored in localStorage as `guest_session_id`
+- Axios interceptor in `client/src/api/axios.config.ts` automatically adds `x-session-id` header to all requests
+- Session ID persists across page reloads, ensuring cart continuity for guest users
+- When user logs in, guest cart is merged with user cart via `/cart/merge` endpoint
+
+**Important Files:**
+- Backend: `src/modules/cart/cart.controller.ts`, `src/modules/cart/cart.service.ts`
+- Frontend: `client/src/api/axios.config.ts` (session ID generation), `client/src/store/cartStore.ts`
+
+## Frontend Architecture
+
+The frontend is built with React 18, Vite, TypeScript, and Bootstrap 5. It uses Zustand for state management and React Router for navigation.
+
+### Tech Stack
+
+- **Build Tool:** Vite 5.x
+- **Framework:** React 18 with TypeScript
+- **UI Library:** React Bootstrap 5
+- **State Management:** Zustand with persist middleware
+- **Routing:** React Router v6
+- **HTTP Client:** Axios with interceptors
+- **Internationalization:** react-i18next (EN/RU/AR with RTL support)
+- **Notifications:** react-hot-toast
+
+### Zustand State Management - CRITICAL PATTERNS
+
+**Atomic Selectors Pattern:**
+
+Zustand selectors that return new objects on every render cause infinite re-render loops. **Always use atomic selectors** that return single primitive values or stable references.
+
+**WRONG (causes infinite loops):**
+```typescript
+// ❌ Returns new object every time
+export const useCartSummary = () =>
+  useCartStore((state) => ({
+    summary: state.summary,
+    total: state.total,
+    itemsCount: state.itemsCount,
+  }));
+```
+
+**CORRECT (atomic selectors):**
+```typescript
+// ✅ Each selector returns a single value
+export const useCartSummary = () => useCartStore((state) => state.summary);
+export const useCartTotal = () => useCartStore((state) => state.total);
+export const useCartItemsCount = () => useCartStore((state) => state.itemsCount);
+
+// ✅ Functions are stable in zustand, safe to return directly
+export const useLoadCart = () => useCartStore((state) => state.loadCart);
+export const useUpdateQuantity = () => useCartStore((state) => state.updateQuantity);
+```
+
+**Usage in components:**
+```typescript
+// Instead of destructuring one hook
+const { summary, total, itemsCount } = useCartSummary(); // ❌
+
+// Use multiple atomic selectors
+const summary = useCartSummary();   // ✅
+const total = useCartTotal();       // ✅
+const itemsCount = useCartItemsCount(); // ✅
+```
+
+**DO NOT use `shallow` comparison** - it doesn't solve the problem if you're creating new objects. Use atomic selectors instead.
+
+### CSS and Layout
+
+**Fixed Navbar Pattern:**
+
+The navbar uses Bootstrap's `fixed="top"` which requires all page containers to have `padding-top: 80px` to prevent content from being hidden behind the navbar.
+
+**All page-level CSS classes must include:**
+```css
+.my-page {
+  padding-top: 80px; /* Account for fixed navbar */
+  min-height: calc(100vh - 200px);
+}
+```
+
+Pages that need this:
+- CatalogPage, ProductPage, CartPage, CheckoutPage
+- ProfilePage, OrdersPage, OrderDetailsPage
+- WishlistPage, NotificationsPage, SearchPage
+- All Merchant pages (DashboardPage, ProductsPage, etc.)
+
+### EditorJS Content Handling
+
+Product descriptions use EditorJS format. Use `extractTextFromEditorJS()` utility from `client/src/utils/editorjs.ts` to extract plain text for previews:
+
+```typescript
+import { extractTextFromEditorJS } from '@/utils/editorjs';
+
+const preview = extractTextFromEditorJS(product.description, 150); // 150 char limit
+```
+
 ## Docker Infrastructure
 
 Default ports (can be changed in `docker-compose.yml` and `.env`):

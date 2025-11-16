@@ -55,6 +55,11 @@ export class Product {
   @IsNotEmpty()
   title: string;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  @IsString()
+  @IsOptional()
+  short_description: string | null;
+
   @Column({ type: 'text', nullable: true })
   @IsString()
   @IsOptional()

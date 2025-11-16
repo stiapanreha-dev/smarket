@@ -23,6 +23,7 @@ export * from './catalog';
 
 // Export Cart types
 export * from './cart';
+export type { CartItemWithProduct, CartSummary } from './cart';
 
 // Export Checkout types
 export * from './checkout';
@@ -38,3 +39,4 @@ export * from './merchant';
 
 // Export Wishlist types
 export * from './wishlist';
+export type { WishlistItem, Wishlist, WishlistResponse } from './wishlist';

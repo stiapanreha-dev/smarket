@@ -4,10 +4,45 @@ import { initReactI18next } from 'react-i18next';
 // Translation resources
 const resources = {
   en: {
+    merchant: {
+      dashboard: {
+        title: "Dashboard",
+        welcome: "Welcome to your merchant dashboard",
+        loading: "Loading dashboard...",
+        error: "Error Loading Dashboard",
+        errorMessage: "Failed to load dashboard data. Please try again later.",
+        noData: "No dashboard data available.",
+        stats: {
+          totalRevenue: "Total Revenue",
+          totalOrders: "Total Orders",
+          totalProducts: "Total Products",
+          averageRating: "Average Rating",
+          thisMonth: "This month",
+          pending: "pending",
+          completed: "completed",
+          activeListings: "Active listings",
+          customerFeedback: "Customer feedback"
+        },
+        charts: {
+          revenue: "Revenue (Last 7 Days)",
+          ordersByStatus: "Orders by Status",
+          topProducts: "Top Selling Products",
+          recentOrders: "Recent Orders"
+        }
+      }
+    },
     translation: {
       nav: {
         home: 'Home',
+        catalog: 'Catalog',
+        products: 'Products',
         services: 'Services',
+        courses: 'Courses',
+        login: 'Login',
+        logout: 'Logout',
+        dashboard: 'Dashboard',
+        profile: 'Profile',
+        users: 'Users',
         about: 'About',
         contact: 'Contact',
       },
@@ -184,6 +219,8 @@ const resources = {
           list: 'List View',
         },
         resultsCount: 'Showing {{start}}-{{end}} of {{count}} products',
+        showMore: 'Show more',
+        loading: 'Loading...',
         emptyState: {
           noResults: 'No products found',
           noProducts: 'No products available',
@@ -249,6 +286,20 @@ const resources = {
       },
       common: {
         loading: 'Loading...',
+        yes: 'Yes',
+        no: 'No',
+      },
+      specifications: {
+        volume: 'Volume',
+        color: 'Color',
+        boxIncluded: 'Box Included',
+        weight: 'Weight',
+        brand: 'Brand',
+        size: 'Size',
+        material: 'Material',
+        duration: 'Duration',
+        capacity: 'Capacity',
+        accessDuration: 'Access Duration',
       },
       settings: {
         title: 'Settings',
@@ -321,10 +372,45 @@ const resources = {
     },
   },
   ru: {
+    merchant: {
+      dashboard: {
+        title: "Панель управления",
+        welcome: "Добро пожаловать в панель продавца",
+        loading: "Загрузка панели...",
+        error: "Ошибка загрузки панели",
+        errorMessage: "Не удалось загрузить данные панели. Пожалуйста, попробуйте позже.",
+        noData: "Нет доступных данных панели.",
+        stats: {
+          totalRevenue: "Общий доход",
+          totalOrders: "Всего заказов",
+          totalProducts: "Всего товаров",
+          averageRating: "Средний рейтинг",
+          thisMonth: "В этом месяце",
+          pending: "ожидается",
+          completed: "завершено",
+          activeListings: "Активные объявления",
+          customerFeedback: "Отзывы клиентов"
+        },
+        charts: {
+          revenue: "Доход (последние 7 дней)",
+          ordersByStatus: "Заказы по статусам",
+          topProducts: "Топ продаж",
+          recentOrders: "Последние заказы"
+        }
+      }
+    },
     translation: {
       nav: {
         home: 'Главная',
+        catalog: 'Каталог',
+        products: 'Товары',
         services: 'Услуги',
+        courses: 'Курсы',
+        login: 'Войти',
+        logout: 'Выйти',
+        dashboard: 'Панель',
+        profile: 'Профиль',
+        users: 'Пользователи',
         about: 'О нас',
         contact: 'Контакты',
       },
@@ -501,6 +587,8 @@ const resources = {
           list: 'Список',
         },
         resultsCount: 'Показано {{start}}-{{end}} из {{count}} товаров',
+        showMore: 'Показать ещё',
+        loading: 'Загрузка...',
         emptyState: {
           noResults: 'Товары не найдены',
           noProducts: 'Нет доступных товаров',
@@ -569,6 +657,20 @@ const resources = {
       },
       common: {
         loading: 'Загрузка...',
+        yes: 'Да',
+        no: 'Нет',
+      },
+      specifications: {
+        volume: 'Объем',
+        color: 'Цвет',
+        boxIncluded: 'Коробка включена',
+        weight: 'Вес',
+        brand: 'Бренд',
+        size: 'Размер',
+        material: 'Материал',
+        duration: 'Длительность',
+        capacity: 'Вместимость',
+        accessDuration: 'Срок доступа',
       },
       settings: {
         title: 'Настройки',
@@ -641,10 +743,45 @@ const resources = {
     },
   },
   ar: {
+    merchant: {
+      dashboard: {
+        title: "لوحة التحكم",
+        welcome: "مرحباً بك في لوحة التاجر",
+        loading: "جارٍ تحميل لوحة التحكم...",
+        error: "خطأ في تحميل لوحة التحكم",
+        errorMessage: "فشل تحميل بيانات لوحة التحكم. يرجى المحاولة مرة أخرى لاحقاً.",
+        noData: "لا توجد بيانات متاحة للوحة التحكم.",
+        stats: {
+          totalRevenue: "إجمالي الإيرادات",
+          totalOrders: "إجمالي الطلبات",
+          totalProducts: "إجمالي المنتجات",
+          averageRating: "متوسط التقييم",
+          thisMonth: "هذا الشهر",
+          pending: "قيد الانتظار",
+          completed: "مكتمل",
+          activeListings: "القوائم النشطة",
+          customerFeedback: "ملاحظات العملاء"
+        },
+        charts: {
+          revenue: "الإيرادات (آخر 7 أيام)",
+          ordersByStatus: "الطلبات حسب الحالة",
+          topProducts: "أفضل المبيعات",
+          recentOrders: "الطلبات الأخيرة"
+        }
+      }
+    },
     translation: {
       nav: {
         home: 'الرئيسية',
+        catalog: 'الكتالوج',
+        products: 'المنتجات',
         services: 'الخدمات',
+        courses: 'الدورات',
+        login: 'تسجيل الدخول',
+        logout: 'تسجيل الخروج',
+        dashboard: 'لوحة التحكم',
+        profile: 'الملف الشخصي',
+        users: 'المستخدمون',
         about: 'عن',
         contact: 'اتصل',
       },
@@ -821,6 +958,8 @@ const resources = {
           list: 'عرض القائمة',
         },
         resultsCount: 'عرض {{start}}-{{end}} من {{count}} منتج',
+        showMore: 'عرض المزيد',
+        loading: 'جارٍ التحميل...',
         emptyState: {
           noResults: 'لم يتم العثور على منتجات',
           noProducts: 'لا توجد منتجات متاحة',
@@ -886,6 +1025,20 @@ const resources = {
       },
       common: {
         loading: 'جارٍ التحميل...',
+        yes: 'نعم',
+        no: 'لا',
+      },
+      specifications: {
+        volume: 'الحجم',
+        color: 'اللون',
+        boxIncluded: 'يشمل الصندوق',
+        weight: 'الوزن',
+        brand: 'العلامة التجارية',
+        size: 'الحجم',
+        material: 'المادة',
+        duration: 'المدة',
+        capacity: 'السعة',
+        accessDuration: 'مدة الوصول',
       },
       settings: {
         title: 'الإعدادات',
@@ -959,15 +1112,23 @@ const resources = {
   },
 };
 
+// Get saved language from localStorage or default to 'en'
+const savedLanguage = localStorage.getItem('i18nextLng') || 'en';
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
+    lng: savedLanguage, // use saved language
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // React already escapes values
     },
   });
+
+// Save language to localStorage whenever it changes
+i18n.on('languageChanged', (lng) => {
+  localStorage.setItem('i18nextLng', lng);
+});
 
 export default i18n;

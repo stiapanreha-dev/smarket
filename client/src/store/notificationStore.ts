@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import { apiClient } from '@/api/axios.config';
 
 export enum NotificationType {
   ORDER_UPDATE = 'ORDER_UPDATE',
@@ -27,7 +27,7 @@ interface NotificationState {
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   loadNotifications: (params?: { unread?: boolean; type?: NotificationType; page?: number; limit?: number }) => Promise<void>;
   loadRecentNotifications: () => Promise<void>;
@@ -37,7 +37,7 @@ interface NotificationState {
   reset: () => void;
 }
 
-const API_BASE = '/api/v1/notifications';
+const API_BASE = '/notifications';
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
   notifications: [],
@@ -48,7 +48,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   loadNotifications: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(API_BASE, { params });
+      const response = await apiClient.get(API_BASE, { params });
       set({
         notifications: response.data.data,
         isLoading: false,
@@ -64,7 +64,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   loadRecentNotifications: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_BASE}/recent`);
+      const response = await apiClient.get(`${API_BASE}/recent`);
       set({
         notifications: response.data,
         isLoading: false,
@@ -79,7 +79,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   getUnreadCount: async () => {
     try {
-      const response = await axios.get(`${API_BASE}/unread-count`);
+      const response = await apiClient.get(`${API_BASE}/unread-count`);
       set({ unreadCount: response.data.count });
     } catch (error: any) {
       console.error('Failed to get unread count:', error);
@@ -88,8 +88,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   markAsRead: async (notificationId: string) => {
     try {
-      await axios.patch(`${API_BASE}/${notificationId}/read`);
-      
+      await apiClient.patch(`${API_BASE}/${notificationId}/read`);
+
       // Update local state
       const { notifications, unreadCount } = get();
       const updatedNotifications = notifications.map((n) =>
@@ -109,8 +109,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   markAllAsRead: async () => {
     try {
-      await axios.patch(`${API_BASE}/read-all`);
-      
+      await apiClient.patch(`${API_BASE}/read-all`);
+
       // Update local state
       const { notifications } = get();
       const updatedNotifications = notifications.map((n) => ({

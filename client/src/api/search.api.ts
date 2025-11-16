@@ -63,32 +63,35 @@ export const search = async (
 
   // When type is 'all', we need to fetch all groups
   if (type === 'all') {
+    // Convert page to offset for backend
+    const offset = (page - 1) * limit;
+
     // Fetch products, services, and categories in parallel
     const [productsRes, servicesRes, categoriesRes] = await Promise.all([
       // Fetch PHYSICAL products
-      apiClient.get<PaginatedProducts>('/catalog/products', {
+      apiClient.get<PaginatedProducts>('/products', {
         params: {
           q,
           type: 'PHYSICAL',
-          page,
+          offset,
           limit,
           ...filters,
         },
       }),
-      // Fetch SERVICE and COURSE products
-      apiClient.get<PaginatedProducts>('/catalog/products', {
+      // Fetch SERVICE products (one at a time, not comma-separated)
+      apiClient.get<PaginatedProducts>('/products', {
         params: {
           q,
-          type: 'SERVICE,COURSE',
-          page,
+          type: 'SERVICE',
+          offset,
           limit,
           ...filters,
         },
       }),
       // Fetch matching categories
-      apiClient.get<Category[]>('/catalog/categories', {
+      apiClient.get<Category[]>('/categories', {
         params: { q },
-      }),
+      }).catch(() => ({ data: [] as Category[] })), // Categories endpoint might not exist yet
     ]);
 
     const products = productsRes.data;
@@ -108,11 +111,12 @@ export const search = async (
 
   // Type-specific search
   if (type === 'products') {
-    const response = await apiClient.get<PaginatedProducts>('/catalog/products', {
+    const offset = (page - 1) * limit;
+    const response = await apiClient.get<PaginatedProducts>('/products', {
       params: {
         q,
         type: 'PHYSICAL',
-        page,
+        offset,
         limit,
         ...filters,
       },
@@ -130,11 +134,12 @@ export const search = async (
   }
 
   if (type === 'services') {
-    const response = await apiClient.get<PaginatedProducts>('/catalog/products', {
+    const offset = (page - 1) * limit;
+    const response = await apiClient.get<PaginatedProducts>('/products', {
       params: {
         q,
-        type: 'SERVICE,COURSE',
-        page,
+        type: 'SERVICE',
+        offset,
         limit,
         ...filters,
       },
@@ -180,7 +185,7 @@ export const getSuggestions = async (
 ): Promise<SearchSuggestion[]> => {
   try {
     const response = await apiClient.get<SearchSuggestion[]>(
-      '/catalog/search/suggestions',
+      '/search/suggestions',
       {
         params: { q: query },
       }
@@ -198,7 +203,7 @@ export const getSuggestions = async (
  */
 export const getPopularSearches = async (): Promise<string[]> => {
   try {
-    const response = await apiClient.get<string[]>('/catalog/search/popular');
+    const response = await apiClient.get<string[]>('/search/popular');
     return response.data;
   } catch (error) {
     console.warn('Popular searches endpoint not available:', error);

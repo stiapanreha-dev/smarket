@@ -87,7 +87,9 @@ const productSchema = yup.object().shape({
   // Service Fields
   duration: yup.number().min(0).integer(), // in minutes
   location: yup.string(),
-  capacity: yup.number().min(1).integer(),
+  capacity: yup.number().min(0).integer().transform((value, originalValue) =>
+    originalValue === '' || originalValue === null ? 0 : value
+  ),
 
   // Shipping (Physical)
   weight: yup.number().min(0),
@@ -96,7 +98,9 @@ const productSchema = yup.object().shape({
   // SEO
   meta_title: yup.string().max(60, 'Max 60 characters'),
   meta_description: yup.string().max(160, 'Max 160 characters'),
-  slug: yup.string().matches(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, and hyphens'),
+  slug: yup.string()
+    .transform((value) => value === '' ? undefined : value)
+    .matches(/^[a-z0-9-]*$/, 'Only lowercase letters, numbers, and hyphens'),
 });
 
 export type ProductFormData = yup.InferType<typeof productSchema>;
@@ -139,9 +143,28 @@ export const ProductFormPage = () => {
       category: [],
       tags: [],
       images: [],
+      image_url: '',
+      base_price_minor: 0,
       currency: 'USD',
+      meta_title: '',
+      meta_description: '',
+      slug: '',
+      sku: '',
+      compare_at_price_minor: 0,
+      inventory_quantity: 0,
+      barcode: '',
+      weight: 0,
+      cost_per_item: 0,
       requires_shipping: true,
-      download_limit: -1, // unlimited
+      // Digital product fields
+      file_url: '',
+      file_size: 0,
+      file_format: '',
+      download_limit: -1,
+      // Service fields
+      duration: 0,
+      location: '',
+      capacity: 0,
     },
   });
 
@@ -159,7 +182,7 @@ export const ProductFormPage = () => {
         tags: product.attrs?.tags || [],
         images: product.images || [],
         image_url: product.image_url || '',
-        base_price_minor: product.base_price_minor || undefined,
+        base_price_minor: product.base_price_minor || 0,
         currency: product.currency,
         meta_title: product.seo?.meta_title || '',
         meta_description: product.seo?.meta_description || '',
@@ -167,23 +190,39 @@ export const ProductFormPage = () => {
         // Load variant data if exists
         ...(product.variants && product.variants.length > 0
           ? {
-              sku: product.variants[0].sku,
-              compare_at_price_minor: product.variants[0].compare_at_price_minor || undefined,
-              inventory_quantity: product.variants[0].inventory_quantity,
+              sku: product.variants[0].sku || '',
+              compare_at_price_minor: product.variants[0].compare_at_price_minor || 0,
+              inventory_quantity: product.variants[0].inventory_quantity || 0,
               barcode: product.variants[0].barcode || '',
-              weight: product.variants[0].weight || undefined,
-              requires_shipping: product.variants[0].requires_shipping,
+              weight: product.variants[0].weight || 0,
+              cost_per_item: product.variants[0].attrs?.cost_per_item || 0,
+              requires_shipping: product.variants[0].requires_shipping ?? true,
               // Digital fields
               file_url: product.variants[0].attrs?.file_url || '',
-              file_size: product.variants[0].attrs?.file_size || undefined,
+              file_size: product.variants[0].attrs?.file_size || 0,
               file_format: product.variants[0].attrs?.file_format || '',
               download_limit: product.variants[0].attrs?.download_limit ?? -1,
               // Service fields
-              duration: product.variants[0].attrs?.duration || undefined,
+              duration: product.variants[0].attrs?.duration || 0,
               location: product.variants[0].attrs?.location || '',
-              capacity: product.variants[0].attrs?.capacity || undefined,
+              capacity: product.variants[0].attrs?.capacity || 0,
             }
-          : {}),
+          : {
+              sku: '',
+              compare_at_price_minor: 0,
+              inventory_quantity: 0,
+              barcode: '',
+              weight: 0,
+              cost_per_item: 0,
+              requires_shipping: true,
+              file_url: '',
+              file_size: 0,
+              file_format: '',
+              download_limit: -1,
+              duration: 0,
+              location: '',
+              capacity: 0,
+            }),
       });
     }
   }, [product, isEditMode, reset]);

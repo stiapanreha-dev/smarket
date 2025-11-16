@@ -1,19 +1,20 @@
-import { Card, Button, Badge } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaTimes, FaShoppingCart, FaExchangeAlt } from 'react-icons/fa';
 import type { WishlistItem } from '@/types/wishlist';
-import { ProductType, formatPrice } from '@/types/catalog';
+import { formatPrice } from '@/types/catalog';
 import './WishlistCard.css';
 
 interface WishlistCardProps {
   item: WishlistItem;
-  onRemove: () => void;
-  onAddToCart: () => void;
-  onMoveToCart: () => void;
+  onRemove?: () => void;
+  onAddToCart?: () => void;
+  onMoveToCart?: () => void;
   isAddingToCart?: boolean;
   isMovingToCart?: boolean;
   disabled?: boolean;
+  isShared?: boolean; // True if viewing shared wishlist (read-only)
 }
 
 /**
@@ -34,6 +35,7 @@ export function WishlistCard({
   isAddingToCart = false,
   isMovingToCart = false,
   disabled = false,
+  isShared = false,
 }: WishlistCardProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -47,34 +49,16 @@ export function WishlistCard({
     return '/placeholder-product.svg'; // Fallback image
   };
 
-  // Get product type badge variant and text
-  const getProductTypeBadge = () => {
-    if (!product?.type) {
-      return { variant: 'secondary', text: 'Unknown' };
-    }
-
-    switch (product.type) {
-      case ProductType.PHYSICAL:
-        return { variant: 'primary', text: t('product.type.physical', 'Physical') };
-      case ProductType.SERVICE:
-        return { variant: 'success', text: t('product.type.service', 'Service') };
-      case ProductType.COURSE:
-        return { variant: 'info', text: t('product.type.course', 'Course') };
-      default:
-        return { variant: 'secondary', text: product.type };
-    }
-  };
-
   // Truncate long product names
   const truncateTitle = (title: string, maxLength: number = 60): string => {
     if (title.length <= maxLength) return title;
     return title.substring(0, maxLength) + '...';
   };
 
-  // Format price
-  const formattedPrice = product?.basePriceMinor
+  // Format price (convert minor units to major units first)
+  const formattedPrice = product?.basePriceMinor !== null && product?.basePriceMinor !== undefined
     ? formatPrice(
-        product.basePriceMinor,
+        product.basePriceMinor / 100,
         product.currency,
         i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US'
       )
@@ -91,8 +75,6 @@ export function WishlistCard({
     }
   };
 
-  const typeBadge = getProductTypeBadge();
-
   return (
     <Card
       className={`wishlist-card cursor-pointer h-100 ${isRTL ? 'rtl' : ''}`}
@@ -108,27 +90,22 @@ export function WishlistCard({
             (e.target as HTMLImageElement).src = '/placeholder-product.svg';
           }}
         />
-        <Badge
-          bg={typeBadge.variant}
-          className="product-type-badge position-absolute top-0 m-2"
-          style={{ [isRTL ? 'left' : 'right']: '8px' }}
-        >
-          {typeBadge.text}
-        </Badge>
-        <Button
-          variant="light"
-          size="sm"
-          className="remove-btn position-absolute top-0 m-2 rounded-circle p-2"
-          style={{ [isRTL ? 'right' : 'left']: '8px' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          disabled={disabled}
-          aria-label="Remove from wishlist"
-        >
-          <FaTimes size={16} className="text-danger" />
-        </Button>
+        {!isShared && onRemove && (
+          <Button
+            variant="light"
+            size="sm"
+            className="remove-btn position-absolute top-0 m-2 rounded-circle p-2"
+            style={{ [isRTL ? 'right' : 'left']: '8px' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            disabled={disabled}
+            aria-label="Remove from wishlist"
+          >
+            <FaTimes size={16} className="text-danger" />
+          </Button>
+        )}
       </div>
 
       <Card.Body className="d-flex flex-column">
@@ -153,62 +130,68 @@ export function WishlistCard({
           )}
         </div>
 
-        {/* Action buttons */}
-        <div className="mt-auto d-flex flex-column gap-2">
-          {/* Add to Cart button */}
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart();
-            }}
-            disabled={disabled || isAddingToCart || isMovingToCart}
-          >
-            {isAddingToCart ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                {t('cart.adding', 'Adding...')}
-              </>
-            ) : (
-              <>
-                <FaShoppingCart className={isRTL ? 'ms-2' : 'me-2'} />
-                {t('wishlist.addToCart', 'Add to Cart')}
-              </>
+        {/* Action buttons - only show if not shared */}
+        {!isShared && (
+          <div className="mt-auto d-flex flex-column gap-2">
+            {/* Add to Cart button */}
+            {onAddToCart && (
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToCart();
+                }}
+                disabled={disabled || isAddingToCart || isMovingToCart}
+              >
+                {isAddingToCart ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    {t('cart.adding', 'Adding...')}
+                  </>
+                ) : (
+                  <>
+                    <FaShoppingCart className={isRTL ? 'ms-2' : 'me-2'} />
+                    {t('wishlist.addToCart', 'Add to Cart')}
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
 
-          {/* Move to Cart button */}
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoveToCart();
-            }}
-            disabled={disabled || isAddingToCart || isMovingToCart}
-          >
-            {isMovingToCart ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                {t('wishlist.moving', 'Moving...')}
-              </>
-            ) : (
-              <>
-                <FaExchangeAlt className={isRTL ? 'ms-2' : 'me-2'} />
-                {t('wishlist.moveToCart', 'Move to Cart')}
-              </>
+            {/* Move to Cart button */}
+            {onMoveToCart && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMoveToCart();
+                }}
+                disabled={disabled || isAddingToCart || isMovingToCart}
+              >
+                {isMovingToCart ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    {t('wishlist.moving', 'Moving...')}
+                  </>
+                ) : (
+                  <>
+                    <FaExchangeAlt className={isRTL ? 'ms-2' : 'me-2'} />
+                    {t('wishlist.moveToCart', 'Move to Cart')}
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
-        </div>
+          </div>
+        )}
       </Card.Body>
     </Card>
   );

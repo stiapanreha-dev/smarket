@@ -86,7 +86,10 @@ export const useAuthStore = create<AuthState>()(
           const payload: LoginRequest = { email, password };
           const response = await apiClient.post<LoginResponse>('/auth/login', payload);
 
-          const { access_token, refresh_token, user } = response.data;
+          // Backend returns: { user, tokens: { accessToken, refreshToken } }
+          const { user, tokens } = response.data;
+          const access_token = tokens.accessToken;
+          const refresh_token = tokens.refreshToken;
 
           // Save tokens to localStorage via axios.config helper
           setTokens(access_token, refresh_token);
@@ -123,7 +126,10 @@ export const useAuthStore = create<AuthState>()(
 
           const response = await apiClient.post<RegisterResponse>('/auth/register', userData);
 
-          const { access_token, refresh_token, user } = response.data;
+          // Backend returns: { user, tokens: { accessToken, refreshToken } }
+          const { user, tokens } = response.data;
+          const access_token = tokens.accessToken;
+          const refresh_token = tokens.refreshToken;
 
           // Save tokens to localStorage via axios.config helper
           setTokens(access_token, refresh_token);

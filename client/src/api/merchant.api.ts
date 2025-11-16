@@ -5,8 +5,9 @@
  */
 
 import { apiClient } from './axios.config';
-import type { Product, ProductType, ProductStatus, PaginatedProducts, InventoryPolicy } from '@/types/catalog';
-import type { Order, PaginatedOrders, PhysicalItemStatus, LineItemStatus } from '@/types/order';
+import { ProductType, ProductStatus, InventoryPolicy } from '@/types/catalog';
+import type { Product, PaginatedProducts } from '@/types/catalog';
+import type { Order, PaginatedOrders, LineItemStatus } from '@/types/order';
 
 // ============================================================================
 // Types

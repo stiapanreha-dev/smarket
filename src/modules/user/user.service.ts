@@ -4,12 +4,13 @@ import {
   ConflictException,
   BadRequestException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, DataSource } from 'typeorm';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
-import { User } from '@/database/entities/user.entity';
+import { User, UserRole } from '@/database/entities/user.entity';
 import { Merchant } from '@/database/entities/merchant.entity';
 import { RefreshToken } from '@/database/entities/refresh-token.entity';
 import { UserAddress } from '@/database/entities/user-address.entity';
@@ -28,6 +29,8 @@ import { AuditAction } from '@/database/entities/audit-log.entity';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -672,5 +675,113 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  // ==================== Admin Methods ====================
+
+  /**
+   * Get all users with filters (Admin only)
+   */
+  async getAllUsers(filters: {
+    role?: UserRole;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const { role, search, page = 1, limit = 20 } = filters;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.email',
+        'user.first_name',
+        'user.last_name',
+        'user.role',
+        'user.email_verified',
+        'user.phone',
+        'user.created_at',
+      ])
+      .orderBy('user.created_at', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    if (role) {
+      queryBuilder.andWhere('user.role = :role', { role });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(user.email ILIKE :search OR user.first_name ILIKE :search OR user.last_name ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const [users, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: users,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Update user role (Admin only)
+   */
+  async updateUserRole(userId: string, newRole: UserRole) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // If changing to merchant role, create merchant profile
+    if (newRole === UserRole.MERCHANT && user.role !== UserRole.MERCHANT) {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        // Update user role
+        user.role = newRole;
+        await queryRunner.manager.save(user);
+
+        // Create merchant profile
+        const merchant = queryRunner.manager.create('Merchant', {
+          owner_id: userId,
+          legal_name: `${user.first_name} ${user.last_name}`,
+          display_name: `${user.first_name} ${user.last_name}`,
+          kyc_status: 'pending',
+          status: 'active',
+          payout_method: 'bank_transfer',
+        });
+        await queryRunner.manager.save('Merchant', merchant);
+
+        await queryRunner.commitTransaction();
+
+        this.logger.log(`User ${userId} promoted to merchant by admin`);
+
+        return this.getProfile(userId, true);
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+
+    // For other role changes, just update the role
+    user.role = newRole;
+    await this.userRepository.save(user);
+
+    this.logger.log(`User ${userId} role changed to ${newRole} by admin`);
+
+    return this.getProfile(userId, true);
   }
 }

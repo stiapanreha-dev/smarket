@@ -41,6 +41,9 @@ const CartPage = lazy(() =>
 const WishlistPage = lazy(() =>
   import('./pages/Wishlist').then((module) => ({ default: module.WishlistPage }))
 );
+const SharedWishlistPage = lazy(() =>
+  import('./pages/Wishlist').then((module) => ({ default: module.SharedWishlistPage }))
+);
 const CheckoutPage = lazy(() =>
   import('./pages/Checkout').then((module) => ({ default: module.CheckoutPage }))
 );
@@ -73,6 +76,11 @@ const ProductFormPage = lazy(() =>
 );
 const MerchantOrdersPage = lazy(() =>
   import('./pages/Merchant').then((module) => ({ default: module.OrdersPage }))
+);
+
+// ===== LAZY LOADING - ADMIN PAGES =====
+const AdminUsersPage = lazy(() =>
+  import('./pages/Admin/UsersPage').then((module) => ({ default: module.UsersPage }))
 );
 
 function App() {
@@ -160,6 +168,14 @@ function App() {
               }
             />
             <Route
+              path="/wishlist/shared/:token"
+              element={
+                <Suspense fallback={<PageLoader text="Loading shared wishlist..." />}>
+                  <SharedWishlistPage />
+                </Suspense>
+              }
+            />
+            <Route
               path="/checkout"
               element={
                 <Suspense fallback={<PageLoader text="Loading checkout..." />}>
@@ -201,6 +217,18 @@ function App() {
                 </Suspense>
               }
             />
+
+            {/* Admin Routes - Protected */}
+            <Route element={<ProtectedRoute requiredRole="admin" />}>
+              <Route
+                path="/admin/users"
+                element={
+                  <Suspense fallback={<PageLoader text="Loading users..." />}>
+                    <AdminUsersPage />
+                  </Suspense>
+                }
+              />
+            </Route>
 
             {/* Merchant Routes - Protected with separate chunk */}
             <Route element={<ProtectedRoute requiredRole="merchant" />}>

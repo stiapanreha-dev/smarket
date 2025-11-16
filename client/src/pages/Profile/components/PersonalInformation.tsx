@@ -57,7 +57,7 @@ export const PersonalInformation: React.FC = () => {
   const { user, setUser } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string>(
-    user?.avatar_url || 'https://via.placeholder.com/150'
+    user?.avatar_url || 'https://ui-avatars.com/api/?name=User&size=150&background=7FB3D5&color=fff'
   );
 
   const {
@@ -78,11 +78,11 @@ export const PersonalInformation: React.FC = () => {
 
   const handleAvatarUrlChange = (url: string) => {
     setValue('avatar_url', url, { shouldDirty: true });
-    setAvatarPreview(url || 'https://via.placeholder.com/150');
+    setAvatarPreview(url || 'https://ui-avatars.com/api/?name=User&size=150&background=7FB3D5&color=fff');
   };
 
   const handleImageError = () => {
-    setAvatarPreview('https://via.placeholder.com/150');
+    setAvatarPreview('https://ui-avatars.com/api/?name=User&size=150&background=7FB3D5&color=fff');
   };
 
   const onSubmit = async (data: PersonalInfoFormData) => {

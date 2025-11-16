@@ -1,7 +1,9 @@
 import React from 'react';
+import { Card, Row, Col, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { IoNotifications, IoCheckmarkCircle, IoRocket, IoCart, IoGift } from 'react-icons/io5';
-import { Notification, NotificationType } from '../../store/notificationStore';
+import { NotificationType } from '../../store/notificationStore';
+import type { Notification } from '../../store/notificationStore';
 import { formatDistanceToNow } from 'date-fns';
 
 interface NotificationItemProps {
@@ -13,17 +15,34 @@ interface NotificationItemProps {
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case NotificationType.ORDER_UPDATE:
-      return <IoCart className="text-blue-500" size={20} />;
+      return <IoCart style={{ color: '#0d6efd' }} size={32} />;
     case NotificationType.PAYMENT_SUCCESS:
-      return <IoCheckmarkCircle className="text-green-500" size={20} />;
+      return <IoCheckmarkCircle style={{ color: '#198754' }} size={32} />;
     case NotificationType.SHIPPING_UPDATE:
-      return <IoRocket className="text-purple-500" size={20} />;
+      return <IoRocket style={{ color: '#6f42c1' }} size={32} />;
     case NotificationType.BOOKING_REMINDER:
-      return <IoNotifications className="text-orange-500" size={20} />;
+      return <IoNotifications style={{ color: '#fd7e14' }} size={32} />;
     case NotificationType.PROMO:
-      return <IoGift className="text-pink-500" size={20} />;
+      return <IoGift style={{ color: '#d63384' }} size={32} />;
     default:
-      return <IoNotifications className="text-gray-500" size={20} />;
+      return <IoNotifications style={{ color: '#6c757d' }} size={32} />;
+  }
+};
+
+const getNotificationBadgeVariant = (type: NotificationType) => {
+  switch (type) {
+    case NotificationType.ORDER_UPDATE:
+      return 'primary';
+    case NotificationType.PAYMENT_SUCCESS:
+      return 'success';
+    case NotificationType.SHIPPING_UPDATE:
+      return 'info';
+    case NotificationType.BOOKING_REMINDER:
+      return 'warning';
+    case NotificationType.PROMO:
+      return 'danger';
+    default:
+      return 'secondary';
   }
 };
 
@@ -34,39 +53,49 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 }) => {
   const timeAgo = formatDistanceToNow(new Date(notification.created_at), { addSuffix: true });
 
-  const content = (
-    <div
-      className={`flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-        !notification.is_read ? 'bg-blue-50' : ''
-      } ${compact ? 'border-b' : 'rounded-lg border mb-2'}`}
+  const cardContent = (
+    <Card
+      className={`mb-3 notification-item ${!notification.is_read ? 'notification-unread' : ''}`}
+      style={{ cursor: onClick || notification.related_url ? 'pointer' : 'default' }}
       onClick={() => onClick?.(notification)}
     >
-      {/* Icon */}
-      <div className="flex-shrink-0 mt-1">{getNotificationIcon(notification.type)}</div>
+      <Card.Body>
+        <Row className="align-items-start g-3">
+          {/* Icon */}
+          <Col xs="auto">
+            <div className="notification-icon-container">
+              {getNotificationIcon(notification.type)}
+            </div>
+          </Col>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{notification.title}</h4>
-          {!notification.is_read && (
-            <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5" />
-          )}
-        </div>
-        <p className={`text-sm text-gray-600 mt-1 ${compact ? 'line-clamp-2' : ''}`}>
-          {notification.message}
-        </p>
-        <span className="text-xs text-gray-500 mt-2 block">{timeAgo}</span>
-      </div>
-    </div>
+          {/* Content */}
+          <Col>
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <h6 className="mb-0 fw-bold">{notification.title}</h6>
+              {!notification.is_read && (
+                <Badge bg="primary" className="ms-2">New</Badge>
+              )}
+            </div>
+            <p className="mb-2 text-muted">{notification.message}</p>
+            <div className="d-flex justify-content-between align-items-center">
+              <small className="text-muted">{timeAgo}</small>
+              <Badge bg={getNotificationBadgeVariant(notification.type)} pill>
+                {notification.type.replace('_', ' ')}
+              </Badge>
+            </div>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
   );
 
   if (notification.related_url) {
     return (
-      <Link to={notification.related_url} className="block no-underline">
-        {content}
+      <Link to={notification.related_url} className="text-decoration-none">
+        {cardContent}
       </Link>
     );
   }
 
-  return content;
+  return cardContent;
 };

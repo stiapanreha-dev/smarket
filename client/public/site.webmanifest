@@ -1,0 +1,16 @@
+{
+  "name": "SnailMarketplace",
+  "short_name": "SnailMarket",
+  "description": "Modern marketplace platform for physical goods, digital products, and professional services",
+  "icons": [
+    {
+      "src": "/snail-favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#7FB3D5",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -6,6 +6,8 @@ import { User } from '../../database/entities/user.entity';
 import { Order } from '../../database/entities/order.entity';
 import { OrderLineItem } from '../../database/entities/order-line-item.entity';
 import { Product } from '../../database/entities/product.entity';
+import { ProductTranslation } from '../../database/entities/product-translation.entity';
+import { ProductVariant } from '../../database/entities/product-variant.entity';
 import { MerchantDashboardController } from './controllers/merchant-dashboard.controller';
 import { MerchantProductController } from './controllers/merchant-product.controller';
 import { MerchantApplicationController } from './controllers/merchant-application.controller';
@@ -15,7 +17,18 @@ import { MerchantProductService } from './services/merchant-product.service';
 import { MerchantApplicationService } from './services/merchant-application.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Merchant, MerchantApplication, User, Order, OrderLineItem, Product])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Merchant,
+      MerchantApplication,
+      User,
+      Order,
+      OrderLineItem,
+      Product,
+      ProductTranslation,
+      ProductVariant,
+    ]),
+  ],
   controllers: [
     MerchantDashboardController,
     MerchantProductController,

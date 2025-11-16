@@ -6,6 +6,7 @@
 .order-details-page {
   min-height: calc(100vh - 200px);
   background-color: #f8f9fa;
+  padding-top: 80px; /* Account for fixed navbar */
 }
 
 .order-details-page.rtl {

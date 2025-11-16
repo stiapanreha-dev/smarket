@@ -63,6 +63,7 @@ export class MerchantDashboardService {
 
   private async getTotalRevenue(merchantId: string): Promise<number> {
     // Get total revenue for current month
+    // Fixed: use lowercase statuses to match database enum
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -74,7 +75,7 @@ export class MerchantDashboardService {
       .where('li.merchant_id = :merchantId', { merchantId })
       .andWhere('o.created_at >= :startOfMonth', { startOfMonth })
       .andWhere('o.status NOT IN (:...cancelledStatuses)', {
-        cancelledStatuses: ['CANCELLED', 'REFUNDED'],
+        cancelledStatuses: ['cancelled', 'refunded'],
       })
       .getRawOne();
 
@@ -152,7 +153,7 @@ export class MerchantDashboardService {
         .andWhere('o.created_at >= :date', { date })
         .andWhere('o.created_at < :nextDate', { nextDate })
         .andWhere('o.status NOT IN (:...cancelledStatuses)', {
-          cancelledStatuses: ['CANCELLED', 'REFUNDED'],
+          cancelledStatuses: ['cancelled', 'refunded'],
         })
         .getRawOne();
 
@@ -197,17 +198,17 @@ export class MerchantDashboardService {
     const result = await this.lineItemRepository
       .createQueryBuilder('li')
       .select('li.product_id', 'product_id')
-      .addSelect('p.name', 'product_name')
+      .addSelect('p.title', 'product_name')
       .addSelect('SUM(li.quantity)', 'total_sold')
       .addSelect('SUM(li.total_price)', 'total_revenue')
       .innerJoin('li.product', 'p')
       .innerJoin('li.order', 'o')
       .where('li.merchant_id = :merchantId', { merchantId })
       .andWhere('o.status NOT IN (:...cancelledStatuses)', {
-        cancelledStatuses: ['CANCELLED', 'REFUNDED'],
+        cancelledStatuses: ['cancelled', 'refunded'],
       })
       .groupBy('li.product_id')
-      .addGroupBy('p.name')
+      .addGroupBy('p.title')
       .orderBy('total_revenue', 'DESC')
       .limit(5)
       .getRawMany();
@@ -223,7 +224,7 @@ export class MerchantDashboardService {
   private async getRecentOrders(merchantId: string): Promise<RecentOrderData[]> {
     const result = await this.lineItemRepository
       .createQueryBuilder('li')
-      .select('DISTINCT o.id', 'order_id')
+      .select('o.id', 'order_id')
       .addSelect('o.order_number', 'order_number')
       .addSelect('o.total_amount', 'total')
       .addSelect('o.status', 'status')
@@ -231,8 +232,15 @@ export class MerchantDashboardService {
       .addSelect('u.first_name', 'first_name')
       .addSelect('u.last_name', 'last_name')
       .innerJoin('li.order', 'o')
-      .innerJoin('o.user', 'u')
+      .leftJoin('o.user', 'u')
       .where('li.merchant_id = :merchantId', { merchantId })
+      .groupBy('o.id')
+      .addGroupBy('o.order_number')
+      .addGroupBy('o.total_amount')
+      .addGroupBy('o.status')
+      .addGroupBy('o.created_at')
+      .addGroupBy('u.first_name')
+      .addGroupBy('u.last_name')
       .orderBy('o.created_at', 'DESC')
       .limit(10)
       .getRawMany();

@@ -6,7 +6,6 @@ import {
   Delete,
   Body,
   Param,
-  Session,
   Headers,
   HttpCode,
   HttpStatus,
@@ -16,7 +15,7 @@ import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { Cart } from './interfaces/cart.interface';
-import { v4 as uuid } from 'uuid';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Cart')
 @Controller('cart')
@@ -26,6 +25,7 @@ export class CartController {
   /**
    * Get current cart
    */
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
   @ApiResponse({
@@ -34,11 +34,9 @@ export class CartController {
   })
   async getCart(
     @Headers('x-user-id') userId?: string,
-    @Session() session?: any,
-  ): Promise<{ cart: Cart; summary: any }> {
-    const sessionId = session?.id || this.generateSessionId();
-
-    const cart = await this.cartService.getCart(userId, sessionId);
+    @Headers('x-session-id') sessionId?: string,
+  ): Promise<{ cart: any; summary: any }> {
+    const cart = await this.cartService.getCartWithProducts(userId, sessionId);
     const summary = await this.cartService.getCartSummary(userId, sessionId);
 
     return {
@@ -50,6 +48,7 @@ export class CartController {
   /**
    * Add item to cart
    */
+  @Public()
   @Post('items')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add item to cart' })
@@ -68,16 +67,16 @@ export class CartController {
   async addToCart(
     @Body() addItemDto: AddToCartDto,
     @Headers('x-user-id') userId?: string,
-    @Session() session?: any,
-  ): Promise<Cart> {
-    const sessionId = session?.id || this.generateSessionId();
-
-    return this.cartService.addToCart(userId, sessionId, addItemDto);
+    @Headers('x-session-id') sessionId?: string,
+  ): Promise<any> {
+    await this.cartService.addToCart(userId, sessionId, addItemDto);
+    return this.cartService.getCartWithProducts(userId, sessionId);
   }
 
   /**
    * Update item quantity
    */
+  @Public()
   @Put('items/:itemId')
   @ApiOperation({ summary: 'Update cart item quantity' })
   @ApiParam({
@@ -97,16 +96,16 @@ export class CartController {
     @Param('itemId') itemId: string,
     @Body() updateDto: UpdateCartItemDto,
     @Headers('x-user-id') userId?: string,
-    @Session() session?: any,
-  ): Promise<Cart> {
-    const sessionId = session?.id;
-
-    return this.cartService.updateQuantity(userId, sessionId, itemId, updateDto.quantity);
+    @Headers('x-session-id') sessionId?: string,
+  ): Promise<any> {
+    await this.cartService.updateQuantity(userId, sessionId, itemId, updateDto.quantity);
+    return this.cartService.getCartWithProducts(userId, sessionId);
   }
 
   /**
    * Remove item from cart
    */
+  @Public()
   @Delete('items/:itemId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remove item from cart' })
@@ -126,16 +125,16 @@ export class CartController {
   async removeItem(
     @Param('itemId') itemId: string,
     @Headers('x-user-id') userId?: string,
-    @Session() session?: any,
-  ): Promise<Cart> {
-    const sessionId = session?.id;
-
-    return this.cartService.removeFromCart(userId, sessionId, itemId);
+    @Headers('x-session-id') sessionId?: string,
+  ): Promise<any> {
+    await this.cartService.removeFromCart(userId, sessionId, itemId);
+    return this.cartService.getCartWithProducts(userId, sessionId);
   }
 
   /**
    * Clear cart
    */
+  @Public()
   @Delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Clear all items from cart' })
@@ -143,10 +142,12 @@ export class CartController {
     status: 200,
     description: 'Cart cleared successfully',
   })
-  async clearCart(@Headers('x-user-id') userId?: string, @Session() session?: any): Promise<Cart> {
-    const sessionId = session?.id;
-
-    return this.cartService.clearCart(userId, sessionId);
+  async clearCart(
+    @Headers('x-user-id') userId?: string,
+    @Headers('x-session-id') sessionId?: string,
+  ): Promise<any> {
+    await this.cartService.clearCart(userId, sessionId);
+    return this.cartService.getCartWithProducts(userId, sessionId);
   }
 
   /**
@@ -162,33 +163,29 @@ export class CartController {
   async mergeCart(
     @Headers('x-user-id') userId: string,
     @Body('guestSessionId') guestSessionId: string,
-  ): Promise<Cart> {
+  ): Promise<any> {
     if (!userId) {
       throw new Error('User ID is required for cart merge');
     }
 
-    return this.cartService.mergeGuestCart(guestSessionId, userId);
+    await this.cartService.mergeGuestCart(guestSessionId, userId);
+    return this.cartService.getCartWithProducts(userId, undefined);
   }
 
   /**
    * Get cart summary
    */
+  @Public()
   @Get('summary')
   @ApiOperation({ summary: 'Get cart summary with totals' })
   @ApiResponse({
     status: 200,
     description: 'Cart summary retrieved successfully',
   })
-  async getCartSummary(@Headers('x-user-id') userId?: string, @Session() session?: any) {
-    const sessionId = session?.id || this.generateSessionId();
-
+  async getCartSummary(
+    @Headers('x-user-id') userId?: string,
+    @Headers('x-session-id') sessionId?: string,
+  ) {
     return this.cartService.getCartSummary(userId, sessionId);
-  }
-
-  /**
-   * Generate session ID for guest users
-   */
-  private generateSessionId(): string {
-    return uuid();
   }
 }

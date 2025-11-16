@@ -70,6 +70,16 @@ export type ProductSortOption =
 // ============================================================================
 
 /**
+ * Product specifications (stored in attrs.specifications)
+ */
+export interface ProductSpecifications {
+  volume_ml?: number;
+  color?: string;
+  box_included?: boolean;
+  [key: string]: any;
+}
+
+/**
  * Product attributes (flexible JSONB field)
  */
 export interface ProductAttributes {
@@ -85,6 +95,7 @@ export interface ProductAttributes {
   };
   category?: string[];
   tags?: string[];
+  specifications?: ProductSpecifications;
   [key: string]: any;
 }
 
@@ -182,6 +193,7 @@ export interface Product {
   merchant_id: string;
   type: ProductType;
   title: string;
+  short_description?: string | null;
   description: string | null;
   slug: string | null;
   status: ProductStatus;
@@ -387,5 +399,18 @@ export function isProductInStock(product: Product): boolean {
   }
 
   // Check if any variant is in stock
-  return product.variants.some((variant) => variant.is_in_stock);
+  // First check is_in_stock field if available, otherwise check inventory_quantity
+  return product.variants.some((variant) => {
+    // If is_in_stock is explicitly set, use it
+    if (variant.is_in_stock !== undefined) {
+      return variant.is_in_stock;
+    }
+
+    // Otherwise, calculate based on inventory_quantity and policy
+    if (variant.inventory_policy === InventoryPolicy.CONTINUE) {
+      return true;
+    }
+
+    return variant.inventory_quantity > 0;
+  });
 }

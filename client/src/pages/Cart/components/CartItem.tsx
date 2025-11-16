@@ -3,7 +3,8 @@ import { Card, Row, Col, Button, Form, Badge, Image } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaTrash, FaMinus, FaPlus, FaExclamationTriangle } from 'react-icons/fa';
-import { CartItemWithProduct, formatCartPrice } from '@/types/cart';
+import type { CartItemWithProduct } from '@/types/cart';
+import { formatCartPrice } from '@/types/cart';
 import { LoadingSpinner } from '@/components/common';
 
 interface CartItemProps {
@@ -33,14 +34,14 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
   // Get product details
   const product = item.product;
   const variant = item.variant;
-  const productName = product?.name || t('cart.unknownProduct', 'Unknown Product');
-  const variantName = variant?.name || '';
+  const productName = product?.title || t('cart.unknownProduct', 'Unknown Product');
+  const variantName = variant?.title || '';
 
   // Get product image
-  const productImage = product?.images?.[0]?.url || '/placeholder-product.png';
+  const productImage = product?.image_url || product?.images?.[0] || '/placeholder-product.png';
 
   // Check stock availability
-  const availableStock = variant?.stock || 0;
+  const availableStock = variant?.inventory_quantity || 0;
   const isLowStock = availableStock > 0 && availableStock < 10;
   const isOutOfStock = availableStock === 0;
   const exceedsStock = item.quantity > availableStock;
@@ -97,9 +98,6 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
                   {t('cart.variant', 'Variant')}: {variantName}
                 </p>
               )}
-              <p className="text-muted mb-0 small">
-                {t('cart.type', 'Type')}: {t(`productType.${item.type}`, item.type)}
-              </p>
 
               {/* Stock Warning */}
               {exceedsStock && (

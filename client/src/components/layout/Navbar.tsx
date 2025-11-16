@@ -6,6 +6,7 @@ import { BsCart, BsSearch } from 'react-icons/bs';
 import { AiOutlineHeart } from 'react-icons/ai';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
+import { useAuthStore } from '@/store/authStore';
 import SearchBar from '@/components/features/SearchBar';
 import { NotificationBell } from '@/components/notifications';
 import { prefetchRoute } from '@/utils/prefetch';
@@ -25,7 +26,28 @@ const Navbar = () => {
   const navigate = useNavigate();
   const itemsCount = useCartStore((state) => state.itemsCount);
   const wishlistCount = useWishlistStore((state) => state.itemCount);
+  const { isAuthenticated, user, logout } = useAuthStore();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+
+  // Determine account link based on authentication status
+  const getAccountLink = () => {
+    if (!isAuthenticated) {
+      return { url: '/login', label: t('nav.login') || 'Login' };
+    }
+
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      return { url: '/merchant/dashboard', label: t('nav.dashboard') || 'Dashboard' };
+    }
+
+    return { url: '/profile', label: t('nav.profile') || 'Profile' };
+  };
+
+  const accountLink = getAccountLink();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -38,7 +60,11 @@ const Navbar = () => {
       <BootstrapNavbar expand="lg" className="navbar" fixed="top">
         <Container>
           <BootstrapNavbar.Brand href="/">
-            SNAILMARKETPLACE
+            <img
+              src="/snail-logo.png"
+              alt="SnailMarketplace"
+              height="40"
+            />
           </BootstrapNavbar.Brand>
 
           {/* Desktop Search - Center */}
@@ -50,10 +76,17 @@ const Navbar = () => {
 
           <BootstrapNavbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
-              <Nav.Link href="#home">{t('nav.home')}</Nav.Link>
-              <Nav.Link href="#services">{t('nav.services')}</Nav.Link>
-              <Nav.Link href="#about">{t('nav.about')}</Nav.Link>
-              <Nav.Link href="#contact">{t('nav.contact')}</Nav.Link>
+              <Nav.Link href="/">{t('nav.home') || 'Home'}</Nav.Link>
+              <Nav.Link href="/catalog?type=PHYSICAL">{t('nav.products') || 'Products'}</Nav.Link>
+              <Nav.Link href="/catalog?type=SERVICE">{t('nav.services') || 'Services'}</Nav.Link>
+              <Nav.Link href="/catalog?type=COURSE">{t('nav.courses') || 'Courses'}</Nav.Link>
+              {user?.role === 'admin' && (
+                <Nav.Link href="/admin/users">{t('nav.users') || 'Users'}</Nav.Link>
+              )}
+              <Nav.Link href={accountLink.url}>{accountLink.label}</Nav.Link>
+              {isAuthenticated && (
+                <Nav.Link onClick={handleLogout}>{t('nav.logout') || 'Logout'}</Nav.Link>
+              )}
 
               {/* Mobile Search Icon */}
               <div

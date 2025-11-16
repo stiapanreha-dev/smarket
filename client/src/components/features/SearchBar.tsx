@@ -3,7 +3,8 @@ import { Form, Dropdown } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { BsSearch, BsClock, BsX } from 'react-icons/bs';
-import { getAutocomplete, AutocompleteResponse } from '@/api/catalog.api';
+import { getAutocomplete } from '@/api/catalog.api';
+import type { AutocompleteResponse } from '@/api/catalog.api';
 import { useRecentSearches } from '@/hooks/useRecentSearches';
 import './SearchBar.css';
 

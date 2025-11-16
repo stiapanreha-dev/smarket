@@ -7,9 +7,14 @@ import {
   useCartStore,
   useCartItems,
   useCartSummary,
-  useCartActions,
+  useCartTotal,
+  useCartItemsCount,
+  useLoadCart,
+  useUpdateQuantity,
+  useRemoveCartItem,
   useCartLoading,
   useCartError,
+  useClearCartError,
 } from '@/store/cartStore';
 import { isCartEmpty } from '@/types/cart';
 import { Navbar, Footer } from '@/components/layout';
@@ -42,10 +47,17 @@ export function CartPage() {
   // Cart state
   const { cart } = useCartStore();
   const items = useCartItems();
-  const { summary, total, itemsCount } = useCartSummary();
-  const { loadCart, updateQuantity, removeItem } = useCartActions();
+  const summary = useCartSummary();
+  const total = useCartTotal();
+  const itemsCount = useCartItemsCount();
   const isLoading = useCartLoading();
-  const { error, clearError } = useCartError();
+  const error = useCartError();
+
+  // Actions
+  const loadCart = useLoadCart();
+  const updateQuantity = useUpdateQuantity();
+  const removeItem = useRemoveCartItem();
+  const clearError = useClearCartError();
 
   // Local state
   const [itemToRemove, setItemToRemove] = useState<string | null>(null);
@@ -56,12 +68,13 @@ export function CartPage() {
   // Load cart on mount
   useEffect(() => {
     loadCart().catch(console.error);
-  }, [loadCart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Clear error after 5 seconds
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(clearError, 5000);
+      const timer = setTimeout(() => clearError(), 5000);
       return () => clearTimeout(timer);
     }
   }, [error, clearError]);

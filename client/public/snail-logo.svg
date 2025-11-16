@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 727" width="1000" height="727">
+  <!-- Yellow snail shell (large circle with spiral) -->
+  <circle cx="350" cy="220" r="150" fill="#F5B942"/>
+
+  <!-- White border around shell -->
+  <circle cx="350" cy="220" r="150" fill="none" stroke="#FFF" stroke-width="12"/>
+
+  <!-- Inner white spiral -->
+  <path d="M 350 220 Q 380 180 420 180 Q 460 180 480 220 Q 480 260 450 290 Q 420 310 380 310 Q 340 310 320 280 Q 310 260 310 240 Q 310 200 350 180"
+        fill="none" stroke="#FFF" stroke-width="24" stroke-linecap="round"/>
+
+  <!-- Black snail body -->
+  <ellipse cx="220" cy="350" rx="180" ry="80" fill="#000"/>
+
+  <!-- Body curve connecting to shell -->
+  <path d="M 220 270 Q 280 240 350 220 Q 400 250 420 290 Q 400 320 350 340 Q 280 360 220 350"
+        fill="#000"/>
+
+  <!-- Left antenna (black) -->
+  <line x1="500" y1="80" x2="480" y2="140" stroke="#000" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="505" cy="65" r="25" fill="#000"/>
+
+  <!-- Right antenna (yellow) -->
+  <line x1="570" y1="60" x2="540" y2="130" stroke="#F5B942" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="580" cy="45" r="25" fill="#F5B942"/>
+
+  <!-- Text SNAIL with rounded geometric style -->
+  <g font-family="Arial Black, sans-serif" font-weight="900" fill="#000">
+    <!-- S -->
+    <path d="M 60 600 Q 40 560 60 530 Q 90 510 130 520 Q 160 530 170 560 Q 180 580 170 600 Q 160 620 140 630 Q 170 640 180 670 Q 190 700 170 720 Q 140 740 100 730 Q 60 720 40 690 L 70 680 Q 80 700 100 705 Q 120 710 140 700 Q 150 690 150 680 Q 150 665 130 660 L 110 660 L 110 630 L 130 630 Q 145 625 145 610 Q 145 595 130 590 Q 110 585 90 595 Q 75 605 70 620 Z" fill="#000"/>
+
+    <!-- N -->
+    <path d="M 200 530 L 240 530 L 240 680 L 310 530 L 350 530 L 350 720 L 310 720 L 310 570 L 240 720 L 200 720 Z" fill="#000"/>
+
+    <!-- A -->
+    <path d="M 380 530 L 430 530 L 530 720 L 485 720 L 465 670 L 345 670 L 325 720 L 280 720 Z M 405 600 L 365 640 L 445 640 Z" fill="#000"/>
+
+    <!-- I -->
+    <path d="M 560 530 L 610 530 L 610 720 L 560 720 Z" fill="#000"/>
+
+    <!-- L -->
+    <path d="M 640 530 L 690 530 L 690 680 L 780 680 L 780 720 L 640 720 Z" fill="#000"/>
+  </g>
+
+  <!-- Text Market (italic, thinner) -->
+  <text x="595" y="700" font-family="Arial, sans-serif" font-size="80" font-style="italic" font-weight="400" fill="#000">Market</text>
+</svg>

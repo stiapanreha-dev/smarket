@@ -12,6 +12,7 @@
  */
 
 import { Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { useDashboardStats } from '@/hooks';
 import {
   MerchantSidebar,
@@ -24,6 +25,7 @@ import {
 import './DashboardPage.css';
 
 export const DashboardPage = () => {
+  const { t } = useTranslation('merchant');
   const { data: stats, isLoading, error } = useDashboardStats();
 
   if (isLoading) {
@@ -38,7 +40,7 @@ export const DashboardPage = () => {
               <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
                 <div className="text-center">
                   <Spinner animation="border" variant="primary" />
-                  <p className="mt-3 text-muted">Loading dashboard...</p>
+                  <p className="mt-3 text-muted">{t('dashboard.loading')}</p>
                 </div>
               </div>
             </Col>
@@ -59,9 +61,9 @@ export const DashboardPage = () => {
             <Col md={10}>
               <Container className="py-5">
                 <Alert variant="danger">
-                  <Alert.Heading>Error Loading Dashboard</Alert.Heading>
+                  <Alert.Heading>{t('dashboard.error')}</Alert.Heading>
                   <p className="mb-0">
-                    {error instanceof Error ? error.message : 'Failed to load dashboard data. Please try again later.'}
+                    {error instanceof Error ? error.message : t('dashboard.errorMessage')}
                   </p>
                 </Alert>
               </Container>
@@ -83,7 +85,7 @@ export const DashboardPage = () => {
             <Col md={10}>
               <Container className="py-5">
                 <Alert variant="info">
-                  <p className="mb-0">No dashboard data available.</p>
+                  <p className="mb-0">{t('dashboard.noData')}</p>
                 </Alert>
               </Container>
             </Col>
@@ -107,8 +109,8 @@ export const DashboardPage = () => {
             <Container fluid className="py-4">
               {/* Page Header */}
               <div className="mb-4">
-                <h2 className="fw-bold">Dashboard</h2>
-                <p className="text-muted mb-0">Welcome to your merchant dashboard</p>
+                <h2 className="fw-bold">{t('dashboard.title')}</h2>
+                <p className="text-muted mb-0">{t('dashboard.welcome')}</p>
               </div>
 
               {/* Statistics Cards */}

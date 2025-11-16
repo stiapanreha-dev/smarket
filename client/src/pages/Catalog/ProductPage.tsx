@@ -45,6 +45,8 @@ import { Navbar, Footer } from '@/components/layout';
 import { ProductCard } from '@/components/features';
 import { SEO } from '@/components/SEO';
 import { StructuredData } from '@/components/StructuredData';
+import { editorJSToHTML, extractTextFromEditorJS } from '@/utils/editorjs';
+import { formatSpecifications } from '@/utils/specifications';
 import './ProductPage.css';
 
 /**
@@ -321,8 +323,9 @@ export function ProductPage() {
     }
   };
 
-  // Get specifications from product attrs or translation
-  const specifications = product.translations?.[0]?.attrs?.specifications || {};
+  // Get specifications from product attrs
+  const specifications = product.attrs?.specifications || {};
+  const formattedSpecifications = formatSpecifications(specifications, t);
   const features = product.translations?.[0]?.attrs?.features || [];
 
   // Get variant attributes (for digital and service types)
@@ -335,7 +338,7 @@ export function ProductPage() {
 
   // Create meta description from product description
   const metaDescription = product.description
-    ? product.description.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+    ? extractTextFromEditorJS(product.description, 160)
     : `Buy ${product.title} for ${formattedPrice} on SnailMarketplace. ${
         inStock ? 'In stock and ready to ship.' : 'Check availability.'
       }`;
@@ -469,9 +472,9 @@ export function ProductPage() {
                 <h2 className="product-price mb-3">{formattedPrice}</h2>
 
                 {/* Short Description */}
-                {product.translations?.[0]?.attrs?.short_description && (
+                {product.short_description && (
                   <p className="text-muted mb-4">
-                    {product.translations[0].attrs.short_description}
+                    {product.short_description}
                   </p>
                 )}
 
@@ -700,10 +703,10 @@ export function ProductPage() {
                     {product.description ? (
                       <div
                         className="product-description"
-                        dangerouslySetInnerHTML={{ __html: product.description }}
+                        dangerouslySetInnerHTML={{ __html: editorJSToHTML(product.description) }}
                       />
                     ) : (
-                      <p className="text-muted">{t('product.description')}</p>
+                      <p className="text-muted">{t('product.noDescription')}</p>
                     )}
 
                     {/* Features */}
@@ -721,7 +724,7 @@ export function ProductPage() {
                 </Tab>
 
                 {/* Specifications Tab */}
-                {Object.keys(specifications).length > 0 && (
+                {formattedSpecifications.length > 0 && (
                   <Tab
                     eventKey="specifications"
                     title={t('product.specifications')}
@@ -729,10 +732,10 @@ export function ProductPage() {
                     <div className="tab-content-wrapper p-4">
                       <table className="table table-striped">
                         <tbody>
-                          {Object.entries(specifications).map(([key, value]) => (
-                            <tr key={key}>
-                              <th style={{ width: '30%' }}>{key}</th>
-                              <td>{String(value)}</td>
+                          {formattedSpecifications.map(([label, value]) => (
+                            <tr key={label}>
+                              <th style={{ width: '30%' }}>{label}</th>
+                              <td>{value}</td>
                             </tr>
                           ))}
                         </tbody>

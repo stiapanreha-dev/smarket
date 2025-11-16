@@ -335,6 +335,14 @@ export class CatalogService {
       .leftJoinAndSelect('product.merchant', 'merchant')
       .where('translation.locale = :locale', { locale });
 
+    // Add rank to SELECT if searching
+    if (q) {
+      query.addSelect(
+        `ts_rank(translation.search_vector, plainto_tsquery('simple', :query))`,
+        'search_rank',
+      );
+    }
+
     // Default filter: only active products (unless status is specified)
     if (!status) {
       query.andWhere('product.status = :status', { status: ProductStatus.ACTIVE });
@@ -402,10 +410,7 @@ export class CatalogService {
 
     // Add relevance sorting for search queries
     if (q) {
-      query.addOrderBy(
-        `ts_rank(translation.search_vector, plainto_tsquery('simple', :query))`,
-        'DESC',
-      );
+      query.addOrderBy('search_rank', 'DESC');
     }
 
     // Pagination

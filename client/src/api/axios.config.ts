@@ -122,8 +122,23 @@ export const processOfflineQueue = async (instance: AxiosInstance) => {
 
 /**
  * Get access token from localStorage
+ * First tries to get from Zustand auth-storage, falls back to direct access_token key
  */
 export const getAccessToken = (): string | null => {
+  // Try to get from Zustand persist storage first
+  try {
+    const authStorage = localStorage.getItem('auth-storage');
+    if (authStorage) {
+      const parsed = JSON.parse(authStorage);
+      if (parsed?.state?.token) {
+        return parsed.state.token;
+      }
+    }
+  } catch (e) {
+    console.error('[getAccessToken] Failed to parse auth-storage:', e);
+  }
+
+  // Fallback to direct token key
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
@@ -138,8 +153,20 @@ export const getRefreshToken = (): string | null => {
  * Save tokens to localStorage
  */
 export const setTokens = (accessToken: string, refreshToken: string): void => {
+  console.log('[setTokens] Saving tokens to localStorage:', {
+    ACCESS_TOKEN_KEY,
+    REFRESH_TOKEN_KEY,
+    accessToken: accessToken?.substring(0, 20) + '...',
+    refreshToken: refreshToken?.substring(0, 20) + '...',
+  });
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  const savedAccess = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const savedRefresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+  console.log('[setTokens] Tokens saved. Verification:', {
+    savedAccessToken: savedAccess ? savedAccess.substring(0, 20) + '...' : 'NULL',
+    savedRefreshToken: savedRefresh ? savedRefresh.substring(0, 20) + '...' : 'NULL',
+  });
 };
 
 /**
@@ -148,6 +175,26 @@ export const setTokens = (accessToken: string, refreshToken: string): void => {
 export const clearTokens = (): void => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+};
+
+/**
+ * Get or generate guest session ID for cart
+ */
+const getGuestSessionId = (): string => {
+  const GUEST_SESSION_KEY = 'guest_session_id';
+  let sessionId = localStorage.getItem(GUEST_SESSION_KEY);
+
+  if (!sessionId) {
+    // Generate a new session ID (simple UUID v4)
+    sessionId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+    localStorage.setItem(GUEST_SESSION_KEY, sessionId);
+  }
+
+  return sessionId;
 };
 
 /**
@@ -166,7 +213,7 @@ const createAxiosInstance = (): AxiosInstance => {
 
   /**
    * Request Interceptor
-   * Adds JWT token to all requests
+   * Adds JWT token and session ID to all requests
    */
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
@@ -174,6 +221,14 @@ const createAxiosInstance = (): AxiosInstance => {
 
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('[Axios] Request to', config.url, 'with token:', token.substring(0, 20) + '...');
+      } else {
+        console.log('[Axios] Request to', config.url, 'WITHOUT TOKEN');
+      }
+
+      // Add guest session ID for cart persistence
+      if (config.headers) {
+        config.headers['x-session-id'] = getGuestSessionId();
       }
 
       return config;
@@ -292,7 +347,8 @@ const createAxiosInstance = (): AxiosInstance => {
           isRefreshing = false;
 
           // Redirect to login page
-          window.location.href = '/login';
+          console.error('[Axios] Redirecting to login - no refresh token');
+          // window.location.href = '/login';
 
           return Promise.reject(
             new ApiError(
@@ -332,7 +388,8 @@ const createAxiosInstance = (): AxiosInstance => {
           processQueue(refreshError as Error, null);
           isRefreshing = false;
 
-          window.location.href = '/login';
+          console.error('[Axios] Redirecting to login - refresh token failed');
+          // window.location.href = '/login';
 
           return Promise.reject(
             new ApiError(

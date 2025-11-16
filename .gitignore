@@ -53,3 +53,6 @@ redis-data/
 /client/dist
 /client/node_modules
 /client/.vite
+
+# Uploads
+/uploads

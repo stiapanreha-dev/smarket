@@ -103,9 +103,9 @@ export const useCartStore = create<CartState>()(
           const { cart, summary } = response;
 
           // Convert cart items to CartItemWithProduct
-          // Note: In a real app, you might want to fetch product data here
-          const items: CartItemWithProduct[] = cart.items.map((item) =>
-            toCartItemWithProduct(item),
+          // Backend returns items with product and variant data already attached
+          const items: CartItemWithProduct[] = cart.items.map((item: any) =>
+            toCartItemWithProduct(item, item.product, item.variant),
           );
 
           set({
@@ -144,17 +144,24 @@ export const useCartStore = create<CartState>()(
           const cart = await cartApi.addItem(request);
 
           // Convert cart items to CartItemWithProduct
-          const items: CartItemWithProduct[] = cart.items.map((item) => {
-            // Use provided product/variant for the newly added item
-            const isNewItem =
+          // Backend returns items with product and variant data already attached
+          const items: CartItemWithProduct[] = cart.items.map((item: any) => {
+            // Use product/variant from API response, fallback to provided params for newly added item
+            const itemProduct = item.product || (
               item.productId === request.productId &&
-              item.variantId === request.variantId;
-
-            return toCartItemWithProduct(
-              item,
-              isNewItem ? product : undefined,
-              isNewItem ? variant : undefined,
+              item.variantId === request.variantId
+                ? product
+                : undefined
             );
+
+            const itemVariant = item.variant || (
+              item.productId === request.productId &&
+              item.variantId === request.variantId
+                ? variant
+                : undefined
+            );
+
+            return toCartItemWithProduct(item, itemProduct, itemVariant);
           });
 
           // Fetch summary
@@ -193,8 +200,9 @@ export const useCartStore = create<CartState>()(
           const cart = await cartApi.updateItem(itemId, { quantity });
 
           // Convert cart items to CartItemWithProduct
-          const items: CartItemWithProduct[] = cart.items.map((item) =>
-            toCartItemWithProduct(item),
+          // Backend returns items with product and variant data already attached
+          const items: CartItemWithProduct[] = cart.items.map((item: any) =>
+            toCartItemWithProduct(item, item.product, item.variant),
           );
 
           // Fetch summary
@@ -232,8 +240,9 @@ export const useCartStore = create<CartState>()(
           const cart = await cartApi.removeItem(itemId);
 
           // Convert cart items to CartItemWithProduct
-          const items: CartItemWithProduct[] = cart.items.map((item) =>
-            toCartItemWithProduct(item),
+          // Backend returns items with product and variant data already attached
+          const items: CartItemWithProduct[] = cart.items.map((item: any) =>
+            toCartItemWithProduct(item, item.product, item.variant),
           );
 
           // Fetch summary
@@ -310,8 +319,9 @@ export const useCartStore = create<CartState>()(
           const cart = await cartApi.mergeCart({ guestSessionId });
 
           // Convert cart items to CartItemWithProduct
-          const items: CartItemWithProduct[] = cart.items.map((item) =>
-            toCartItemWithProduct(item),
+          // Backend returns items with product and variant data already attached
+          const items: CartItemWithProduct[] = cart.items.map((item: any) =>
+            toCartItemWithProduct(item, item.product, item.variant),
           );
 
           // Fetch summary
@@ -382,41 +392,20 @@ export const useCartStore = create<CartState>()(
 );
 
 /**
- * Selector hooks for better performance
- * Use these instead of destructuring the entire store
+ * Selector hooks - simple selectors that return primitive values or stable references
+ * This avoids re-render issues with object creation
  */
-export const useCart = () =>
-  useCartStore((state) => ({
-    cart: state.cart,
-    items: state.items,
-    total: state.total,
-    itemsCount: state.itemsCount,
-  }));
-
 export const useCartItems = () => useCartStore((state) => state.items);
-
-export const useCartSummary = () =>
-  useCartStore((state) => ({
-    summary: state.summary,
-    total: state.total,
-    itemsCount: state.itemsCount,
-  }));
-
-export const useCartActions = () =>
-  useCartStore((state) => ({
-    loadCart: state.loadCart,
-    addItem: state.addItem,
-    updateQuantity: state.updateQuantity,
-    removeItem: state.removeItem,
-    clearCart: state.clearCart,
-    syncWithBackend: state.syncWithBackend,
-    mergeGuestCart: state.mergeGuestCart,
-  }));
-
+export const useCartSummary = () => useCartStore((state) => state.summary);
+export const useCartTotal = () => useCartStore((state) => state.total);
+export const useCartItemsCount = () => useCartStore((state) => state.itemsCount);
 export const useCartLoading = () => useCartStore((state) => state.isLoading);
+export const useCartError = () => useCartStore((state) => state.error);
 
-export const useCartError = () =>
-  useCartStore((state) => ({
-    error: state.error,
-    clearError: state.clearError,
-  }));
+// Action hooks - each action separately to avoid object creation
+export const useLoadCart = () => useCartStore((state) => state.loadCart);
+export const useAddToCart = () => useCartStore((state) => state.addItem);
+export const useUpdateQuantity = () => useCartStore((state) => state.updateQuantity);
+export const useRemoveCartItem = () => useCartStore((state) => state.removeItem);
+export const useClearCart = () => useCartStore((state) => state.clearCart);
+export const useClearCartError = () => useCartStore((state) => state.clearError);

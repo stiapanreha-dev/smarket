@@ -1,7 +1,8 @@
 import { Card, Form, Button, InputGroup, ListGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FaTag, FaArrowRight, FaLock } from 'react-icons/fa';
-import { CartSummary as ICartSummary, formatCartPrice } from '@/types/cart';
+import type { CartSummary as ICartSummary } from '@/types/cart';
+import { formatCartPrice } from '@/types/cart';
 import { LoadingSpinner } from '@/components/common';
 
 interface CartSummaryProps {

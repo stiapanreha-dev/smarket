@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, Brackets } from 'typeorm';
-import { Product, ProductStatus } from '../../database/entities/product.entity';
+import { Product, ProductStatus, ProductType } from '../../database/entities/product.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
 import { ProductTranslation } from '../../database/entities/product-translation.entity';
 import { CacheService } from '../../common/services/cache.service';
@@ -566,7 +566,7 @@ export class ProductSearchService {
       .andWhere(`(translation.title ILIKE :query OR translation.description ILIKE :query)`, {
         query: `%${query}%`,
       })
-      .andWhere('product.type IN (:...types)', { types: ['PHYSICAL', 'DIGITAL'] })
+      .andWhere('product.type IN (:...types)', { types: [ProductType.PHYSICAL, ProductType.COURSE] })
       .orderBy('product.sales_count', 'DESC')
       .addOrderBy('product.view_count', 'DESC')
       .take(5)
@@ -582,7 +582,7 @@ export class ProductSearchService {
       .andWhere(`(translation.title ILIKE :query OR translation.description ILIKE :query)`, {
         query: `%${query}%`,
       })
-      .andWhere('product.type = :type', { type: 'SERVICE' })
+      .andWhere('product.type = :type', { type: ProductType.SERVICE })
       .orderBy('product.sales_count', 'DESC')
       .addOrderBy('product.view_count', 'DESC')
       .take(3)

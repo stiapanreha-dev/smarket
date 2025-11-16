@@ -15,6 +15,7 @@ import { AddToWishlistDto } from './dto/add-to-wishlist.dto';
 import { WishlistResponseDto } from './dto/wishlist-response.dto';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
+import { Public } from '@modules/auth/decorators/public.decorator';
 import { User } from '@database/entities/user.entity';
 
 @ApiTags('Wishlist')
@@ -140,5 +141,58 @@ export class WishlistController {
   })
   async clearWishlist(@CurrentUser() user: User): Promise<WishlistResponseDto> {
     return this.wishlistService.clearWishlist(user.id);
+  }
+
+  /**
+   * Generate share token for wishlist
+   */
+  @Post('share')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Generate share token for wishlist' })
+  @ApiResponse({
+    status: 200,
+    description: 'Share token generated successfully',
+  })
+  async generateShareToken(@CurrentUser() user: User): Promise<{ shareToken: string }> {
+    const shareToken = await this.wishlistService.generateShareToken(user.id);
+    return { shareToken };
+  }
+
+  /**
+   * Get wishlist by share token (public access)
+   */
+  @Get('shared/:token')
+  @Public()
+  @ApiOperation({ summary: 'Get wishlist by share token (public)' })
+  @ApiParam({
+    name: 'token',
+    description: 'Share token',
+    example: 'abc123def456',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Wishlist retrieved successfully',
+    type: WishlistResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Wishlist not found',
+  })
+  async getSharedWishlist(@Param('token') token: string): Promise<WishlistResponseDto> {
+    return this.wishlistService.getWishlistByShareToken(token);
+  }
+
+  /**
+   * Revoke share token
+   */
+  @Delete('share')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Revoke wishlist share token' })
+  @ApiResponse({
+    status: 204,
+    description: 'Share token revoked successfully',
+  })
+  async revokeShareToken(@CurrentUser() user: User): Promise<void> {
+    await this.wishlistService.revokeShareToken(user.id);
   }
 }

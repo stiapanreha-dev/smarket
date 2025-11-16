@@ -32,9 +32,8 @@ import {
   Offcanvas,
 } from 'react-bootstrap';
 import { MerchantSidebar } from './components';
+import type { Order, OrderLineItem } from '@/types/order';
 import {
-  Order,
-  OrderLineItem,
   PhysicalItemStatus,
   DigitalItemStatus,
   ServiceItemStatus,

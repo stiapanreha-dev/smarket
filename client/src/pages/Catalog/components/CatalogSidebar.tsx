@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { ProductType } from '@/types/catalog';
 import { SearchFilter } from './SearchFilter';
 import { CategoryFilter } from './CategoryFilter';
-import { ProductTypeFilter } from './ProductTypeFilter';
 import { PriceRangeFilter } from './PriceRangeFilter';
 import './CatalogSidebar.css';
 
@@ -34,7 +33,6 @@ export function CatalogSidebar({
   const hasActiveFilters =
     filters.search ||
     (filters.categories && filters.categories.length > 0) ||
-    filters.productType ||
     filters.minPrice ||
     filters.maxPrice;
 
@@ -62,11 +60,6 @@ export function CatalogSidebar({
       <CategoryFilter
         selectedCategories={filters.categories || []}
         onChange={(categories) => onFiltersChange({ ...filters, categories })}
-      />
-
-      <ProductTypeFilter
-        value={filters.productType}
-        onChange={(productType) => onFiltersChange({ ...filters, productType })}
       />
 
       <PriceRangeFilter

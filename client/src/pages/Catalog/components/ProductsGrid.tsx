@@ -1,6 +1,6 @@
 import { Row, Col } from 'react-bootstrap';
 import { memo } from 'react';
-import { Product } from '@/types/catalog';
+import type { Product } from '@/types/catalog';
 import { ProductCard } from '@/components/features/ProductCard';
 import './ProductsGrid.css';
 

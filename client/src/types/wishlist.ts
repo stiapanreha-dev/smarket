@@ -3,7 +3,8 @@
  * Type definitions for wishlist functionality
  */
 
-import { type Product, ProductType } from './catalog';
+import { ProductType } from './catalog';
+import type { Product } from './catalog';
 
 /**
  * Wishlist item product details

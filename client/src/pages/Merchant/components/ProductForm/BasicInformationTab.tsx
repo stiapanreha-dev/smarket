@@ -7,7 +7,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { Form, Row, Col, Badge } from 'react-bootstrap';
-import EditorJS, { OutputData } from '@editorjs/editorjs';
+import EditorJS from '@editorjs/editorjs';
+import type { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Quote from '@editorjs/quote';

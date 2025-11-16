@@ -91,12 +91,19 @@ export interface LoginRequest {
 }
 
 /**
+ * Token Pair
+ */
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/**
  * Login Response
  */
 export interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
   user: User;
+  tokens: TokenPair;
 }
 
 /**
@@ -115,9 +122,8 @@ export interface RegisterRequest {
  * Register Response
  */
 export interface RegisterResponse {
-  access_token: string;
-  refresh_token: string;
   user: User;
+  tokens: TokenPair;
 }
 
 /**

@@ -1,6 +1,7 @@
 .notifications-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 200px);
   background-color: #f8f9fa;
+  padding-top: 80px; /* Account for fixed navbar */
 }
 
 .notifications-header h1 {
@@ -8,37 +9,68 @@
   align-items: center;
   font-size: 2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .notifications-list {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
+  margin-top: 1.5rem;
 }
 
+/* Notification Item Cards */
+.notification-item {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: var(--white);
+}
+
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(127, 179, 213, 0.15);
+  border-color: var(--main-color);
+}
+
+.notification-unread {
+  background: #f0f7ff;
+  border-color: var(--main-color);
+}
+
+.notification-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-light);
+  border-radius: 10px;
+}
+
+/* Tabs */
 .nav-tabs {
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .nav-tabs .nav-link {
-  color: #6c757d;
+  color: var(--text-secondary);
   border: none;
   border-bottom: 2px solid transparent;
   padding: 0.75rem 1.5rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
 }
 
 .nav-tabs .nav-link:hover {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: var(--main-color);
+  border-bottom-color: var(--main-light);
 }
 
 .nav-tabs .nav-link.active {
-  color: #0d6efd;
+  color: var(--main-color);
   background: transparent;
-  border-bottom-color: #0d6efd;
+  border-bottom-color: var(--main-color);
 }
 
 .nav-tabs .badge {
@@ -53,10 +85,11 @@
 
   .nav-tabs .nav-link {
     padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
-  .notifications-list {
-    padding: 0.5rem;
+  .notification-icon-container {
+    width: 40px;
+    height: 40px;
   }
 }

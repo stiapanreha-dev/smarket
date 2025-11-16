@@ -28,6 +28,8 @@ const WISHLIST_ENDPOINTS = {
   ITEM: (productId: string) => `/wishlist/items/${productId}`,
   CHECK: (productId: string) => `/wishlist/check/${productId}`,
   COUNT: '/wishlist/count',
+  SHARE: '/wishlist/share',
+  SHARED: (token: string) => `/wishlist/shared/${token}`,
 } as const;
 
 /**
@@ -84,6 +86,29 @@ export const wishlistApi = {
   async clearWishlist(): Promise<WishlistResponse> {
     const response = await apiClient.delete<WishlistResponse>(WISHLIST_ENDPOINTS.WISHLIST);
     return response.data;
+  },
+
+  /**
+   * Generate share token for wishlist
+   */
+  async generateShareToken(): Promise<{ shareToken: string }> {
+    const response = await apiClient.post<{ shareToken: string }>(WISHLIST_ENDPOINTS.SHARE);
+    return response.data;
+  },
+
+  /**
+   * Get wishlist by share token (public access)
+   */
+  async getSharedWishlist(token: string): Promise<WishlistResponse> {
+    const response = await apiClient.get<WishlistResponse>(WISHLIST_ENDPOINTS.SHARED(token));
+    return response.data;
+  },
+
+  /**
+   * Revoke share token
+   */
+  async revokeShareToken(): Promise<void> {
+    await apiClient.delete(WISHLIST_ENDPOINTS.SHARE);
   },
 };
 

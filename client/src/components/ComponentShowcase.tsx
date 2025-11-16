@@ -70,7 +70,7 @@ const ComponentShowcase = () => {
           <Col md={4}>
             <Card
               title="Card with Image"
-              image="https://via.placeholder.com/400x200/7FB3D5/FFFFFF?text=Product+Image"
+              image="https://picsum.photos/400/200"
               imageHeight="200px"
               hoverable
               className="mb-3"

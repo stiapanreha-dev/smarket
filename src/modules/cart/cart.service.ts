@@ -285,6 +285,58 @@ export class CartService {
   }
 
   /**
+   * Get cart with full product and variant data
+   */
+  async getCartWithProducts(userId?: string, sessionId?: string): Promise<any> {
+    const cart = await this.getCart(userId, sessionId);
+
+    // Enrich cart items with product and variant data
+    const enrichedItems = await Promise.all(
+      cart.items.map(async (item) => {
+        const product = await this.productRepository.findOne({
+          where: { id: item.productId },
+        });
+
+        const variant = await this.variantRepository.findOne({
+          where: { id: item.variantId, product_id: item.productId },
+        });
+
+        return {
+          ...item,
+          product: product
+            ? {
+                id: product.id,
+                title: product.title,
+                short_description: product.short_description,
+                description: product.description,
+                image_url: product.image_url,
+                images: product.images,
+                type: product.type,
+                status: product.status,
+              }
+            : null,
+          variant: variant
+            ? {
+                id: variant.id,
+                sku: variant.sku,
+                title: variant.title,
+                price_minor: variant.price_minor,
+                currency: variant.currency,
+                inventory_quantity: variant.inventory_quantity,
+                image_url: variant.image_url,
+              }
+            : null,
+        };
+      }),
+    );
+
+    return {
+      ...cart,
+      items: enrichedItems,
+    };
+  }
+
+  /**
    * Get cart summary with totals
    */
   async getCartSummary(userId?: string, sessionId?: string): Promise<CartSummary> {

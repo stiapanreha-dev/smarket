@@ -166,27 +166,30 @@ export class CatalogController {
   }
 
   @Public()
-  @Get(':id')
+  @Get('autocomplete')
   @ApiOperation({
-    summary: 'Get product by ID',
-    description: 'Retrieve a single product by its UUID',
+    summary: 'Autocomplete search suggestions',
+    description: 'Get search suggestions for products, services, and categories as user types',
   })
-  @ApiParam({
-    name: 'id',
-    description: 'Product UUID',
+  @ApiQuery({
+    name: 'q',
+    description: 'Search query',
+    required: true,
     type: 'string',
-    format: 'uuid',
+  })
+  @ApiQuery({
+    name: 'locale',
+    description: 'Locale for translations',
+    required: false,
+    enum: ['en', 'ru', 'ar'],
+    type: 'string',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Product retrieved successfully',
+    description: 'Search suggestions retrieved successfully',
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Product not found',
-  })
-  async getProduct(@Param('id', ParseUUIDPipe) id: string) {
-    return this.catalogService.findOneById(id);
+  async autocomplete(@Query('q') query: string, @Query('locale') locale: string = 'en') {
+    return this.productSearchService.autocomplete(query, locale);
   }
 
   @Public()
@@ -216,6 +219,44 @@ export class CatalogController {
   })
   async getProductBySlug(@Param('slug') slug: string, @Query('locale') locale: string = 'en') {
     return this.catalogService.findOneBySlug(slug, locale);
+  }
+
+  @Public()
+  @Get('info/module')
+  @ApiOperation({
+    summary: 'Get module info',
+    description: 'Get information about the catalog module',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Module info retrieved successfully',
+  })
+  getModuleInfo(): string {
+    return this.catalogService.getModuleInfo();
+  }
+
+  @Public()
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get product by ID',
+    description: 'Retrieve a single product by its UUID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product UUID',
+    type: 'string',
+    format: 'uuid',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Product retrieved successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Product not found',
+  })
+  async getProduct(@Param('id', ParseUUIDPipe) id: string) {
+    return this.catalogService.findOneById(id);
   }
 
   @Put(':id')
@@ -297,46 +338,5 @@ export class CatalogController {
   async deleteProduct(@Param('id', ParseUUIDPipe) id: string, @User() user: any) {
     const merchantId = user.merchant_id || user.id;
     await this.catalogService.deleteProduct(id, merchantId, user.id);
-  }
-
-  @Public()
-  @Get('info/module')
-  @ApiOperation({
-    summary: 'Get module info',
-    description: 'Get information about the catalog module',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Module info retrieved successfully',
-  })
-  getModuleInfo(): string {
-    return this.catalogService.getModuleInfo();
-  }
-
-  @Public()
-  @Get('autocomplete')
-  @ApiOperation({
-    summary: 'Autocomplete search suggestions',
-    description: 'Get search suggestions for products, services, and categories as user types',
-  })
-  @ApiQuery({
-    name: 'q',
-    description: 'Search query',
-    required: true,
-    type: 'string',
-  })
-  @ApiQuery({
-    name: 'locale',
-    description: 'Locale for translations',
-    required: false,
-    enum: ['en', 'ru', 'ar'],
-    type: 'string',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Search suggestions retrieved successfully',
-  })
-  async autocomplete(@Query('q') query: string, @Query('locale') locale: string = 'en') {
-    return this.productSearchService.autocomplete(query, locale);
   }
 }

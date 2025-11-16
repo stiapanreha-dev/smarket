@@ -48,6 +48,9 @@ export const ProductsPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
+  // Bulk delete modal
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+
   // Fetch products
   const { data, isLoading, error } = useMerchantProducts({
     type: productType || undefined,
@@ -130,6 +133,27 @@ export const ProductsPage = () => {
         console.error('Failed to toggle status:', err);
       }
     }
+    setSelectedProducts(new Set());
+  };
+
+  const handleBulkDeleteClick = () => {
+    if (selectedProducts.size > 0) {
+      setShowBulkDeleteModal(true);
+    }
+  };
+
+  const handleBulkDeleteConfirm = async () => {
+    const productsToDelete = Array.from(selectedProducts);
+
+    for (const productId of productsToDelete) {
+      try {
+        await deleteProductMutation.mutateAsync(productId);
+      } catch (err) {
+        console.error('Failed to delete product:', err);
+      }
+    }
+
+    setShowBulkDeleteModal(false);
     setSelectedProducts(new Set());
   };
 
@@ -304,6 +328,14 @@ export const ProductsPage = () => {
                     onClick={handleBulkActivate}
                   >
                     Activate Selected ({selectedProducts.size})
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    className="me-2"
+                    onClick={handleBulkDeleteClick}
+                  >
+                    Delete Selected ({selectedProducts.size})
                   </Button>
                   <Button
                     variant="outline-secondary"
@@ -550,6 +582,48 @@ export const ProductsPage = () => {
               </>
             ) : (
               'Delete Product'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Modal show={showBulkDeleteModal} onHide={() => setShowBulkDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Bulk Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete{' '}
+          <strong>{selectedProducts.size} selected product{selectedProducts.size > 1 ? 's' : ''}</strong>?
+          This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowBulkDeleteModal(false)}
+            disabled={deleteProductMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleBulkDeleteConfirm}
+            disabled={deleteProductMutation.isPending}
+          >
+            {deleteProductMutation.isPending ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Deleting...
+              </>
+            ) : (
+              `Delete ${selectedProducts.size} Product${selectedProducts.size > 1 ? 's' : ''}`
             )}
           </Button>
         </Modal.Footer>

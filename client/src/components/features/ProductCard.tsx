@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import type { Product } from '@/types/catalog';
 import { ProductType, formatPrice, getProductPrice } from '@/types/catalog';
 import { useWishlistStore } from '@/store/wishlistStore';
+import { useCartStore } from '@/store/cartStore';
 import { usePrefetchProduct } from '@/hooks/useCatalog';
+import { extractTextFromEditorJS } from '@/utils/editorjs';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -27,9 +29,15 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
+  // Local state for loading
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
   // Wishlist functionality
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
   const inWishlist = isInWishlist(product.id);
+
+  // Cart functionality
+  const { addItem } = useCartStore();
 
   // Prefetch product details on hover for instant navigation
   const prefetchProduct = usePrefetchProduct();
@@ -107,11 +115,36 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
   }, [navigate, product.id]);
 
   // Handle add to cart / book now - memoized with useCallback
-  const handleAction = useCallback((e: React.MouseEvent) => {
+  const handleAction = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Implement add to cart / booking logic
-    console.log('Action clicked for product:', product.id);
-  }, [product.id]);
+
+    if (product.type === ProductType.SERVICE) {
+      // For services, navigate to product page for booking
+      navigate(`/catalog/${product.id}`);
+      return;
+    }
+
+    // Add to cart for physical products and courses
+    setIsAddingToCart(true);
+    try {
+      await addItem({
+        productId: product.id,
+        variantId: product.variants?.[0]?.id || '', // Use first variant or empty string
+        quantity: 1,
+      }, product, product.variants?.[0]);
+
+      toast.success(t('product.addedToCart') || 'Added to cart');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('product.addToCartError') || 'Failed to add to cart'
+      );
+    } finally {
+      setIsAddingToCart(false);
+    }
+  }, [product, addItem, navigate, t]);
 
   // Handle wishlist toggle - memoized with useCallback
   const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
@@ -141,6 +174,12 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
     product.currency,
     i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US'
   ), [price, product.currency, i18n.language]);
+
+  // Extract plain text from EditorJS description - memoized
+  const descriptionText = useMemo(() => {
+    if (!product.description) return '';
+    return extractTextFromEditorJS(product.description, 150);
+  }, [product.description]);
 
   // List variant rendering
   if (variant === 'list') {
@@ -180,18 +219,13 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
           </div>
           <div className="col-md-9">
             <Card.Body className="d-flex flex-column h-100">
-              <div className="d-flex justify-content-between align-items-start mb-2">
-                <Card.Title className="product-card-title mb-0">
-                  {truncateTitle(product.title, 80)}
-                </Card.Title>
-                <Badge bg={typeBadge.variant} className="ms-2">
-                  {typeBadge.text}
-                </Badge>
-              </div>
+              <Card.Title className="product-card-title mb-2">
+                {truncateTitle(product.title, 80)}
+              </Card.Title>
 
-              {product.description && (
+              {descriptionText && (
                 <Card.Text className="text-muted small mb-2">
-                  {truncateTitle(product.description, 150)}
+                  {descriptionText}
                 </Card.Text>
               )}
 
@@ -212,8 +246,9 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
                   variant="primary"
                   size="sm"
                   onClick={handleAction}
+                  disabled={isAddingToCart}
                 >
-                  {getButtonText()}
+                  {isAddingToCart ? t('product.adding') || 'Adding...' : getButtonText()}
                 </Button>
               </div>
             </Card.Body>
@@ -240,13 +275,6 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
             (e.target as HTMLImageElement).src = '/placeholder-product.svg';
           }}
         />
-        <Badge
-          bg={typeBadge.variant}
-          className="product-type-badge position-absolute top-0 m-2"
-          style={{ [isRTL ? 'left' : 'right']: '8px' }}
-        >
-          {typeBadge.text}
-        </Badge>
         <Button
           variant="light"
           size="sm"
@@ -281,8 +309,9 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
           className="mt-auto w-100"
           size="sm"
           onClick={handleAction}
+          disabled={isAddingToCart}
         >
-          {getButtonText()}
+          {isAddingToCart ? t('product.adding') || 'Adding...' : getButtonText()}
         </Button>
       </Card.Body>
     </Card>

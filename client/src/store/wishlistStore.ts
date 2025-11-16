@@ -262,20 +262,14 @@ export const useWishlistItems = () => useWishlistStore((state) => state.items);
 
 export const useWishlistCount = () => useWishlistStore((state) => state.itemCount);
 
-export const useWishlistActions = () =>
-  useWishlistStore((state) => ({
-    loadWishlist: state.loadWishlist,
-    addToWishlist: state.addToWishlist,
-    removeFromWishlist: state.removeFromWishlist,
-    isInWishlist: state.isInWishlist,
-    clearWishlist: state.clearWishlist,
-    syncWithBackend: state.syncWithBackend,
-  }));
+// Action hooks - each action separately to avoid object creation and infinite loops
+export const useLoadWishlist = () => useWishlistStore((state) => state.loadWishlist);
+export const useAddToWishlist = () => useWishlistStore((state) => state.addToWishlist);
+export const useRemoveFromWishlist = () => useWishlistStore((state) => state.removeFromWishlist);
+export const useIsInWishlist = () => useWishlistStore((state) => state.isInWishlist);
+export const useClearWishlist = () => useWishlistStore((state) => state.clearWishlist);
+export const useSyncWishlist = () => useWishlistStore((state) => state.syncWithBackend);
 
 export const useWishlistLoading = () => useWishlistStore((state) => state.isLoading);
-
-export const useWishlistError = () =>
-  useWishlistStore((state) => ({
-    error: state.error,
-    clearError: state.clearError,
-  }));
+export const useWishlistError = () => useWishlistStore((state) => state.error);
+export const useClearWishlistError = () => useWishlistStore((state) => state.clearError);

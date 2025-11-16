@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import { Wishlist } from '@database/entities/wishlist.entity';
 import { WishlistItem } from '@database/entities/wishlist-item.entity';
 import { Product, ProductStatus } from '@database/entities/product.entity';
@@ -185,6 +186,57 @@ export class WishlistService {
     return this.wishlistItemRepository.count({
       where: { wishlist_id: wishlist.id },
     });
+  }
+
+  /**
+   * Generate share token for wishlist
+   * Returns the share token that can be used to access the wishlist publicly
+   */
+  async generateShareToken(userId: string): Promise<string> {
+    const wishlist = await this.getOrCreateWishlist(userId);
+
+    // Generate a secure random token
+    const shareToken = randomBytes(32).toString('hex');
+
+    wishlist.share_token = shareToken;
+    await this.wishlistRepository.save(wishlist);
+
+    this.logger.log(`Generated share token for wishlist ${wishlist.id}`);
+
+    return shareToken;
+  }
+
+  /**
+   * Get wishlist by share token (public access)
+   */
+  async getWishlistByShareToken(shareToken: string): Promise<WishlistResponseDto> {
+    const wishlist = await this.wishlistRepository.findOne({
+      where: { share_token: shareToken },
+      relations: ['items', 'items.product'],
+    });
+
+    if (!wishlist) {
+      throw new NotFoundException('Wishlist not found');
+    }
+
+    // Filter out items with deleted products
+    const validItems = wishlist.items.filter(
+      (item) => item.product && item.product.status !== ProductStatus.DELETED,
+    );
+
+    return this.mapToDto(wishlist, validItems);
+  }
+
+  /**
+   * Revoke share token for wishlist
+   */
+  async revokeShareToken(userId: string): Promise<void> {
+    const wishlist = await this.getOrCreateWishlist(userId);
+
+    wishlist.share_token = null;
+    await this.wishlistRepository.save(wishlist);
+
+    this.logger.log(`Revoked share token for wishlist ${wishlist.id}`);
   }
 
   /**
