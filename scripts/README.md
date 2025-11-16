@@ -18,25 +18,38 @@
 
 ### Импорт на production (рекомендуется)
 
-**Упрощенный способ** - используйте готовый wrapper скрипт:
+**Настройка (один раз):**
 
 ```bash
+# Скопируйте файл с примером
+cp scripts/.env.example scripts/.env
+
+# Отредактируйте credentials (если нужно)
+nano scripts/.env
+```
+
+**Импорт товара:**
+
+```bash
+# Просто укажите URL товара - всё остальное автоматически!
 ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
 ```
 
-После импорта автоматически исправьте URL картинок:
+Скрипт автоматически:
+- ✅ Прочитает креды из `scripts/.env`
+- ✅ Импортирует товар на production
+- ✅ Исправит URL картинок с localhost на production
 
-```bash
-./scripts/fix-image-urls.sh
-```
-
-**Или вручную**:
+**Или вручную** (если нужен полный контроль):
 
 ```bash
 API_BASE="https://smarket.sh3.su/api/v1" ./scripts/import-product.sh \
   "https://american-creator.ru/catalog/must_have/199/" \
   "stepun+2@gmail.com" \
   "270176As!"
+
+# Затем вручную исправить URL
+./scripts/fix-image-urls.sh
 ```
 
 ### Параметры
@@ -55,14 +68,18 @@ API_BASE="https://smarket.sh3.su/api/v1" ./scripts/import-product.sh \
   "270176As!"
 ```
 
-**Production импорт (простой):**
+**Production импорт (простой и автоматический):**
 ```bash
-# Импортировать товар
+# Импортировать один товар
 ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
 
-# Исправить URL картинок
-./scripts/fix-image-urls.sh
+# Импортировать несколько товаров подряд
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/203/"
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/205/"
 ```
+
+Каждый импорт автоматически исправляет URL картинок!
 
 ## Что делает скрипт
 
