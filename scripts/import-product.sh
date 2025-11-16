@@ -41,12 +41,17 @@ echo -e "${YELLOW}[1/6] Logging in...${NC}"
 
 # Escape password for JSON (handle special characters)
 # Create a JSON file to avoid shell escaping issues
-cat > "$TMP_DIR/login.json" <<EOF
+# Using 'EOF' (quoted) to prevent variable expansion issues
+cat > "$TMP_DIR/login.json" <<'EOF_JSON'
 {
-  "email": "$EMAIL",
-  "password": "$PASSWORD"
+  "email": "EMAIL_PLACEHOLDER",
+  "password": "PASSWORD_PLACEHOLDER"
 }
-EOF
+EOF_JSON
+
+# Replace placeholders with actual values
+sed -i "s|EMAIL_PLACEHOLDER|$EMAIL|g" "$TMP_DIR/login.json"
+sed -i "s|PASSWORD_PLACEHOLDER|$PASSWORD|g" "$TMP_DIR/login.json"
 
 LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE/auth/login" \
   -H "Content-Type: application/json" \
