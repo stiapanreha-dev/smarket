@@ -38,12 +38,19 @@ echo ""
 
 # Step 1: Login to get access token
 echo -e "${YELLOW}[1/6] Logging in...${NC}"
+
+# Escape password for JSON (handle special characters)
+# Create a JSON file to avoid shell escaping issues
+cat > "$TMP_DIR/login.json" <<EOF
+{
+  "email": "$EMAIL",
+  "password": "$PASSWORD"
+}
+EOF
+
 LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE/auth/login" \
   -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"$EMAIL\",
-    \"password\": \"$PASSWORD\"
-  }")
+  -d @"$TMP_DIR/login.json")
 
 ACCESS_TOKEN=$(echo "$LOGIN_RESPONSE" | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
 
