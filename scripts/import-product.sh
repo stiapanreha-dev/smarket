@@ -24,7 +24,7 @@ fi
 PRODUCT_URL="$1"
 EMAIL="$2"
 PASSWORD="$3"
-API_BASE="http://localhost:3003/api/v1"
+API_BASE="${API_BASE:-http://localhost:3003/api/v1}"
 TMP_DIR="/tmp/product-import-$$"
 
 # Create temp directory

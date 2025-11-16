@@ -10,23 +10,58 @@
 
 ## Использование
 
+### Импорт на локальный сервер
+
 ```bash
 ./scripts/import-product.sh <product_url> <email> <password>
+```
+
+### Импорт на production (рекомендуется)
+
+**Упрощенный способ** - используйте готовый wrapper скрипт:
+
+```bash
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+```
+
+После импорта автоматически исправьте URL картинок:
+
+```bash
+./scripts/fix-image-urls.sh
+```
+
+**Или вручную**:
+
+```bash
+API_BASE="https://smarket.sh3.su/api/v1" ./scripts/import-product.sh \
+  "https://american-creator.ru/catalog/must_have/199/" \
+  "stepun+2@gmail.com" \
+  "270176As!"
 ```
 
 ### Параметры
 
 - `product_url` - URL товара на сайте american-creator.ru
-- `email` - Email мерчанта в системе
-- `password` - Пароль мерчанта
+- `email` - Email мерчанта в системе (по умолчанию: stepun+2@gmail.com)
+- `password` - Пароль мерчанта (по умолчанию: 270176As!)
 
-### Пример
+### Примеры
 
+**Локальный импорт:**
 ```bash
 ./scripts/import-product.sh \
   "https://american-creator.ru/catalog/must_have/199/" \
   "stepun+2@gmail.com" \
   "270176As!"
+```
+
+**Production импорт (простой):**
+```bash
+# Импортировать товар
+./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+
+# Исправить URL картинок
+./scripts/fix-image-urls.sh
 ```
 
 ## Что делает скрипт
