@@ -22,12 +22,18 @@ export {
 // Export cart store and hooks
 export {
   useCartStore,
-  useCart,
   useCartItems,
   useCartSummary,
-  useCartActions,
+  useCartTotal,
+  useCartItemsCount,
   useCartLoading,
   useCartError,
+  useLoadCart,
+  useAddToCart,
+  useUpdateQuantity,
+  useRemoveCartItem,
+  useClearCart,
+  useClearCartError,
 } from './cartStore';
 
 // Export checkout store and hooks

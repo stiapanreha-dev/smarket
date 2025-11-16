@@ -35,7 +35,7 @@ import {
   useCheckoutStore,
   useCheckoutLoading,
   useCheckoutError,
-  useCartActions,
+  useClearCart,
 } from '@/store';
 import { CheckoutStep, DeliveryMethodType, formatAddress } from '@/types';
 
@@ -88,7 +88,7 @@ export function OrderReviewStep({ onBack }: OrderReviewStepProps) {
   const { error: checkoutError, clearError } = useCheckoutError();
 
   // Cart actions
-  const { clearCart } = useCartActions();
+  const clearCart = useClearCart();
 
   // Local state
   const [acceptedTerms, setAcceptedTerms] = useState(false);
