@@ -24,7 +24,7 @@ fi
 PRODUCT_URL="$1"
 EMAIL="$2"
 PASSWORD="$3"
-API_BASE="http://localhost:3000/api/v1"
+API_BASE="http://localhost:3003/api/v1"
 TMP_DIR="/tmp/product-import-$$"
 
 # Create temp directory
@@ -71,7 +71,9 @@ echo -e "${GREEN}✓ Logged in successfully${NC}"
 echo -e "${YELLOW}[2/6] Fetching product information (using headless browser)...${NC}"
 
 # Use the Puppeteer-based parser (run from project root to have access to node_modules)
-cd /home/lexun/work/smarket
+# Get project root (parent of scripts directory)
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
 PRODUCT_INFO=$(node "$SCRIPT_DIR/parse-product-puppeteer.js" "$PRODUCT_URL" 2>&1)
 PARSE_EXIT_CODE=$?
 cd "$TMP_DIR"
