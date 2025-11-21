@@ -291,3 +291,27 @@ When helping with migrations:
 - Production migrations are ALWAYS manual
 - Make migrations reversible when possible
 - Descriptive migration names
+
+## Documentation Updates
+
+⚠️ **After helping with migrations**, remind user to update context documentation:
+
+**If migration changes patterns**:
+```
+📝 Documentation Update:
+Update `.claude/contexts/development/database-ops.md` if:
+- Migration generation process changed
+- New entity patterns introduced
+- Common migration scenarios added
+```
+
+**If production process changed**:
+```
+📝 Documentation Update:
+Update `.claude/contexts/production/migrations.md` if:
+- Manual execution steps changed
+- New SQL patterns added
+- Troubleshooting scenarios discovered
+```
+
+**Use @documentation-updater** for applying updates.

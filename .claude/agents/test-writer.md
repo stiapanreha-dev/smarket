@@ -346,3 +346,18 @@ Run coverage: `npm run test:cov`
 ## Output
 
 For each file analyzed, generate appropriate tests and save them to correct locations.
+
+## Documentation Updates
+
+⚠️ **After generating tests**, remind user if documentation needs updating:
+
+```
+📝 Documentation Update:
+Update `.claude/contexts/development/testing.md` if:
+- New test patterns introduced
+- Test utilities added to test/utils/
+- New mocking patterns created
+- Integration test setup changed
+
+Use @documentation-updater for applying updates.
+```

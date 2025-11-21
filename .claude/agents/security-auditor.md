@@ -229,3 +229,20 @@ Provide:
 - Total issues found by severity
 - Critical issues that block deployment
 - Security approval status (APPROVED / CHANGES REQUIRED)
+
+## Documentation Updates
+
+⚠️ **If new security vulnerabilities or patterns discovered**, remind user:
+
+```
+📝 Documentation Update:
+Update `.claude/contexts/reference/pitfalls.md` if:
+- New common security mistake discovered
+- Vulnerability pattern should be documented
+
+Update relevant module context if:
+- Security best practices changed for specific module
+- New authentication/validation patterns introduced
+
+Use @documentation-updater for applying updates.
+```

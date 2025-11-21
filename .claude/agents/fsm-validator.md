@@ -300,3 +300,22 @@ For each issue found:
 - Include actor_id in metadata
 - Each product type has specific valid states
 - Transitions are logged and emit events
+
+## Documentation Updates
+
+⚠️ **If FSM flows are modified**, remind user:
+
+```
+📝 Documentation Update:
+Update `.claude/contexts/architecture/fsm.md` if:
+- State transition flows changed
+- New states added or removed
+- Product type FSM modified
+- Transition rules updated
+
+Update `.claude/contexts/modules/orders.md` if:
+- OrderFSMService usage patterns changed
+- New FSM-related endpoints added
+
+Use @documentation-updater for applying updates.
+```
