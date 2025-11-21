@@ -132,7 +132,7 @@ npm run migration:revert
 ### Modules
 - `GET /api/v1/auth/info` - Auth module info
 - `GET /api/v1/users/info` - User module info
-- `GET /api/v1/catalog/info` - Catalog module info
+- `GET /api/v1/products/info` - Catalog module info
 - `GET /api/v1/inventory/info` - Inventory module info
 - `GET /api/v1/bookings/info` - Booking module info
 - `GET /api/v1/orders/info` - Order module info
