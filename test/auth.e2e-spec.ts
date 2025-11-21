@@ -1,18 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from './../src/app.module';
+import { DataSource } from 'typeorm';
+import { getTestDataSource } from './setup';
+import { resetTestDatabase } from './utils/test-db';
 
 describe('Authentication (e2e)', () => {
   let app: INestApplication;
-  let accessToken: string;
-  let refreshToken: string;
-  const testUser = {
-    email: `test${Date.now()}@example.com`,
+  let dataSource: DataSource;
+  let testUser: { email: string; password: string };
+
+  const buildTestUser = () => ({
+    email: `test_${Date.now()}_${Math.random().toString(16).slice(2)}@example.com`,
     password: 'SecureP@ss123',
+  });
+
+  const registerUser = async (user: { email: string; password: string }) => {
+    return request(app.getHttpServer())
+      .post('/api/v1/auth/register')
+      .send(user)
+      .expect(201);
   };
 
   beforeAll(async () => {
+    dataSource = getTestDataSource();
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -32,30 +45,30 @@ describe('Authentication (e2e)', () => {
     await app.init();
   });
 
+  beforeEach(async () => {
+    await resetTestDatabase(dataSource);
+    testUser = buildTestUser();
+  });
+
   afterAll(async () => {
     await app.close();
   });
 
   describe('/api/v1/auth/register (POST)', () => {
-    it('should register a new user', () => {
-      return request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send(testUser)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('user');
-          expect(res.body).toHaveProperty('tokens');
-          expect(res.body.user).toHaveProperty('email', testUser.email);
-          expect(res.body.tokens).toHaveProperty('accessToken');
-          expect(res.body.tokens).toHaveProperty('refreshToken');
+    it('should register a new user', async () => {
+      const res = await registerUser(testUser);
 
-          accessToken = res.body.tokens.accessToken;
-          refreshToken = res.body.tokens.refreshToken;
-        });
+      expect(res.body).toHaveProperty('user');
+      expect(res.body).toHaveProperty('tokens');
+      expect(res.body.user).toHaveProperty('email', testUser.email);
+      expect(res.body.tokens).toHaveProperty('accessToken');
+      expect(res.body.tokens).toHaveProperty('refreshToken');
     });
 
-    it('should return 409 when registering with existing email', () => {
-      return request(app.getHttpServer())
+    it('should return 409 when registering with existing email', async () => {
+      await registerUser(testUser);
+
+      await request(app.getHttpServer())
         .post('/api/v1/auth/register')
         .send(testUser)
         .expect(409);
@@ -73,21 +86,24 @@ describe('Authentication (e2e)', () => {
   });
 
   describe('/api/v1/auth/login (POST)', () => {
-    it('should login with valid credentials', () => {
-      return request(app.getHttpServer())
+    it('should login with valid credentials', async () => {
+      await registerUser(testUser);
+
+      const res = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send(testUser)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('user');
-          expect(res.body).toHaveProperty('tokens');
-          expect(res.body.tokens).toHaveProperty('accessToken');
-          expect(res.body.tokens).toHaveProperty('refreshToken');
-        });
+        .expect(200);
+
+      expect(res.body).toHaveProperty('user');
+      expect(res.body).toHaveProperty('tokens');
+      expect(res.body.tokens).toHaveProperty('accessToken');
+      expect(res.body.tokens).toHaveProperty('refreshToken');
     });
 
-    it('should return 401 with invalid credentials', () => {
-      return request(app.getHttpServer())
+    it('should return 401 with invalid credentials', async () => {
+      await registerUser(testUser);
+
+      await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({
           email: testUser.email,
@@ -98,15 +114,17 @@ describe('Authentication (e2e)', () => {
   });
 
   describe('/api/v1/auth/me (GET)', () => {
-    it('should return current user profile', () => {
-      return request(app.getHttpServer())
+    it('should return current user profile', async () => {
+      const registerResponse = await registerUser(testUser);
+      const { accessToken } = registerResponse.body.tokens;
+
+      const res = await request(app.getHttpServer())
         .get('/api/v1/auth/me')
         .set('Authorization', `Bearer ${accessToken}`)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('email', testUser.email);
-          expect(res.body).not.toHaveProperty('password_hash');
-        });
+        .expect(200);
+
+      expect(res.body).toHaveProperty('email', testUser.email);
+      expect(res.body).not.toHaveProperty('password_hash');
     });
 
     it('should return 401 without token', () => {
@@ -124,15 +142,17 @@ describe('Authentication (e2e)', () => {
   });
 
   describe('/api/v1/auth/refresh (POST)', () => {
-    it('should refresh access token', () => {
-      return request(app.getHttpServer())
+    it('should refresh access token', async () => {
+      const registerResponse = await registerUser(testUser);
+      const { refreshToken } = registerResponse.body.tokens;
+
+      const res = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
         .send({ refreshToken })
-        .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('accessToken');
-          expect(res.body).toHaveProperty('refreshToken');
-        });
+        .expect(200);
+
+      expect(res.body).toHaveProperty('accessToken');
+      expect(res.body).toHaveProperty('refreshToken');
     });
 
     it('should return 401 with invalid refresh token', () => {
@@ -144,15 +164,17 @@ describe('Authentication (e2e)', () => {
   });
 
   describe('/api/v1/auth/logout (POST)', () => {
-    it('should logout user', () => {
-      return request(app.getHttpServer())
+    it('should logout user', async () => {
+      const registerResponse = await registerUser(testUser);
+      const { accessToken, refreshToken } = registerResponse.body.tokens;
+
+      const res = await request(app.getHttpServer())
         .post('/api/v1/auth/logout')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ refreshToken })
-        .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('message');
-        });
+        .expect(200);
+
+      expect(res.body).toHaveProperty('message');
     });
   });
 });

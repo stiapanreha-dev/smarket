@@ -1,8 +1,21 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { MerchantApplication, ApplicationStatus } from '@/database/entities/merchant-application.entity';
-import { Merchant, MerchantStatus, KycStatus, PayoutMethod } from '@/database/entities/merchant.entity';
+import {
+  MerchantApplication,
+  ApplicationStatus,
+} from '@/database/entities/merchant-application.entity';
+import {
+  Merchant,
+  MerchantStatus,
+  KycStatus,
+  PayoutMethod,
+} from '@/database/entities/merchant.entity';
 import { User, UserRole } from '@/database/entities/user.entity';
 import {
   CreateMerchantApplicationDto,
@@ -150,7 +163,7 @@ export class MerchantApplicationService {
       application.status = ApplicationStatus.APPROVED;
       application.reviewed_by = adminId;
       application.reviewed_at = new Date();
-      application.review_notes = dto.notes;
+      application.review_notes = dto.notes ?? null;
       await queryRunner.manager.save(application);
 
       // Create merchant profile
@@ -173,7 +186,11 @@ export class MerchantApplicationService {
       await queryRunner.manager.save(application);
 
       // Update user role to merchant
-      await queryRunner.manager.update(User, { id: application.user_id }, { role: UserRole.MERCHANT });
+      await queryRunner.manager.update(
+        User,
+        { id: application.user_id },
+        { role: UserRole.MERCHANT },
+      );
 
       await queryRunner.commitTransaction();
 

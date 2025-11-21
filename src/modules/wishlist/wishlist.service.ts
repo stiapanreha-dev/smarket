@@ -268,7 +268,7 @@ export class WishlistService {
       dto.product = {
         id: item.product.id,
         title: item.product.title,
-        slug: item.product.slug,
+        slug: item.product.slug ?? '',
         imageUrl: item.product.image_url,
         basePriceMinor: item.product.base_price_minor,
         currency: item.product.currency,
