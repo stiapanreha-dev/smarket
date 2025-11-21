@@ -1,5 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { dataSourceOptions } from '../../src/database/data-source';
+import { seedTestData } from './seed-test-data';
 
 /**
  * Create test database configuration
@@ -60,6 +61,16 @@ export async function truncateTables(dataSource: DataSource): Promise<void> {
 
     // Re-enable foreign key checks
     await dataSource.query('SET session_replication_role = DEFAULT;');
+  }
+}
+
+/**
+ * Reset test database state and reseed fixture data
+ */
+export async function resetTestDatabase(dataSource: DataSource): Promise<void> {
+  if (dataSource?.isInitialized) {
+    await truncateTables(dataSource);
+    await seedTestData(dataSource);
   }
 }
 
