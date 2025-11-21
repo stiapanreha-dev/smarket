@@ -222,7 +222,7 @@ export class CatalogController {
   }
 
   @Public()
-  @Get('info/module')
+  @Get('info')
   @ApiOperation({
     summary: 'Get module info',
     description: 'Get information about the catalog module',
@@ -232,6 +232,20 @@ export class CatalogController {
     description: 'Module info retrieved successfully',
   })
   getModuleInfo(): string {
+    return this.catalogService.getModuleInfo();
+  }
+
+  @Public()
+  @Get('info/module')
+  @ApiOperation({
+    summary: 'Get module info (alias)',
+    description: 'Alias endpoint for module information. Prefer /api/v1/products/info.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Module info retrieved successfully',
+  })
+  getModuleInfoAlias(): string {
     return this.catalogService.getModuleInfo();
   }
 
