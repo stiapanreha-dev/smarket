@@ -56,3 +56,6 @@ redis-data/
 
 # Uploads
 /uploads
+
+# Claude Code personal configuration
+.claude/
