@@ -1,607 +1,88 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Project Overview
 
 SnailMarketplace is a modular monolith marketplace platform built with NestJS, PostgreSQL, Redis, and S3. It supports three product types: physical goods, digital products, and services. The platform features multi-language support (EN/RU/AR), FSM-based order management, and event-driven architecture with the Outbox pattern.
 
-## Development Commands
+**Domain**: https://smarket.sh3.su
 
-### Setup and Running
-```bash
-# Install dependencies
-npm install
+---
 
-# Start infrastructure (PostgreSQL, Redis, LocalStack, Adminer)
-docker-compose up -d
+## 🚀 Quick Navigation
 
-# Run database migrations
-npm run migration:run
+- **First time?** → @./.claude/contexts/01-quickstart.md
+- **Architecture overview?** → @./.claude/contexts/architecture/modules.md
+- **Production issues?** → @./.claude/contexts/production/troubleshooting.md
+- **Full context index** → @./.claude/contexts/README.md
 
-# Start development server with hot reload
-npm run start:dev
+---
 
-# Start in debug mode
-npm run start:debug
+## Core Architecture
 
-# Build for production
-npm run build
+@./.claude/contexts/architecture/modules.md
+@./.claude/contexts/architecture/database.md
+@./.claude/contexts/architecture/events-outbox.md
+@./.claude/contexts/architecture/fsm.md
+@./.claude/contexts/architecture/authentication.md
 
-# Run production build
-npm run start:prod
-```
+## Critical Patterns (MUST READ)
 
-### Database Operations
-```bash
-# Generate new migration
-npm run migration:generate -- src/database/migrations/MigrationName
+@./.claude/contexts/modules/cart.md
+@./.claude/contexts/frontend/zustand-patterns.md
+@./.claude/contexts/production/migrations.md
 
-# Run pending migrations
-npm run migration:run
+## Module-Specific Context
 
-# Revert last migration
-npm run migration:revert
+@./.claude/contexts/modules/auth.md
+@./.claude/contexts/modules/booking.md
+@./.claude/contexts/modules/catalog.md
+@./.claude/contexts/modules/checkout.md
+@./.claude/contexts/modules/inventory.md
+@./.claude/contexts/modules/merchant.md
+@./.claude/contexts/modules/notification.md
+@./.claude/contexts/modules/orders.md
+@./.claude/contexts/modules/payment.md
+@./.claude/contexts/modules/payout.md
+@./.claude/contexts/modules/user.md
+@./.claude/contexts/modules/wishlist.md
 
-# Show migration status
-npm run migration:show
+## Frontend Development
 
-# Seed database
-npm run seed
-```
+@./.claude/contexts/frontend/styling-layout.md
+@./.claude/contexts/frontend/routing.md
+@./.claude/contexts/frontend/i18n.md
 
-### Testing
-```bash
-# Run unit tests
-npm test
+## Development Workflow
 
-# Run unit tests in watch mode
-npm run test:watch
+@./.claude/contexts/development/commands.md
+@./.claude/contexts/development/testing.md
+@./.claude/contexts/development/database-ops.md
+@./.claude/contexts/development/common-patterns.md
 
-# Run unit tests with coverage
-npm run test:cov
+## Production Operations
 
-# Run E2E tests
-npm run test:e2e
+@./.claude/contexts/production/deployment.md
+@./.claude/contexts/production/nginx-config.md
+@./.claude/contexts/production/troubleshooting.md
+@./.claude/contexts/production/product-import.md
 
-# Run specific test file
-npm test order.service.spec.ts
+## Reference Documentation
 
-# Run tests matching pattern
-npm test -- --testPathPattern=payment
+@./.claude/contexts/reference/infrastructure.md
+@./.claude/contexts/reference/ci-cd.md
+@./.claude/contexts/reference/config-files.md
+@./.claude/contexts/reference/pitfalls.md
 
-# Debug tests
-npm run test:debug
-```
-
-### Code Quality
-```bash
-# Lint and auto-fix
-npm run lint
-
-# Format code
-npm run format
-```
-
-### Product Import Scripts
-
-Import products from external sources (e.g., american-creator.ru):
-
-```bash
-# One-time setup: Create credentials file
-cp scripts/.env.example scripts/.env
-# Edit scripts/.env with merchant credentials
-
-# Import product to production
-./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
-
-# The script automatically:
-# - Reads credentials from scripts/.env
-# - Parses product info using Puppeteer
-# - Creates product via API
-# - Uploads images
-# - Fixes image URLs (localhost → production)
-```
-
-See `scripts/README.md` for detailed documentation.
-
-## Production Deployment
-
-### Server Information
-
-- **Server**: Pi4-2 (Raspberry Pi)
-- **Location**: `/home/lexun/apps/smarket`
-- **Domain**: https://smarket.sh3.su
-- **Backend Port**: 3003 (Docker container)
-- **Frontend**: Static files served by nginx
-
-### Deployment Process
-
-```bash
-# 1. Push changes to repository
-git add .
-git commit -m "Your changes"
-git push origin master
-
-# 2. Pull changes on server
-ssh Pi4-2 "cd /home/lexun/apps/smarket && git pull origin master"
-
-# 3. Build frontend (locally or on server)
-cd client && npm run build
-
-# 4. Sync frontend to server
-rsync -avz client/dist/ Pi4-2:/home/lexun/apps/smarket.backup/frontend/
-
-# 5. Rebuild backend Docker containers
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
-
-# 6. Reload nginx
-ssh Pi4-2 "sudo systemctl reload nginx"
-```
-
-### Production Database Migrations
-
-**CRITICAL**: Migrations cannot be run automatically in production Docker containers because:
-- Source files are not available (only compiled `dist/main.js`)
-- TypeORM migration runner requires source files
-
-**Manual migration process:**
-
-1. Check migration files in `src/database/migrations/`
-2. Extract SQL from migration files
-3. Execute SQL directly on production database:
-
-```bash
-# Connect to production database
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket"
-
-# Or execute SQL command directly
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'YOUR SQL HERE'"
-```
-
-**Example - Adding missing table:**
-```bash
-# Create notifications table
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
-CREATE TYPE notification_type_enum AS ENUM ('ORDER_UPDATE', 'PAYMENT_SUCCESS', 'SHIPPING_UPDATE', 'BOOKING_REMINDER', 'PROMO');
-CREATE TABLE notifications (...);
-\""
-```
-
-### Nginx Configuration
-
-Production nginx config at `/etc/nginx/sites-available/smarket.sh3.su`:
-
-```nginx
-# Backend API
-location /api/ {
-    proxy_pass http://localhost:3003/api/;
-    # ... proxy headers
-}
-
-# Uploaded files (product images, etc.)
-location /uploads/ {
-    proxy_pass http://localhost:3003/uploads/;
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-}
-
-# Frontend static files
-location / {
-    root /home/lexun/apps/smarket.backup/frontend;
-    try_files $uri $uri/ /index.html;
-}
-```
-
-**Important**: Image URLs in database may need fixing after import:
-```bash
-# Fix localhost URLs to production
-./scripts/fix-image-urls.sh
-```
-
-### Production Docker Containers
-
-Containers managed via `docker-compose.prod.yml`:
-
-- `smarket-backend-prod` - NestJS backend (port 3003)
-- `smarket-postgres-prod` - PostgreSQL (port 5434)
-- `smarket-redis-prod` - Redis (port 6381)
-
-```bash
-# View logs
-ssh Pi4-2 "docker logs smarket-backend-prod --tail 50"
-
-# Restart container
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
-
-# Check container status
-ssh Pi4-2 "docker ps | grep smarket"
-```
-
-### Common Production Issues
-
-**1. Missing database tables** (500 errors)
-- Symptom: `relation "table_name" does not exist`
-- Solution: Run migration SQL manually (see Database Migrations above)
-- Common missing tables: `notifications`, `wishlists`, `wishlist_items`
-
-**2. Wrong image URLs** (images not loading)
-- Symptom: Image URLs point to `http://localhost:3000`
-- Solution: Run `./scripts/fix-image-urls.sh`
-
-**3. Node not available on server**
-- Symptom: Product import fails with `node: command not found`
-- Solution: Run import scripts locally with `API_BASE="https://smarket.sh3.su/api/v1"`
-
-## Architecture
-
-### Modular Monolith Structure
-
-The codebase follows a modular monolith architecture with clear module boundaries:
-
-- **Auth Module** - JWT-based authentication, password hashing with argon2
-- **User Module** - User management with locale/currency preferences
-- **Catalog Module** - Product catalog (physical, digital, service types)
-- **Cart Module** - Shopping cart management
-- **Checkout Module** - Multi-step checkout process with session management
-- **Inventory Module** - Stock management and reservations
-- **Booking Module** - Service appointment scheduling
-- **Orders Module** - FSM-based order processing (see details below)
-- **Payment Module** - Payment processing with provider abstraction
-- **Payout Module** - Merchant payout management
-- **Notification Module** - Multi-channel notifications (email, future: SMS)
-
-### TypeORM Entity Loading - CRITICAL
-
-**The application uses Webpack bundling (`nest-cli.json` has `"webpack": true`)**, which means glob patterns for entity loading don't work at runtime because all code is bundled into `dist/main.js`.
-
-**Current implementation in `app.module.ts`:**
-```typescript
-import * as entities from './database/entities';
-
-TypeOrmModule.forRootAsync({
-  useFactory: (configService: ConfigService) => ({
-    // ...
-    entities: Object.values(entities).filter(val =>
-      typeof val === 'function' && val.prototype
-    ),
-  }),
-})
-```
-
-**DO NOT change this back to glob patterns** like `[__dirname + '/**/*.entity{.ts,.js}']` - they will fail with Webpack.
-
-The filter removes enums and other non-entity exports from the entities index file.
-
-### FSM-Based Order Management
-
-The Orders module implements Finite State Machines for three product types:
-
-**Physical Items Flow:**
-```
-PENDING → PAYMENT_CONFIRMED → PREPARING → READY_TO_SHIP → SHIPPED → DELIVERED
-         ↓                    ↓           ↓
-         CANCELLED            CANCELLED   CANCELLED
-```
-
-**Digital Items Flow:**
-```
-PENDING → PAYMENT_CONFIRMED → ACCESS_GRANTED → DOWNLOADED
-         ↓                    ↓
-         CANCELLED            REFUND_REQUESTED → REFUNDED
-```
-
-**Service Items Flow:**
-```
-PENDING → PAYMENT_CONFIRMED → BOOKING_CONFIRMED → REMINDER_SENT → IN_PROGRESS → COMPLETED
-         ↓                    ↓                   ↓                ↓
-         CANCELLED            CANCELLED           CANCELLED        NO_SHOW
-```
-
-State transitions are validated by `OrderFSMService` and logged in `order_status_transitions` table for audit trail.
-
-### Event-Driven Architecture
-
-The system uses the **Outbox pattern** for reliable event publishing:
-
-1. Business operations write events to `order_outbox` table in the same transaction
-2. Background job (`OutboxService.processEvents()`) polls outbox and publishes events
-3. Successfully published events are moved to `order_outbox_dlq` if they fail multiple times
-
-Events include: `order.created`, `order.payment_confirmed`, `order.status_changed`, `line_item.status_changed`
-
-### Path Aliases
-
-TypeScript path aliases are configured in `tsconfig.json`:
-```typescript
-@/* → src/*
-@modules/* → src/modules/*
-@common/* → src/common/*
-@config/* → src/config/*
-@database/* → src/database/*
-```
-
-Always use these aliases for imports across the codebase.
-
-### Authentication
-
-- Global `JwtAuthGuard` is applied at app level (see `app.module.ts`)
-- Controllers/routes can use `@Public()` decorator to bypass authentication
-- User information available via `@CurrentUser()` decorator
-- Passwords hashed with argon2 (more secure than bcrypt)
-
-### Cart Module - Guest Session Management
-
-**CRITICAL:** The cart system supports both authenticated users and guest users through session management.
-
-**Backend Implementation:**
-- Cart data is stored in Redis using keys: `cart:user:{userId}` or `cart:session:{sessionId}`
-- All cart endpoints are marked as `@Public()` to allow guest access
-- Session ID is read from `x-session-id` header (NOT from express-session)
-- Controllers in `cart.controller.ts` use `@Headers('x-session-id')` to get session ID
-
-**Frontend Implementation:**
-- Session ID is generated once and stored in localStorage as `guest_session_id`
-- Axios interceptor in `client/src/api/axios.config.ts` automatically adds `x-session-id` header to all requests
-- Session ID persists across page reloads, ensuring cart continuity for guest users
-- When user logs in, guest cart is merged with user cart via `/cart/merge` endpoint
-
-**Important Files:**
-- Backend: `src/modules/cart/cart.controller.ts`, `src/modules/cart/cart.service.ts`
-- Frontend: `client/src/api/axios.config.ts` (session ID generation), `client/src/store/cartStore.ts`
-
-## Frontend Architecture
-
-The frontend is built with React 18, Vite, TypeScript, and Bootstrap 5. It uses Zustand for state management and React Router for navigation.
-
-### Tech Stack
-
-- **Build Tool:** Vite 5.x
-- **Framework:** React 18 with TypeScript
-- **UI Library:** React Bootstrap 5
-- **State Management:** Zustand with persist middleware
-- **Routing:** React Router v6
-- **HTTP Client:** Axios with interceptors
-- **Internationalization:** react-i18next (EN/RU/AR with RTL support)
-- **Notifications:** react-hot-toast
-
-### Zustand State Management - CRITICAL PATTERNS
-
-**Atomic Selectors Pattern:**
-
-Zustand selectors that return new objects on every render cause infinite re-render loops. **Always use atomic selectors** that return single primitive values or stable references.
-
-**WRONG (causes infinite loops):**
-```typescript
-// ❌ Returns new object every time
-export const useCartSummary = () =>
-  useCartStore((state) => ({
-    summary: state.summary,
-    total: state.total,
-    itemsCount: state.itemsCount,
-  }));
-```
-
-**CORRECT (atomic selectors):**
-```typescript
-// ✅ Each selector returns a single value
-export const useCartSummary = () => useCartStore((state) => state.summary);
-export const useCartTotal = () => useCartStore((state) => state.total);
-export const useCartItemsCount = () => useCartStore((state) => state.itemsCount);
-
-// ✅ Functions are stable in zustand, safe to return directly
-export const useLoadCart = () => useCartStore((state) => state.loadCart);
-export const useUpdateQuantity = () => useCartStore((state) => state.updateQuantity);
-```
-
-**Usage in components:**
-```typescript
-// Instead of destructuring one hook
-const { summary, total, itemsCount } = useCartSummary(); // ❌
-
-// Use multiple atomic selectors
-const summary = useCartSummary();   // ✅
-const total = useCartTotal();       // ✅
-const itemsCount = useCartItemsCount(); // ✅
-```
-
-**DO NOT use `shallow` comparison** - it doesn't solve the problem if you're creating new objects. Use atomic selectors instead.
-
-### CSS and Layout
-
-**Fixed Navbar Pattern:**
-
-The navbar uses Bootstrap's `fixed="top"` which requires all page containers to have `padding-top: 80px` to prevent content from being hidden behind the navbar.
-
-**All page-level CSS classes must include:**
-```css
-.my-page {
-  padding-top: 80px; /* Account for fixed navbar */
-  min-height: calc(100vh - 200px);
-}
-```
-
-Pages that need this:
-- CatalogPage, ProductPage, CartPage, CheckoutPage
-- ProfilePage, OrdersPage, OrderDetailsPage
-- WishlistPage, NotificationsPage, SearchPage
-- All Merchant pages (DashboardPage, ProductsPage, etc.)
-
-### EditorJS Content Handling
-
-Product descriptions use EditorJS format. Use `extractTextFromEditorJS()` utility from `client/src/utils/editorjs.ts` to extract plain text for previews:
-
-```typescript
-import { extractTextFromEditorJS } from '@/utils/editorjs';
-
-const preview = extractTextFromEditorJS(product.description, 150); // 150 char limit
-```
-
-## Docker Infrastructure
-
-Default ports (can be changed in `docker-compose.yml` and `.env`):
-- PostgreSQL: 5432 (or 5433 to avoid conflicts)
-- Redis: 6379 (or 6380 to avoid conflicts)
-- LocalStack (S3/SQS): 4566
-- Adminer (DB UI): 8080 (or 8081 to avoid conflicts)
-
-Access Adminer at `http://localhost:8080`:
-- System: PostgreSQL
-- Server: postgres
-- Username: snailmarket
-- Password: snailmarket_password
-- Database: snailmarket
-
-## Testing Infrastructure
-
-### Test Database Setup
-```bash
-# Create test database
-createdb snailmarket_test
-
-# Set up test environment
-cp .env.test.example .env.test
-
-# Run migrations for test database
-NODE_ENV=test npm run migration:run
-```
-
-### Test Utilities
-
-**Location:** `test/utils/`
-
-- `test-db.ts` - Database connection and cleanup utilities
-- `test-helpers.ts` - Helper functions for creating test data:
-  - `createTestUser()` - Create user with hashed password
-  - `createTestMerchant()` - Create merchant profile
-  - `createTestProduct()` - Create product
-  - `createTestCheckoutSession()` - Create checkout session
-  - `createTestOrder()` - Create order with line items
-  - `createTestLineItem()` - Create order line item
-
-**Test Fixtures:** `test/fixtures/` - Pre-defined test data for consistent testing
-
-**Mocks:** `test/mocks/` - Mock repositories and services
-
-### Test Patterns
-
-```typescript
-// Unit test with mocked repository
-const mockRepo = createMockRepository();
-await Test.createTestingModule({
-  providers: [
-    MyService,
-    { provide: getRepositoryToken(MyEntity), useValue: mockRepo }
-  ]
-}).compile();
-
-// Integration test with real database
-const dataSource = await startTestDb();
-const user = await createTestUser(dataSource, {
-  email: 'test@example.com',
-  password: 'test123'
-});
-await cleanupTestDb(dataSource);
-```
-
-## Common Development Patterns
-
-### Creating a New Module
-
-```bash
-# Generate module scaffold
-nest generate module modules/my-module
-nest generate controller modules/my-module
-nest generate service modules/my-module
-```
-
-Then:
-1. Create entity in `src/database/entities/my-entity.entity.ts`
-2. Export entity from `src/database/entities/index.ts`
-3. Create migration: `npm run migration:generate -- src/database/migrations/CreateMyEntity`
-4. Run migration: `npm run migration:run`
-5. Register `TypeOrmModule.forFeature([MyEntity])` in module
-6. Import module in `app.module.ts`
-
-### Database Transactions
-
-Use TypeORM QueryRunner for transactions:
-
-```typescript
-const queryRunner = this.dataSource.createQueryRunner();
-await queryRunner.connect();
-await queryRunner.startTransaction();
-
-try {
-  await queryRunner.manager.save(entity1);
-  await queryRunner.manager.save(entity2);
-  await queryRunner.commitTransaction();
-} catch (error) {
-  await queryRunner.rollbackTransaction();
-  throw error;
-} finally {
-  await queryRunner.release();
-}
-```
-
-### Validation
-
-Use class-validator decorators on DTOs:
-
-```typescript
-export class CreateOrderDto {
-  @IsUUID()
-  checkout_session_id: string;
-
-  @IsOptional()
-  @IsString()
-  payment_intent_id?: string;
-}
-```
-
-## CI/CD Pipeline
-
-The project uses GitHub Actions with three main workflows:
-
-1. **CI Pipeline** (`.github/workflows/ci.yml`)
-   - Triggers on push to feature branches and PRs to develop
-   - Runs: lint, type check, unit tests, integration tests, security scan
-   - Minimum coverage: 80%
-
-2. **Staging Deployment** (`.github/workflows/deploy-staging.yml`)
-   - Auto-deploys on merge to `develop`
-   - Runs E2E tests after deployment
-
-3. **Production Deployment** (`.github/workflows/deploy-production.yml`)
-   - Requires manual approval on merge to `main`
-   - Blue-green deployment with automatic rollback
-
-See `.github/SETUP.md` for detailed CI/CD configuration instructions.
-
-## Important Configuration Files
-
-- `nest-cli.json` - **Has Webpack enabled**, affects entity loading
-- `tsconfig.json` - Path aliases and TypeScript config
-- `src/database/data-source.ts` - TypeORM data source for migrations (uses glob patterns, only runs outside Webpack)
-- `app.module.ts` - Root module with explicit entity imports (required for Webpack)
-- `docker-compose.yml` - Infrastructure services
-- `.env` - Environment configuration (never commit this file)
-
-## Common Pitfalls
-
-1. **Entity not found errors** - Ensure entity is exported from `src/database/entities/index.ts`
-2. **Migration issues** - Always use `npm run migration:generate`, not manual creation
-3. **Docker port conflicts** - Check if ports are already in use, change in `docker-compose.yml` and `.env`
-4. **Test database not created** - Run `createdb snailmarket_test` before running tests
-5. **Webpack vs ts-node** - Remember entity loading differs between `app.module.ts` (Webpack) and `data-source.ts` (ts-node)
+---
 
 ## API Documentation
 
-- Swagger UI: `http://localhost:3000/api/docs` (when implemented)
 - Health check: `GET /health`
 - API base: `http://localhost:3000/api/v1`
-
-Each module exposes an info endpoint: `GET /api/v1/{module}/info`
+- Production: `https://smarket.sh3.su/api/v1`
+- Module info endpoints: `GET /api/v1/{module}/info`
 
 ## Code Review Checklist
 

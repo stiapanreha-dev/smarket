@@ -57,5 +57,5 @@ redis-data/
 # Uploads
 /uploads
 
-# Claude Code personal configuration
-.claude/
+# Claude Code personal configuration (only local settings)
+.claude/settings.local.json
