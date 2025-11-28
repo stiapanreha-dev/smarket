@@ -23,7 +23,7 @@ export async function seedTestData(dataSource: DataSource): Promise<void> {
 
       if (existingUser.length === 0) {
         await queryRunner.query(
-          `INSERT INTO users (email, password_hash, locale, currency, is_verified, role)
+          `INSERT INTO users (email, password_hash, locale, currency, email_verified, role)
            VALUES ($1, $2, $3, $4, $5, $6)`,
           [
             userData.email,
@@ -31,7 +31,7 @@ export async function seedTestData(dataSource: DataSource): Promise<void> {
             userData.locale || 'en',
             userData.currency || 'USD',
             true,
-            userData.role || 'user'
+            userData.role || 'buyer'
           ]
         );
       }

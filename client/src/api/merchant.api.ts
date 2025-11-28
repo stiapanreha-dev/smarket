@@ -8,6 +8,7 @@ import { apiClient } from './axios.config';
 import { ProductType, ProductStatus, InventoryPolicy } from '@/types/catalog';
 import type { Product, PaginatedProducts } from '@/types/catalog';
 import type { Order, PaginatedOrders, LineItemStatus } from '@/types/order';
+import type { AnalyticsData, AnalyticsQueryParams } from '@/types/merchant';
 
 // ============================================================================
 // Types
@@ -265,6 +266,22 @@ export const exportOrdersToCSV = async (
 };
 
 // ============================================================================
+// Analytics API
+// ============================================================================
+
+/**
+ * Get merchant analytics with date filters
+ */
+export const getAnalytics = async (
+  params: AnalyticsQueryParams = {}
+): Promise<AnalyticsData> => {
+  const response = await apiClient.get<AnalyticsData>('/merchant/dashboard/analytics', {
+    params,
+  });
+  return response.data;
+};
+
+// ============================================================================
 // Export all methods
 // ============================================================================
 
@@ -281,6 +298,7 @@ export const merchantApi = {
   updateOrderStatus,
   addTrackingNumber,
   exportOrdersToCSV,
+  getAnalytics,
 };
 
 export default merchantApi;

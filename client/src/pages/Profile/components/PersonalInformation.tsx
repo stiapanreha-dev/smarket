@@ -5,7 +5,7 @@
  * Uses React Hook Form for form management and validation
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Spinner } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,9 +14,58 @@ import toast from 'react-hot-toast';
 import { FaCamera } from 'react-icons/fa';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
+import { DatePicker } from '@/components/common/DatePicker';
 import { useAuthStore } from '@/store/authStore';
 import { updateProfile } from '@/api/profile.api';
 import type { UpdateProfileRequest } from '@/types';
+
+/**
+ * Safely parse and normalize date to YYYY-MM-DD format
+ * Handles ISO strings, Date objects, and various date formats
+ */
+const normalizeDate = (dateValue: string | Date | null | undefined): string => {
+  if (!dateValue) return '';
+
+  try {
+    // If already in YYYY-MM-DD format, return as is
+    if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+      return dateValue;
+    }
+
+    const date = new Date(dateValue);
+
+    // Check for Invalid Date
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+
+    // Return in YYYY-MM-DD format
+    return date.toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Safely parse date string to Date object
+ * Returns null if invalid
+ */
+const safeParseDate = (dateValue: string | null | undefined): Date | null => {
+  if (!dateValue) return null;
+
+  try {
+    const date = new Date(dateValue);
+
+    // Check for Invalid Date
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date;
+  } catch {
+    return null;
+  }
+};
 
 interface PersonalInfoFormData {
   first_name: string;
@@ -65,16 +114,49 @@ export const PersonalInformation: React.FC = () => {
     handleSubmit,
     formState: { errors, isDirty },
     setValue,
+    reset,
   } = useForm<PersonalInfoFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
       first_name: user?.first_name || '',
       last_name: user?.last_name || '',
       phone: user?.phone || '',
-      date_of_birth: user?.date_of_birth || '',
+      date_of_birth: normalizeDate(user?.date_of_birth),
       avatar_url: user?.avatar_url || '',
     },
   });
+
+  // Fetch fresh profile data from server on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { getProfile } = await import('@/api/profile.api');
+        const freshUser = await getProfile();
+        // Update auth store with fresh data
+        setUser(freshUser);
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      }
+    };
+
+    fetchProfile();
+  }, [setUser]);
+
+  // Reset form when user data changes (e.g., after page reload or login)
+  useEffect(() => {
+    if (user) {
+      reset({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        phone: user.phone || '',
+        date_of_birth: normalizeDate(user.date_of_birth),
+        avatar_url: user.avatar_url || '',
+      });
+      setAvatarPreview(
+        user.avatar_url || 'https://ui-avatars.com/api/?name=User&size=150&background=7FB3D5&color=fff'
+      );
+    }
+  }, [user, reset]);
 
   const handleAvatarUrlChange = (url: string) => {
     setValue('avatar_url', url, { shouldDirty: true });
@@ -231,12 +313,15 @@ export const PersonalInformation: React.FC = () => {
           name="date_of_birth"
           control={control}
           render={({ field }) => (
-            <Input
-              {...field}
-              type="date"
+            <DatePicker
+              selected={safeParseDate(field.value)}
+              onChange={(date) => {
+                field.onChange(date ? date.toISOString().split('T')[0] : '');
+              }}
               label="Date of Birth"
               error={errors.date_of_birth?.message}
-              fullWidth
+              maxDate={new Date()}
+              containerClassName="mb-3"
             />
           )}
         />

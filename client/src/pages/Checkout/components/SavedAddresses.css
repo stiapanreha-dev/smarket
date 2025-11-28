@@ -40,7 +40,7 @@
 .address-card.selected {
   border-color: var(--bs-primary);
   background-color: #f8f9fa;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+  box-shadow: 0 4px 12px rgba(127, 179, 213, 0.15);
 }
 
 .address-card .card-body {
@@ -106,7 +106,7 @@
 
 .add-new-card:hover {
   border-color: var(--bs-primary);
-  background-color: rgba(13, 110, 253, 0.05);
+  background-color: rgba(127, 179, 213, 0.05);
 }
 
 .add-new-card .card-body {

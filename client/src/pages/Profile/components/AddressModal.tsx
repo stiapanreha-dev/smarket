@@ -11,7 +11,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import type { UserAddress, AddressFormData, CreateAddressDto, UpdateAddressDto } from '@/types/address';
-import { api } from '@/services/api';
+import { apiClient } from '@/api/axios.config';
+import { useAuthUser } from '@/store/authStore';
 
 // Validation schema
 const addressSchema = yup.object().shape({
@@ -68,6 +69,7 @@ export function AddressModal({ show, mode, address, onClose, onSave }: AddressMo
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const user = useAuthUser();
 
   // Initialize form
   const {
@@ -95,9 +97,13 @@ export function AddressModal({ show, mode, address, onClose, onSave }: AddressMo
           is_default: address.is_default,
         });
       } else {
+        // Pre-fill with user profile data when adding new address
+        const fullName = user
+          ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
+          : '';
         reset({
-          full_name: '',
-          phone: '',
+          full_name: fullName,
+          phone: user?.phone || '',
           address_line1: '',
           address_line2: '',
           city: '',
@@ -109,7 +115,7 @@ export function AddressModal({ show, mode, address, onClose, onSave }: AddressMo
       }
       setError(null);
     }
-  }, [show, mode, address, reset]);
+  }, [show, mode, address, reset, user]);
 
   // Handle form submission
   const onSubmit = async (data: AddressFormData) => {
@@ -129,7 +135,7 @@ export function AddressModal({ show, mode, address, onClose, onSave }: AddressMo
           country: data.country,
           is_default: data.is_default,
         };
-        await api.post('/users/me/addresses', createDto);
+        await apiClient.post('/users/me/addresses', createDto);
       } else if (mode === 'edit' && address) {
         const updateDto: UpdateAddressDto = {
           full_name: data.full_name,
@@ -142,7 +148,7 @@ export function AddressModal({ show, mode, address, onClose, onSave }: AddressMo
           country: data.country,
           is_default: data.is_default,
         };
-        await api.patch(`/users/me/addresses/${address.id}`, updateDto);
+        await apiClient.patch(`/users/me/addresses/${address.id}`, updateDto);
       }
 
       onSave();

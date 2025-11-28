@@ -229,7 +229,7 @@ export const SearchBar = ({ onSearch, placeholder, className = '', defaultValue 
         <Form.Control
           ref={inputRef}
           type="text"
-          placeholder={placeholder || 'Search products, services...'}
+          placeholder={placeholder || ''}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

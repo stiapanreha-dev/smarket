@@ -8,11 +8,12 @@ import { Merchant } from '@/database/entities/merchant.entity';
 import { RefreshToken } from '@/database/entities/refresh-token.entity';
 import { AuditLog } from '@/database/entities/audit-log.entity';
 import { UserAddress } from '@/database/entities/user-address.entity';
+import { Order } from '@/database/entities/order.entity';
 import { EmailService } from '@/common/services/email.service';
 import { AuditLogService } from '@/common/services/audit-log.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Merchant, RefreshToken, AuditLog, UserAddress])],
+  imports: [TypeOrmModule.forFeature([User, Merchant, RefreshToken, AuditLog, UserAddress, Order])],
   controllers: [UserController, AdminUserController],
   providers: [UserService, EmailService, AuditLogService],
   exports: [UserService],

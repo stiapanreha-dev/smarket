@@ -11,8 +11,8 @@ import { AddToCartDto } from './dto/add-to-cart.dto';
 
 const CART_MAX_ITEMS = 50;
 const CART_MAX_ITEM_QUANTITY = 99;
-const GUEST_CART_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
-const USER_CART_TTL = 30 * 24 * 60 * 60; // 30 days in seconds (persistent but with cleanup)
+const GUEST_CART_TTL = 14 * 24 * 60 * 60; // 14 days (2 weeks) in seconds
+const USER_CART_TTL = 14 * 24 * 60 * 60; // 14 days (2 weeks) in seconds
 
 @Injectable()
 export class CartService {

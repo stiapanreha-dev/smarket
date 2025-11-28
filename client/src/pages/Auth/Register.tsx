@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { FiMail, FiLock, FiUser, FiAlertCircle, FiGlobe, FiDollarSign } from 'react-icons/fi';
 
 import { useAuthStore } from '@/store/authStore';
+import { useWishlistStore } from '@/store/wishlistStore';
+import { useCartStore } from '@/store/cartStore';
 import { Button, Input, Alert } from '@/components/common';
 import type { UserLocale, UserCurrency } from '@/types';
 
@@ -140,6 +142,10 @@ const Register: React.FC = () => {
 
       // Register user
       await registerUser(registrationData);
+
+      // Load user's wishlist and cart from backend
+      useWishlistStore.getState().loadWishlist().catch(console.error);
+      useCartStore.getState().loadCart().catch(console.error);
 
       // Update i18n language to match user preference
       if (data.locale) {

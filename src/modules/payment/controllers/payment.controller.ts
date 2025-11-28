@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -12,13 +13,19 @@ import {
   RawBodyRequest,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
 import { PaymentService } from '../services/payment.service';
 import { WebhookService } from '../services/webhook.service';
 import { AuthorizePaymentDto } from '../dto/authorize-payment.dto';
 import { RefundPaymentDto } from '../dto/refund-payment.dto';
 import { PaymentResponseDto, RefundResponseDto } from '../dto/payment-response.dto';
+import {
+  GetUserPaymentsDto,
+  UserPaymentsResponseDto,
+  UserPaymentItemDto,
+} from '../dto/user-payments.dto';
 
 @ApiTags('Payments')
 @Controller('payments')
@@ -27,6 +34,67 @@ export class PaymentController {
     private readonly paymentService: PaymentService,
     private readonly webhookService: WebhookService,
   ) {}
+
+  /**
+   * Get current user's payment history
+   */
+  @Get('my')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get payment history for current user',
+    description: 'Returns paginated list of payments for the authenticated user.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Payment history retrieved successfully',
+    type: UserPaymentsResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  async getMyPayments(
+    @CurrentUser('id') userId: string,
+    @Query() query: GetUserPaymentsDto,
+  ): Promise<UserPaymentsResponseDto> {
+    const result = await this.paymentService.getUserPayments(userId, {
+      page: query.page,
+      limit: query.limit,
+    });
+
+    const payments: UserPaymentItemDto[] = result.payments.map((payment) => ({
+      id: payment.id,
+      orderId: payment.order_id,
+      orderNumber: payment.order?.order_number,
+      provider: payment.provider,
+      status: payment.status,
+      amount: payment.amount_minor,
+      currency: payment.currency,
+      capturedAmount: payment.captured_amount,
+      refundedAmount: payment.refunded_amount,
+      createdAt: payment.created_at,
+      capturedAt: payment.captured_at || undefined,
+      refunds: (payment.refunds || []).map((refund) => ({
+        id: refund.id,
+        paymentId: refund.payment_id,
+        amount: refund.amount_minor,
+        currency: refund.currency,
+        status: refund.status,
+        reason: refund.reason,
+        createdAt: refund.created_at,
+        processedAt: refund.processed_at || undefined,
+      })),
+    }));
+
+    return {
+      payments,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+    };
+  }
 
   @Post('authorize')
   @UseGuards(JwtAuthGuard)

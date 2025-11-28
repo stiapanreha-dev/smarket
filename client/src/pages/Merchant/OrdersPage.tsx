@@ -47,7 +47,14 @@ import {
   useAddTrackingNumber,
   useExportOrdersCSV,
 } from '@/hooks';
+import { DatePicker } from '@/components/common';
 import './OrdersPage.css';
+
+// Helper to format Date to YYYY-MM-DD string for API
+const formatDateForAPI = (date: Date | null): string | undefined => {
+  if (!date) return undefined;
+  return date.toISOString().split('T')[0];
+};
 
 // Tab configuration
 const ORDER_TABS = [
@@ -84,8 +91,8 @@ export const OrdersPage = () => {
 
   // Filters state
   const [search, setSearch] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState<Date | null>(null);
+  const [dateTo, setDateTo] = useState<Date | null>(null);
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -109,8 +116,8 @@ export const OrdersPage = () => {
   const { data, isLoading, error } = useMerchantOrders({
     status: currentTabStatuses.join(','),
     search: search || undefined,
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
+    date_from: formatDateForAPI(dateFrom),
+    date_to: formatDateForAPI(dateTo),
     page,
     limit,
   });
@@ -198,8 +205,8 @@ export const OrdersPage = () => {
       await exportCSVMutation.mutateAsync({
         status: currentTabStatuses.join(','),
         search: search || undefined,
-        date_from: dateFrom || undefined,
-        date_to: dateTo || undefined,
+        date_from: formatDateForAPI(dateFrom),
+        date_to: formatDateForAPI(dateTo),
       });
     } catch (err) {
       console.error('Failed to export CSV:', err);
@@ -351,25 +358,25 @@ export const OrdersPage = () => {
                   </InputGroup>
                 </Col>
                 <Col md={3}>
-                  <Form.Control
-                    type="date"
-                    placeholder="From date"
-                    value={dateFrom}
-                    onChange={(e) => {
-                      setDateFrom(e.target.value);
+                  <DatePicker
+                    selected={dateFrom}
+                    onChange={(date) => {
+                      setDateFrom(date);
                       setPage(1);
                     }}
+                    placeholder="From date"
+                    maxDate={dateTo || undefined}
                   />
                 </Col>
                 <Col md={3}>
-                  <Form.Control
-                    type="date"
-                    placeholder="To date"
-                    value={dateTo}
-                    onChange={(e) => {
-                      setDateTo(e.target.value);
+                  <DatePicker
+                    selected={dateTo}
+                    onChange={(date) => {
+                      setDateTo(date);
                       setPage(1);
                     }}
+                    placeholder="To date"
+                    minDate={dateFrom || undefined}
                   />
                 </Col>
                 <Col md={2}>
@@ -377,8 +384,8 @@ export const OrdersPage = () => {
                     variant="outline-secondary"
                     className="w-100"
                     onClick={() => {
-                      setDateFrom('');
-                      setDateTo('');
+                      setDateFrom(null);
+                      setDateTo(null);
                       setSearch('');
                       setPage(1);
                     }}

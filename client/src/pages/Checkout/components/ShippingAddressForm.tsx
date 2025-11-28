@@ -67,6 +67,7 @@ interface ShippingAddressFormProps {
   onSubmit: (data: ShippingAddressFormData) => void | Promise<void>;
   onBack?: () => void;
   isLoading?: boolean;
+  isNewAddress?: boolean;
 }
 
 export function ShippingAddressForm({
@@ -74,6 +75,7 @@ export function ShippingAddressForm({
   onSubmit,
   onBack,
   isLoading = false,
+  isNewAddress = true,
 }: ShippingAddressFormProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -114,7 +116,7 @@ export function ShippingAddressForm({
       {/* Contact Information */}
       <div className="form-section">
         <h5 className="form-section-title">
-          {t('checkout.shipping.contactInfo', 'Contact Information')}
+          {t('checkout.shippingAddress.contactInfo', 'Contact Information')}
         </h5>
 
         <Row className="g-3">
@@ -122,11 +124,11 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="fullName">
               <Form.Label>
-                {t('checkout.shipping.fullName', 'Full Name')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.fullName', 'Full Name')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.fullNamePlaceholder', 'John Doe')}
+                placeholder={t('checkout.shippingAddress.fullNamePlaceholder', 'John Doe')}
                 {...register('fullName')}
                 isInvalid={!!errors.fullName}
                 disabled={disabled}
@@ -143,11 +145,11 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="phone">
               <Form.Label>
-                {t('checkout.shipping.phone', 'Phone')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.phone', 'Phone')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="tel"
-                placeholder={t('checkout.shipping.phonePlaceholder', '+1 (555) 123-4567')}
+                placeholder={t('checkout.shippingAddress.phonePlaceholder', '+1 (555) 123-4567')}
                 {...register('phone')}
                 isInvalid={!!errors.phone}
                 disabled={disabled}
@@ -165,7 +167,7 @@ export function ShippingAddressForm({
       {/* Shipping Address */}
       <div className="form-section">
         <h5 className="form-section-title">
-          {t('checkout.shipping.shippingAddress', 'Shipping Address')}
+          {t('checkout.shippingAddress.shippingAddress', 'Shipping Address')}
         </h5>
 
         <Row className="g-3">
@@ -173,11 +175,11 @@ export function ShippingAddressForm({
           <Col xs={12}>
             <Form.Group controlId="addressLine1">
               <Form.Label>
-                {t('checkout.shipping.addressLine1', 'Address Line 1')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.addressLine1', 'Address Line 1')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.addressLine1Placeholder', '123 Main Street')}
+                placeholder={t('checkout.shippingAddress.addressLine1Placeholder', '123 Main Street')}
                 {...register('addressLine1')}
                 isInvalid={!!errors.addressLine1}
                 disabled={disabled}
@@ -194,11 +196,11 @@ export function ShippingAddressForm({
           <Col xs={12}>
             <Form.Group controlId="addressLine2">
               <Form.Label>
-                {t('checkout.shipping.addressLine2', 'Address Line 2')} {t('common.optional', '(Optional)')}
+                {t('checkout.shippingAddress.addressLine2', 'Address Line 2')} {t('common.optional', '(Optional)')}
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.addressLine2Placeholder', 'Apartment, suite, unit, etc.')}
+                placeholder={t('checkout.shippingAddress.addressLine2Placeholder', 'Apartment, suite, unit, etc.')}
                 {...register('addressLine2')}
                 isInvalid={!!errors.addressLine2}
                 disabled={disabled}
@@ -215,11 +217,11 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="city">
               <Form.Label>
-                {t('checkout.shipping.city', 'City')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.city', 'City')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.cityPlaceholder', 'New York')}
+                placeholder={t('checkout.shippingAddress.cityPlaceholder', 'New York')}
                 {...register('city')}
                 isInvalid={!!errors.city}
                 disabled={disabled}
@@ -236,11 +238,11 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="state">
               <Form.Label>
-                {t('checkout.shipping.state', 'State/Province')} {t('common.optional', '(Optional)')}
+                {t('checkout.shippingAddress.state', 'State/Province')} {t('common.optional', '(Optional)')}
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.statePlaceholder', 'NY')}
+                placeholder={t('checkout.shippingAddress.statePlaceholder', 'NY')}
                 {...register('state')}
                 isInvalid={!!errors.state}
                 disabled={disabled}
@@ -257,11 +259,11 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="postalCode">
               <Form.Label>
-                {t('checkout.shipping.postalCode', 'Postal Code')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.postalCode', 'Postal Code')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.shipping.postalCodePlaceholder', '10001')}
+                placeholder={t('checkout.shippingAddress.postalCodePlaceholder', '10001')}
                 {...register('postalCode')}
                 isInvalid={!!errors.postalCode}
                 disabled={disabled}
@@ -278,7 +280,7 @@ export function ShippingAddressForm({
           <Col md={6}>
             <Form.Group controlId="country">
               <Form.Label>
-                {t('checkout.shipping.country', 'Country')} <span className="text-danger">*</span>
+                {t('checkout.shippingAddress.country', 'Country')} <span className="text-danger">*</span>
               </Form.Label>
               <Form.Select
                 {...register('country')}
@@ -304,17 +306,19 @@ export function ShippingAddressForm({
         </Row>
       </div>
 
-      {/* Save Address Checkbox */}
-      <div className="form-section">
-        <Form.Group controlId="saveAddress">
-          <Form.Check
-            type="checkbox"
-            label={t('checkout.shipping.saveAddress', 'Save this address to my account')}
-            {...register('saveAddress')}
-            disabled={disabled}
-          />
-        </Form.Group>
-      </div>
+      {/* Save Address Checkbox - only show for new addresses */}
+      {isNewAddress && (
+        <div className="form-section">
+          <Form.Group controlId="saveAddress">
+            <Form.Check
+              type="checkbox"
+              label={t('checkout.shippingAddress.saveAddress', 'Save this address to my account')}
+              {...register('saveAddress')}
+              disabled={disabled}
+            />
+          </Form.Group>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="form-actions">

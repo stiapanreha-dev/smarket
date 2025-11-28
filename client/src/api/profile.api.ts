@@ -11,16 +11,16 @@ import type { User, UpdateProfileRequest, UpdateProfileResponse } from '@/types'
  * Get current user profile
  */
 export const getProfile = async (): Promise<User> => {
-  const response = await apiClient.get<UpdateProfileResponse>('/users/me');
-  return response.data.user;
+  const response = await apiClient.get<User>('/users/me');
+  return response.data;
 };
 
 /**
  * Update user profile
  */
 export const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
-  const response = await apiClient.put<UpdateProfileResponse>('/users/me', data);
-  return response.data.user;
+  const response = await apiClient.put<User>('/users/me', data);
+  return response.data;
 };
 
 /**

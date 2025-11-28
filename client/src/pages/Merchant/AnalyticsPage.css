@@ -1,0 +1,11 @@
+.analytics-content {
+  padding-top: 80px; /* Account for fixed navbar */
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .analytics-content {
+    padding-top: 60px;
+  }
+}

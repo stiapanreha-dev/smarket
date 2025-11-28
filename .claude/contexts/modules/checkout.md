@@ -51,6 +51,61 @@ const paymentIntent = await this.paymentService.createIntent({
 });
 ```
 
+## Order Creation Integration
+
+**CRITICAL**: CheckoutService integrates with OrderService to create orders via `executeCheckoutSaga()`.
+
+### Saga Pattern
+
+The checkout completion follows a saga pattern for transaction coordination:
+
+```typescript
+async completeCheckout(sessionId: string, userId?: string): Promise<CheckoutSession> {
+  return this.executeCheckoutSaga(sessionId, userId);
+}
+```
+
+### Saga Steps (in order):
+
+1. **Validate Session** - Ensure session exists and is in valid state
+2. **Start Transaction** - Begin database transaction
+3. **Create Order** - Call `OrderService.createOrderFromCheckout(sessionId, paymentIntentId?)`
+4. **Commit Inventory** - Commit reserved inventory via `InventoryReservationService`
+5. **Clear Cart** - Clear user's cart (non-critical, logs warning if fails)
+6. **Update Session** - Mark session as COMPLETED with order ID
+7. **Commit Transaction** - Persist all changes atomically
+
+### Error Handling
+
+- **Order Creation Failure** → Rollback transaction, mark session as FAILED, release inventory
+- **Inventory Commit Failure** → Rollback transaction (creates orphaned order - needs manual cleanup)
+- **Cart Clear Failure** → Log warning, continue checkout (non-critical operation)
+
+### Payment Intent ID
+
+Payment intent ID is extracted from session's `payment_details` JSONB field:
+
+```typescript
+const paymentIntentId = session.payment_details?.paymentIntentId;
+await this.orderService.createOrderFromCheckout(session.id, paymentIntentId);
+```
+
+### Transaction Separation
+
+**IMPORTANT**: CheckoutService and OrderService use **separate transactions**:
+
+- CheckoutService transaction: Manages checkout session updates
+- OrderService transaction: Manages order and line item creation
+
+This separation ensures OrderService can be called independently while maintaining atomicity within each service.
+
+### Compensating Transactions
+
+If inventory commit fails after order creation, the system has an inconsistency issue. Future improvements:
+- Implement compensating transaction to void/cancel the created order
+- Add idempotency to allow safe retry
+- Implement two-phase commit pattern
+
 ## Key Endpoints
 
 - `POST /checkout/sessions` - Create new checkout session

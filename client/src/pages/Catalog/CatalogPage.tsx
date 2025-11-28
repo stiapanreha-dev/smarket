@@ -16,6 +16,11 @@ import { SEO } from '@/components/SEO';
 import { StructuredData } from '@/components/StructuredData';
 import './CatalogPage.css';
 
+interface CatalogPageProps {
+  /** Default product type filter (used when rendering as home page) */
+  defaultType?: ProductType;
+}
+
 /**
  * Main Catalog Page Component
  * Features:
@@ -26,7 +31,7 @@ import './CatalogPage.css';
  * - URL query params sync
  * - Responsive mobile drawer
  */
-export function CatalogPage() {
+export function CatalogPage({ defaultType }: CatalogPageProps = {}) {
   const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const isRTL = i18n.language === 'ar';
@@ -39,7 +44,8 @@ export function CatalogPage() {
   const filters = useMemo<CatalogFilters>(() => {
     const search = searchParams.get('q') || undefined;
     const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
-    const productType = searchParams.get('type') as ProductType | undefined;
+    // Use URL param if present, otherwise fall back to defaultType prop
+    const productType = (searchParams.get('type') as ProductType | undefined) || defaultType;
     const minPrice = searchParams.get('min_price')
       ? parseFloat(searchParams.get('min_price')!)
       : undefined;
@@ -54,7 +60,7 @@ export function CatalogPage() {
       minPrice,
       maxPrice,
     };
-  }, [searchParams]);
+  }, [searchParams, defaultType]);
 
   // Parse sort from URL
   const sortBy = (searchParams.get('sort') as ProductSortOption) || 'newest';

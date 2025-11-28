@@ -59,12 +59,12 @@
 }
 
 .thumbnail:hover {
-  border-color: #0d6efd;
+  border-color: #7FB3D5;
   transform: translateY(-2px);
 }
 
 .thumbnail.active {
-  border-color: #0d6efd;
+  border-color: #7FB3D5;
 }
 
 .thumbnail img {
@@ -91,7 +91,7 @@
 .product-price {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #0d6efd;
+  color: #7FB3D5;
 }
 
 .product-rating {
@@ -165,13 +165,13 @@
 }
 
 .product-tabs .nav-link:hover {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: #7FB3D5;
+  border-bottom-color: #7FB3D5;
 }
 
 .product-tabs .nav-link.active {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: #7FB3D5;
+  border-bottom-color: #7FB3D5;
   background-color: transparent;
 }
 

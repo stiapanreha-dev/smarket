@@ -25,8 +25,9 @@ import {
   CreatePaymentIntentDto,
 } from './dto';
 import { StripePaymentService } from './services/stripe-payment.service';
+import { OrderService } from '../orders/services/order.service';
 
-const SESSION_TTL_MINUTES = 30;
+const SESSION_TTL_MINUTES = 60; // Increased from 30 to give users more time
 
 @Injectable()
 export class CheckoutService {
@@ -39,6 +40,7 @@ export class CheckoutService {
     private readonly totalsService: TotalsCalculationService,
     private readonly inventoryService: InventoryReservationService,
     private readonly stripePaymentService: StripePaymentService,
+    private readonly orderService: OrderService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -118,10 +120,25 @@ export class CheckoutService {
       throw new NotFoundException('Checkout session not found');
     }
 
-    // Check if session expired
+    // Check if session expired (check both time and status)
+    if (session.status === CheckoutStatus.EXPIRED) {
+      throw new BadRequestException('Checkout session has expired');
+    }
+
     if (session.is_expired) {
       await this.expireSession(session);
       throw new BadRequestException('Checkout session has expired');
+    }
+
+    // Auto-extend session if it's close to expiring (less than 10 minutes left)
+    const now = new Date();
+    const timeLeft = session.expires_at.getTime() - now.getTime();
+    const tenMinutesInMs = 10 * 60 * 1000;
+
+    if (timeLeft < tenMinutesInMs && session.status === CheckoutStatus.IN_PROGRESS) {
+      session.expires_at = new Date(now.getTime() + SESSION_TTL_MINUTES * 60 * 1000);
+      await this.checkoutSessionRepository.save(session);
+      this.logger.log(`Extended session ${sessionId} expiration to ${session.expires_at}`);
     }
 
     return session;
@@ -467,15 +484,45 @@ export class CheckoutService {
         throw new BadRequestException(`Payment failed: ${paymentResult.error}`);
       }
 
-      // Step 3: Create order (mock - actual order creation would happen here)
-      const orderId = await this.createOrder(session, queryRunner);
-      session.order_id = orderId;
+      // Step 3: Create order via OrderService
+      // Note: OrderService uses its own transaction for atomicity
+      let order;
+      try {
+        // Extract payment intent ID from payment_details if available
+        const paymentIntentId = session.payment_details?.paymentIntentId;
+
+        order = await this.orderService.createOrderFromCheckout(
+          session.id,
+          paymentIntentId,
+        );
+        session.order_id = order.id;
+        session.order_number = order.order_number;
+        this.logger.log(`Order ${order.order_number} created for session ${session.id}`);
+      } catch (orderError) {
+        this.logger.error(`Failed to create order for session ${session.id}`, orderError);
+        throw new BadRequestException(`Order creation failed: ${orderError.message}`);
+      }
 
       // Step 4: Commit inventory reservations
-      await this.inventoryService.commitReservation(session.id, session.cart_snapshot);
+      try {
+        await this.inventoryService.commitReservation(session.id, session.cart_snapshot);
+      } catch (inventoryError) {
+        this.logger.error(
+          `Failed to commit inventory for session ${session.id}, order ${order.id}`,
+          inventoryError,
+        );
+        // Order already created - this creates inconsistency
+        // In production, would need compensating transaction or manual intervention
+        throw new BadRequestException(`Inventory commit failed: ${inventoryError.message}`);
+      }
 
       // Step 5: Clear user's cart
-      await this.clearCart(session);
+      try {
+        await this.clearCart(session);
+      } catch (cartError) {
+        // Non-critical error - log but continue
+        this.logger.warn(`Failed to clear cart for session ${session.id}`, cartError);
+      }
 
       // Step 6: Mark session as completed
       session.status = CheckoutStatus.COMPLETED;
@@ -485,7 +532,7 @@ export class CheckoutService {
       await queryRunner.manager.save(session);
       await queryRunner.commitTransaction();
 
-      this.logger.log(`Checkout completed for session ${session.id}`);
+      this.logger.log(`Checkout completed for session ${session.id}, order ${order.order_number}`);
 
       // Async: Send confirmation email (don't block response)
       this.sendConfirmationEmail(session).catch((err) =>
@@ -496,18 +543,34 @@ export class CheckoutService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
+      // Categorize error for better logging
+      const errorContext = {
+        sessionId: session.id,
+        orderId: session.order_id,
+        paymentIntentId: session.payment_details?.paymentIntentId,
+        errorType: error.constructor.name,
+        errorMessage: error.message,
+      };
+
       // Update session with error
       session.status = CheckoutStatus.FAILED;
-      session.error_message = error.message;
+      session.error_message = error.message || 'Checkout failed';
       await this.checkoutSessionRepository.save(session);
 
       // Release inventory reservations
       await this.inventoryService
         .releaseReservation(session.id)
-        .catch((err) => this.logger.error('Failed to release reservation', err));
+        .catch((err) =>
+          this.logger.error(`Failed to release reservation for session ${session.id}`, err),
+        );
 
-      this.logger.error(`Checkout failed for session ${session.id}`, error);
-      throw error;
+      this.logger.error(`Checkout failed for session ${session.id}`, errorContext);
+
+      // Re-throw with appropriate error type
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(`Checkout failed: ${error.message}`);
     } finally {
       await queryRunner.release();
     }
@@ -563,44 +626,6 @@ export class CheckoutService {
         error: 'Payment declined by issuer',
       };
     }
-  }
-
-  /**
-   * Create order (mock implementation)
-   * In production, create actual Order entity
-   */
-  private async createOrder(session: CheckoutSession, _queryRunner: any): Promise<string> {
-    // Mock order creation
-    const orderId = uuid();
-    const orderNumber = this.generateOrderNumber();
-
-    // Store order details in session
-    session.order_number = orderNumber;
-
-    this.logger.log(`Created order ${orderId} (${orderNumber}) for checkout session ${session.id}`);
-
-    // In production:
-    // const order = queryRunner.manager.create(Order, {
-    //   user_id: session.user_id,
-    //   items: session.cart_snapshot,
-    //   totals: session.totals,
-    //   shipping_address: session.shipping_address,
-    //   payment_method: session.payment_method,
-    //   status: 'pending',
-    // });
-    // await queryRunner.manager.save(order);
-    // return order.id;
-
-    return orderId;
-  }
-
-  /**
-   * Generate a human-readable order number
-   */
-  private generateOrderNumber(): string {
-    const timestamp = Date.now().toString(36).toUpperCase();
-    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `ORD-${timestamp}-${random}`;
   }
 
   /**

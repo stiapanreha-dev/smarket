@@ -20,7 +20,7 @@ Modular context system for SnailMarketplace project documentation.
 - [modules/booking.md](modules/booking.md) - Service appointments
 - [modules/cart.md](modules/cart.md) - Guest session management (CRITICAL)
 - [modules/catalog.md](modules/catalog.md) - Product catalog
-- [modules/checkout.md](modules/checkout.md) - Multi-step checkout
+- [modules/checkout.md](modules/checkout.md) - Multi-step checkout with Stripe
 - [modules/inventory.md](modules/inventory.md) - Stock management
 - [modules/merchant.md](modules/merchant.md) - Merchant dashboards
 - [modules/notification.md](modules/notification.md) - Multi-channel notifications
@@ -28,6 +28,7 @@ Modular context system for SnailMarketplace project documentation.
 - [modules/payment.md](modules/payment.md) - Payment providers
 - [modules/payout.md](modules/payout.md) - Merchant payouts
 - [modules/user.md](modules/user.md) - User management
+- [modules/webhooks.md](modules/webhooks.md) - Stripe webhook handling
 - [modules/wishlist.md](modules/wishlist.md) - Wishlist features
 
 ### 🎨 Frontend
@@ -37,10 +38,13 @@ Modular context system for SnailMarketplace project documentation.
 - [frontend/i18n.md](frontend/i18n.md) - Multi-language support (EN/RU/AR)
 
 ### 💻 Development
+- [development/code-style.md](development/code-style.md) - **Code style guide (MUST READ)**
 - [development/commands.md](development/commands.md) - npm run scripts
 - [development/testing.md](development/testing.md) - Test patterns
 - [development/database-ops.md](development/database-ops.md) - Migrations, seeding
 - [development/common-patterns.md](development/common-patterns.md) - DTOs, validation, transactions
+- [development/stripe-setup.md](development/stripe-setup.md) - Stripe CLI and webhook setup
+- [development/local-api-testing.md](development/local-api-testing.md) - Local API testing with curl
 
 ### 🚀 Production
 - [production/deployment.md](production/deployment.md) - Pi4-2 deployment process
@@ -69,11 +73,20 @@ Modular context system for SnailMarketplace project documentation.
 ### Setting up dev environment?
 → Load `01-quickstart.md` + `reference/infrastructure.md`
 
+### Setting up Stripe/payments?
+→ Load `development/stripe-setup.md` + `modules/payment.md` + `modules/checkout.md` + `modules/webhooks.md`
+
+### Working on checkout-to-order flow?
+→ Load `integration/checkout-to-order.md` + `modules/checkout.md` + `modules/orders.md`
+
 ### Adding new feature?
-→ Load `development/common-patterns.md` + relevant module docs
+→ Load `development/code-style.md` + `development/common-patterns.md` + relevant module docs
 
 ### Fixing bugs?
 → Load `reference/pitfalls.md` + relevant module docs
+
+### Testing API endpoints locally?
+→ Load `development/local-api-testing.md`
 
 ## CRITICAL Sections
 
@@ -100,6 +113,9 @@ These sections contain critical patterns that must be followed:
    - padding-top: 80px required
    - All pages must include
 
+### Integration Documentation
+- [integration/checkout-to-order.md](integration/checkout-to-order.md) - Saga pattern for checkout completion
+
 ## File Organization
 
 ```
@@ -108,13 +124,14 @@ These sections contain critical patterns that must be followed:
 ├── 00-overview.md
 ├── 01-quickstart.md
 ├── architecture/ (5 files)
-├── modules/ (13 files)
+├── modules/ (14 files)
 ├── frontend/ (4 files)
-├── development/ (4 files)
+├── development/ (7 files)
 ├── production/ (5 files)
-└── reference/ (4 files)
+├── reference/ (4 files)
+└── integration/ (1 file)
 
-Total: 38 context files
+Total: 43 context files
 ```
 
 ## Usage in Main CLAUDE.md

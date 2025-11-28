@@ -50,7 +50,7 @@ export class AdminMerchantApplicationController {
   @ApiResponse({ status: 400, description: 'Application is not pending' })
   async approveApplication(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('sub') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Body() dto: ApproveMerchantApplicationDto,
   ) {
     return this.applicationService.approveApplication(id, adminId, dto);
@@ -63,7 +63,7 @@ export class AdminMerchantApplicationController {
   @ApiResponse({ status: 400, description: 'Application is not pending' })
   async rejectApplication(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser('sub') adminId: string,
+    @CurrentUser('id') adminId: string,
     @Body() dto: RejectMerchantApplicationDto,
   ) {
     return this.applicationService.rejectApplication(id, adminId, dto);

@@ -3,6 +3,14 @@
   min-height: calc(100vh - 56px);
   padding: 0;
   color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+}
+
+.merchant-sidebar .nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-header {
@@ -48,6 +56,15 @@
 .sidebar-label {
   font-size: 0.9375rem;
   font-weight: 500;
+}
+
+.sidebar-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 1rem;
+}
+
+.go-to-store {
+  margin-top: auto;
 }
 
 @media (max-width: 768px) {

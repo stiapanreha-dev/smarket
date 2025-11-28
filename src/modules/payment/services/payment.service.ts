@@ -390,6 +390,55 @@ export class PaymentService {
   }
 
   /**
+   * Get payments for a user (via order relation)
+   */
+  async getUserPayments(
+    userId: string,
+    options: { page?: number; limit?: number } = {},
+  ): Promise<{ payments: Payment[]; total: number; page: number; limit: number; totalPages: number }> {
+    const page = options.page || 1;
+    const limit = Math.min(options.limit || 20, 100);
+    const skip = (page - 1) * limit;
+
+    // Get order IDs for user
+    const userOrders = await this.orderRepository.find({
+      where: { user_id: userId },
+      select: ['id'],
+    });
+
+    if (userOrders.length === 0) {
+      return {
+        payments: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
+    }
+
+    const orderIds = userOrders.map((o) => o.id);
+
+    // Get payments for user's orders
+    const [payments, total] = await this.paymentRepository
+      .createQueryBuilder('payment')
+      .leftJoinAndSelect('payment.order', 'order')
+      .leftJoinAndSelect('payment.refunds', 'refunds')
+      .where('payment.order_id IN (:...orderIds)', { orderIds })
+      .orderBy('payment.created_at', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      payments,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
    * Select payment provider based on currency/region
    */
   private selectProvider(currency: string): string {

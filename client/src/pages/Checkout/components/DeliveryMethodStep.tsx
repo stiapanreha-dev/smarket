@@ -22,7 +22,10 @@ import {
   useCheckoutSession,
   useCheckoutStore,
   useCheckoutLoading,
-  useCheckoutError,
+  useCheckoutErrorMessage,
+  useClearCheckoutError,
+  usePreviousStep,
+  useNextStep,
 } from '@/store';
 import type { DeliveryOption, DeliveryMethodType } from '@/types';
 import './DeliveryMethodStep.css';
@@ -71,9 +74,12 @@ export function DeliveryMethodStep({ onBack, onContinue }: DeliveryMethodStepPro
 
   // Checkout state
   const session = useCheckoutSession();
-  const { loadDeliveryOptions, updateDeliveryMethod, previousStep } = useCheckoutStore();
+  const { loadDeliveryOptions, updateDeliveryMethod } = useCheckoutStore();
+  const previousStep = usePreviousStep();
+  const nextStep = useNextStep();
   const isLoading = useCheckoutLoading();
-  const { error, clearError } = useCheckoutError();
+  const error = useCheckoutErrorMessage();
+  const clearError = useClearCheckoutError();
 
   // Local state
   const deliveryOptions = useCheckoutStore((state) => state.deliveryOptions);
@@ -122,8 +128,11 @@ export function DeliveryMethodStep({ onBack, onContinue }: DeliveryMethodStepPro
       setIsSubmitting(true);
       await updateDeliveryMethod({ delivery_method: selectedMethod });
 
+      // Navigate to next step
       if (onContinue) {
         onContinue();
+      } else {
+        nextStep();
       }
     } catch (err) {
       console.error('Failed to update delivery method:', err);
@@ -139,7 +148,7 @@ export function DeliveryMethodStep({ onBack, onContinue }: DeliveryMethodStepPro
         <Card.Body className="text-center py-5">
           <Spinner animation="border" variant="primary" />
           <p className="mt-3 text-muted">
-            {t('checkout.delivery.loading', 'Loading delivery options...')}
+            {t('checkout.deliveryMethod.loading', 'Loading delivery options...')}
           </p>
         </Card.Body>
       </Card>
@@ -170,9 +179,9 @@ export function DeliveryMethodStep({ onBack, onContinue }: DeliveryMethodStepPro
     <div className="delivery-method-step">
       {/* Header */}
       <div className="step-header mb-4">
-        <h2>{t('checkout.delivery.title', 'Delivery Method')}</h2>
+        <h2>{t('checkout.deliveryMethod.title', 'Delivery Method')}</h2>
         <p className="text-muted">
-          {t('checkout.delivery.subtitle', 'Choose how you want to receive your order')}
+          {t('checkout.deliveryMethod.subtitle', 'Choose how you want to receive your order')}
         </p>
       </div>
 
@@ -207,7 +216,7 @@ export function DeliveryMethodStep({ onBack, onContinue }: DeliveryMethodStepPro
                           <div className="delivery-name">{option.name}</div>
                           <div className="delivery-description">{option.description}</div>
                           <div className="delivery-estimated">
-                            {t('checkout.delivery.estimated', 'Estimated delivery')}:{' '}
+                            {t('checkout.deliveryMethod.estimated', 'Estimated delivery')}:{' '}
                             {getEstimatedDeliveryDate(option.estimatedDays)}
                           </div>
                         </div>

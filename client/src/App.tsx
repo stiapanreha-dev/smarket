@@ -9,6 +9,7 @@ import { PageLoader } from './components/common';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { OfflineBanner } from './components/common/OfflineBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProductType } from './types/catalog';
 import { initSentry } from './utils/sentry';
 import { initPerformanceMonitoring } from './utils/performance';
 import './i18n/config'; // Initialize i18n
@@ -16,8 +17,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom.css';
 
 // ===== EAGER LOADING =====
-// Landing page - loaded immediately for best FCP
-import Landing from './pages/Landing';
+// Catalog page - loaded immediately for best FCP (main page)
 
 // ===== LAZY LOADING - AUTH PAGES =====
 const Login = lazy(() => import('./pages/Auth/Login'));
@@ -63,6 +63,11 @@ const NotificationsPage = lazy(() =>
     default: module.NotificationsPage,
   }))
 );
+const CustomerDashboardPage = lazy(() =>
+  import('./pages/Customer').then((module) => ({
+    default: module.CustomerDashboardPage,
+  }))
+);
 
 // ===== LAZY LOADING - MERCHANT PAGES (separate chunk) =====
 const DashboardPage = lazy(() =>
@@ -76,6 +81,9 @@ const ProductFormPage = lazy(() =>
 );
 const MerchantOrdersPage = lazy(() =>
   import('./pages/Merchant').then((module) => ({ default: module.OrdersPage }))
+);
+const AnalyticsPage = lazy(() =>
+  import('./pages/Merchant').then((module) => ({ default: module.AnalyticsPage }))
 );
 
 // ===== LAZY LOADING - ADMIN PAGES =====
@@ -103,8 +111,15 @@ function App() {
 
             <Suspense fallback={<PageLoader text="Loading page..." />}>
               <Routes>
-            {/* Landing - No Suspense needed (eager loaded) */}
-            <Route path="/" element={<Landing />} />
+            {/* Home - Catalog with physical products */}
+            <Route
+              path="/"
+              element={
+                <Suspense fallback={<PageLoader text="Loading..." />}>
+                  <CatalogPage defaultType={ProductType.PHYSICAL} />
+                </Suspense>
+              }
+            />
 
             {/* Auth Routes */}
             <Route
@@ -134,7 +149,7 @@ function App() {
               }
             />
             <Route
-              path="/catalog/:id"
+              path="/product/:id"
               element={
                 <Suspense fallback={<PageLoader text="Loading product..." />}>
                   <ProductPage />
@@ -218,6 +233,18 @@ function App() {
               }
             />
 
+            {/* Customer Dashboard - Protected */}
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/dashboard"
+                element={
+                  <Suspense fallback={<PageLoader text="Loading dashboard..." />}>
+                    <CustomerDashboardPage />
+                  </Suspense>
+                }
+              />
+            </Route>
+
             {/* Admin Routes - Protected */}
             <Route element={<ProtectedRoute requiredRole="admin" />}>
               <Route
@@ -269,6 +296,14 @@ function App() {
                 element={
                   <Suspense fallback={<PageLoader text="Loading orders..." />}>
                     <MerchantOrdersPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/merchant/analytics"
+                element={
+                  <Suspense fallback={<PageLoader text="Loading analytics..." />}>
+                    <AnalyticsPage />
                   </Suspense>
                 }
               />

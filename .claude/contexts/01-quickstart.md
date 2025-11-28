@@ -59,6 +59,67 @@ npm run dev
 # Frontend will be available at: http://localhost:5173
 ```
 
+### 6. Setup Stripe Webhooks (Optional - for Payment Features)
+
+If you want to test payment features locally, set up Stripe CLI:
+
+#### Install Stripe CLI
+
+**macOS:**
+```bash
+brew install stripe/stripe-cli/stripe
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+wget -qO- https://packages.stripe.dev/api/gpg.key | sudo apt-key add -
+echo "deb https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+sudo apt update
+sudo apt install stripe
+```
+
+**Windows:**
+```bash
+choco install stripe
+```
+
+**Verify installation:**
+```bash
+stripe --version
+```
+
+#### Configure Stripe
+
+1. **Get Stripe test keys** from https://dashboard.stripe.com/test/apikeys
+
+2. **Add to `.env` file:**
+```bash
+STRIPE_SECRET_KEY=sk_test_your_key_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
+```
+
+3. **Login to Stripe CLI:**
+```bash
+stripe login
+```
+
+4. **Start webhook listener** (in a new terminal):
+```bash
+# Terminal 3
+stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe
+```
+
+5. **Copy webhook secret** from the output and add to `.env`:
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_test_your_secret_here
+```
+
+6. **Restart backend** to load new environment variables
+
+**Important:** Always use TEST keys (sk_test_..., pk_test_...), never LIVE keys in development!
+
+For detailed Stripe setup instructions, see `.claude/contexts/development/stripe-setup.md`
+
 ## Verify Installation
 
 ### Check Backend
@@ -114,6 +175,12 @@ npm run migration:generate -- src/database/migrations/YourMigration
 
 # Stop infrastructure
 docker-compose down
+
+# Stripe webhook listener (if Stripe CLI installed)
+stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe
+
+# Test Stripe webhook manually
+stripe trigger payment_intent.succeeded
 ```
 
 ## Project Structure Tour
@@ -146,10 +213,11 @@ After setup, you should have:
 
 - ✅ Backend API: http://localhost:3000
 - ✅ Frontend UI: http://localhost:5173
-- ✅ Database: PostgreSQL on port 5432
-- ✅ Redis: Port 6379
+- ✅ Database: PostgreSQL on port 5433
+- ✅ Redis: Port 6380
 - ✅ LocalStack (S3): Port 4566
 - ✅ Adminer (DB UI): http://localhost:9090
+- ✅ Stripe Webhook Listener: Terminal 3 (optional, if Stripe CLI installed)
 
 ## Development Workflow
 

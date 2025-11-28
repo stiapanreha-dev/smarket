@@ -17,7 +17,7 @@ export class MerchantApplicationController {
   @ApiResponse({ status: 201, description: 'Application submitted successfully' })
   @ApiResponse({ status: 409, description: 'Already a merchant or has pending application' })
   async createApplication(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() dto: CreateMerchantApplicationDto,
   ) {
     return this.applicationService.createApplication(userId, dto);
@@ -27,7 +27,7 @@ export class MerchantApplicationController {
   @ApiOperation({ summary: 'Get my application status' })
   @ApiResponse({ status: 200, description: 'Application found' })
   @ApiResponse({ status: 404, description: 'No application found' })
-  async getMyApplication(@CurrentUser('sub') userId: string) {
+  async getMyApplication(@CurrentUser('id') userId: string) {
     return this.applicationService.getUserApplication(userId);
   }
 }

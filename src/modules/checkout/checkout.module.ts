@@ -9,6 +9,7 @@ import { StripePaymentService } from './services/stripe-payment.service';
 import { CheckoutSession } from '../../database/entities/checkout-session.entity';
 import { ProductVariant } from '../../database/entities/product-variant.entity';
 import { CartModule } from '../cart/cart.module';
+import { OrdersModule } from '../orders/orders.module';
 import { CacheService } from '../../common/services/cache.service';
 
 @Module({
@@ -16,6 +17,7 @@ import { CacheService } from '../../common/services/cache.service';
     TypeOrmModule.forFeature([CheckoutSession, ProductVariant]),
     ScheduleModule.forRoot(), // Enable cron jobs for cleanup
     CartModule, // Import CartModule to use CartService
+    OrdersModule, // Import OrdersModule to use OrderService
   ],
   controllers: [CheckoutController],
   providers: [
@@ -25,6 +27,6 @@ import { CacheService } from '../../common/services/cache.service';
     StripePaymentService,
     CacheService,
   ],
-  exports: [CheckoutService],
+  exports: [CheckoutService, StripePaymentService],
 })
 export class CheckoutModule {}

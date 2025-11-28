@@ -41,9 +41,19 @@ export {
   useCheckoutStore,
   useCheckoutSession,
   useCheckoutStep,
-  useCheckoutActions,
+  useCreateSession,
+  useLoadSession,
+  useUpdateShippingAddress,
+  useUpdatePaymentMethod,
+  useApplyPromoCode,
+  useCompleteCheckout,
+  useCancelSession,
+  useGoToStep,
+  useNextStep,
+  usePreviousStep,
   useCheckoutLoading,
-  useCheckoutError,
+  useCheckoutErrorMessage,
+  useClearCheckoutError,
 } from './checkoutStore';
 
 // Export notification store

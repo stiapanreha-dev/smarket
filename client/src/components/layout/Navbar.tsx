@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BsCart, BsSearch } from 'react-icons/bs';
 import { AiOutlineHeart } from 'react-icons/ai';
+import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, useViewMode, useSetViewMode } from '@/store/authStore';
+import type { ViewMode } from '@/store/authStore';
 import SearchBar from '@/components/features/SearchBar';
 import { NotificationBell } from '@/components/notifications';
 import { prefetchRoute } from '@/utils/prefetch';
@@ -27,22 +29,37 @@ const Navbar = () => {
   const itemsCount = useCartStore((state) => state.itemsCount);
   const wishlistCount = useWishlistStore((state) => state.itemCount);
   const { isAuthenticated, user, logout } = useAuthStore();
+  const viewMode = useViewMode();
+  const setViewMode = useSetViewMode();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
-  // Determine account link based on authentication status
-  const getAccountLink = () => {
-    if (!isAuthenticated) {
-      return { url: '/login', label: t('nav.login') || 'Login' };
-    }
+  // Check if user can switch modes (merchants and admins only)
+  const canSwitchMode = isAuthenticated && (user?.role === 'merchant' || user?.role === 'admin');
 
-    if (user?.role === 'merchant' || user?.role === 'admin') {
-      return { url: '/merchant/dashboard', label: t('nav.dashboard') || 'Dashboard' };
+  // Handle mode change
+  const handleModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    if (mode === 'buyer') {
+      navigate('/dashboard');
+    } else {
+      navigate('/merchant/dashboard');
     }
-
-    return { url: '/profile', label: t('nav.profile') || 'Profile' };
   };
 
-  const accountLink = getAccountLink();
+  // Determine profile link based on authentication status and view mode
+  const getProfileLink = () => {
+    if (!isAuthenticated) {
+      return '/login';
+    }
+
+    // For merchants/admins - link based on current view mode
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      return viewMode === 'seller' ? '/merchant/dashboard' : '/dashboard';
+    }
+
+    // Regular authenticated users go to customer dashboard
+    return '/dashboard';
+  };
 
   const handleLogout = () => {
     logout();
@@ -69,23 +86,33 @@ const Navbar = () => {
 
           {/* Desktop Search - Center */}
           <div className="navbar-search-desktop d-none d-lg-flex flex-grow-1 mx-4">
-            <SearchBar placeholder={t('search.placeholder') || 'Search products, services...'} />
+            <SearchBar />
           </div>
 
           <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
 
           <BootstrapNavbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
-              <Nav.Link href="/">{t('nav.home') || 'Home'}</Nav.Link>
-              <Nav.Link href="/catalog?type=PHYSICAL">{t('nav.products') || 'Products'}</Nav.Link>
-              <Nav.Link href="/catalog?type=SERVICE">{t('nav.services') || 'Services'}</Nav.Link>
-              <Nav.Link href="/catalog?type=COURSE">{t('nav.courses') || 'Courses'}</Nav.Link>
               {user?.role === 'admin' && (
                 <Nav.Link href="/admin/users">{t('nav.users') || 'Users'}</Nav.Link>
               )}
-              <Nav.Link href={accountLink.url}>{accountLink.label}</Nav.Link>
-              {isAuthenticated && (
-                <Nav.Link onClick={handleLogout}>{t('nav.logout') || 'Logout'}</Nav.Link>
+
+              {/* Mode Switcher - Only for merchants and admins */}
+              {canSwitchMode && (
+                <div className="mode-switcher ms-3">
+                  <button
+                    className={viewMode === 'buyer' ? 'active' : ''}
+                    onClick={() => handleModeChange('buyer')}
+                  >
+                    {t('nav.buyerMode') || 'Покупатель'}
+                  </button>
+                  <button
+                    className={viewMode === 'seller' ? 'active' : ''}
+                    onClick={() => handleModeChange('seller')}
+                  >
+                    {t('nav.sellerMode') || 'Продавец'}
+                  </button>
+                </div>
               )}
 
               {/* Mobile Search Icon */}
@@ -147,6 +174,34 @@ const Navbar = () => {
                   AR
                 </button>
               </div>
+
+              {/* Logout Icon */}
+              {isAuthenticated && (
+                <div
+                  className="logout-icon-wrapper ms-3"
+                  onClick={handleLogout}
+                  title={t('nav.logout') || 'Logout'}
+                >
+                  <FaSignOutAlt className="logout-icon" />
+                </div>
+              )}
+
+              {/* Profile Avatar */}
+              <div
+                className="profile-avatar-wrapper ms-3"
+                onClick={() => navigate(getProfileLink())}
+                title={isAuthenticated ? (user?.first_name || t('nav.profile')) : t('nav.login')}
+              >
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.first_name || 'Profile'}
+                    className="profile-avatar"
+                  />
+                ) : (
+                  <FaUserCircle className="profile-avatar-placeholder" />
+                )}
+              </div>
             </Nav>
           </BootstrapNavbar.Collapse>
         </Container>
@@ -163,10 +218,7 @@ const Navbar = () => {
           <Modal.Title>Search</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <SearchBar
-            placeholder={t('search.placeholder') || 'Search products, services...'}
-            onSearch={() => setShowMobileSearch(false)}
-          />
+          <SearchBar onSearch={() => setShowMobileSearch(false)} />
         </Modal.Body>
       </Modal>
     </>

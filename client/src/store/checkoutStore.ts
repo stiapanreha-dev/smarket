@@ -520,24 +520,20 @@ export const useCheckoutSession = () => useCheckoutStore((state) => state.sessio
 
 export const useCheckoutStep = () => useCheckoutStore((state) => state.currentStep);
 
-export const useCheckoutActions = () =>
-  useCheckoutStore((state) => ({
-    createSession: state.createSession,
-    loadSession: state.loadSession,
-    updateShippingAddress: state.updateShippingAddress,
-    updatePaymentMethod: state.updatePaymentMethod,
-    applyPromoCode: state.applyPromoCode,
-    completeCheckout: state.completeCheckout,
-    cancelSession: state.cancelSession,
-    goToStep: state.goToStep,
-    nextStep: state.nextStep,
-    previousStep: state.previousStep,
-  }));
+// Atomic action selectors
+export const useCreateSession = () => useCheckoutStore((state) => state.createSession);
+export const useLoadSession = () => useCheckoutStore((state) => state.loadSession);
+export const useUpdateShippingAddress = () => useCheckoutStore((state) => state.updateShippingAddress);
+export const useUpdatePaymentMethod = () => useCheckoutStore((state) => state.updatePaymentMethod);
+export const useApplyPromoCode = () => useCheckoutStore((state) => state.applyPromoCode);
+export const useCompleteCheckout = () => useCheckoutStore((state) => state.completeCheckout);
+export const useCancelSession = () => useCheckoutStore((state) => state.cancelSession);
+export const useGoToStep = () => useCheckoutStore((state) => state.goToStep);
+export const useNextStep = () => useCheckoutStore((state) => state.nextStep);
+export const usePreviousStep = () => useCheckoutStore((state) => state.previousStep);
 
 export const useCheckoutLoading = () => useCheckoutStore((state) => state.isLoading);
 
-export const useCheckoutError = () =>
-  useCheckoutStore((state) => ({
-    error: state.error,
-    clearError: state.clearError,
-  }));
+// Atomic error selectors
+export const useCheckoutErrorMessage = () => useCheckoutStore((state) => state.error);
+export const useClearCheckoutError = () => useCheckoutStore((state) => state.clearError);

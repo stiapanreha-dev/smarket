@@ -29,13 +29,13 @@ import {
 } from 'react-bootstrap';
 import { MerchantSidebar } from './components';
 import { useMerchantProducts, useDeleteProduct, useToggleProductStatus } from '@/hooks';
-import { ProductType, ProductStatus } from '@/types/catalog';
+import { ProductStatus } from '@/types/catalog';
 import type { Product } from '@/types/catalog';
+import { extractTextFromEditorJS } from '@/utils/editorjs';
 import './ProductsPage.css';
 
 export const ProductsPage = () => {
   // Filters state
-  const [productType, setProductType] = useState<ProductType | ''>('');
   const [status, setStatus] = useState<ProductStatus | ''>('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -53,7 +53,6 @@ export const ProductsPage = () => {
 
   // Fetch products
   const { data, isLoading, error } = useMerchantProducts({
-    type: productType || undefined,
     status: status || undefined,
     search: search || undefined,
     page,
@@ -68,11 +67,6 @@ export const ProductsPage = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setPage(1); // Reset to first page on search
-  };
-
-  const handleTypeFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setProductType(e.target.value as ProductType | '');
-    setPage(1);
   };
 
   const handleStatusFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -169,16 +163,6 @@ export const ProductsPage = () => {
     };
 
     return <Badge bg={variants[status]}>{status}</Badge>;
-  };
-
-  const getTypeBadge = (type: ProductType) => {
-    const variants: Record<ProductType, string> = {
-      [ProductType.PHYSICAL]: 'primary',
-      [ProductType.SERVICE]: 'info',
-      [ProductType.COURSE]: 'warning',
-    };
-
-    return <Badge bg={variants[type]}>{type}</Badge>;
   };
 
   const formatPrice = (priceMinor: number | null, currency: string) => {
@@ -284,7 +268,7 @@ export const ProductsPage = () => {
 
               {/* Filters */}
               <Row className="mb-4">
-                <Col md={4}>
+                <Col md={5}>
                   <InputGroup>
                     <InputGroup.Text>
                       <i className="bi bi-search"></i>
@@ -296,14 +280,6 @@ export const ProductsPage = () => {
                       onChange={handleSearchChange}
                     />
                   </InputGroup>
-                </Col>
-                <Col md={3}>
-                  <Form.Select value={productType} onChange={handleTypeFilter}>
-                    <option value="">All Types</option>
-                    <option value={ProductType.PHYSICAL}>Physical</option>
-                    <option value={ProductType.SERVICE}>Service</option>
-                    <option value={ProductType.COURSE}>Digital</option>
-                  </Form.Select>
                 </Col>
                 <Col md={3}>
                   <Form.Select value={status} onChange={handleStatusFilter}>
@@ -381,7 +357,6 @@ export const ProductsPage = () => {
                         </th>
                         <th style={{ width: '80px' }}>Image</th>
                         <th>Name</th>
-                        <th>Type</th>
                         <th>Price</th>
                         <th>Stock</th>
                         <th>Status</th>
@@ -430,12 +405,10 @@ export const ProductsPage = () => {
                             <div className="fw-semibold">{product.title}</div>
                             {product.description && (
                               <small className="text-muted">
-                                {product.description.substring(0, 50)}
-                                {product.description.length > 50 ? '...' : ''}
+                                {extractTextFromEditorJS(product.description, 50)}
                               </small>
                             )}
                           </td>
-                          <td>{getTypeBadge(product.type)}</td>
                           <td>
                             {formatPrice(
                               product.base_price_minor,

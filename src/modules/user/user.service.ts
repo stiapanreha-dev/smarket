@@ -14,6 +14,7 @@ import { User, UserRole } from '@/database/entities/user.entity';
 import { Merchant } from '@/database/entities/merchant.entity';
 import { RefreshToken } from '@/database/entities/refresh-token.entity';
 import { UserAddress } from '@/database/entities/user-address.entity';
+import { Order, OrderStatus, PaymentStatus } from '@/database/entities/order.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -23,6 +24,7 @@ import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { AddressResponseDto } from './dto/address-response.dto';
+import { DashboardStatsDto, RecentOrderDto } from './dto/dashboard-stats.dto';
 import { EmailService } from '@/common/services/email.service';
 import { AuditLogService } from '@/common/services/audit-log.service';
 import { AuditAction } from '@/database/entities/audit-log.entity';
@@ -40,6 +42,8 @@ export class UserService {
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     @InjectRepository(UserAddress)
     private readonly addressRepository: Repository<UserAddress>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
     private readonly emailService: EmailService,
     private readonly auditLogService: AuditLogService,
     private readonly dataSource: DataSource,
@@ -675,6 +679,71 @@ export class UserService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  // ==================== Dashboard Stats ====================
+
+  /**
+   * Get dashboard statistics for a user
+   */
+  async getDashboardStats(userId: string): Promise<DashboardStatsDto> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const orders = await this.orderRepository.find({
+      where: { user_id: userId },
+      relations: ['line_items'],
+      order: { created_at: 'DESC' },
+    });
+
+    const totalOrders = orders.length;
+
+    // Sum of total_amount for captured payments
+    const totalSpent = orders
+      .filter((o) => o.payment_status === PaymentStatus.CAPTURED)
+      .reduce((sum, o) => sum + o.total_amount, 0);
+
+    // Active orders: pending, confirmed, processing
+    const activeStatuses = [OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PROCESSING];
+    const activeOrders = orders.filter((o) => activeStatuses.includes(o.status)).length;
+
+    // Pending actions: orders with pending status or pending payment
+    const pendingActions = orders.filter(
+      (o) => o.status === OrderStatus.PENDING || o.payment_status === PaymentStatus.PENDING,
+    ).length;
+
+    // Orders grouped by status
+    const ordersByStatus = orders.reduce(
+      (acc, o) => {
+        acc[o.status] = (acc[o.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    // Recent 5 orders with minimal data
+    const recentOrders: RecentOrderDto[] = orders.slice(0, 5).map((order) => ({
+      id: order.id,
+      order_number: order.order_number,
+      status: order.status,
+      total_amount: order.total_amount,
+      currency: order.currency,
+      created_at: order.created_at,
+      items_count: order.line_items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+    }));
+
+    return {
+      totalOrders,
+      totalSpent,
+      currency: user.currency || 'USD',
+      activeOrders,
+      pendingActions,
+      ordersByStatus,
+      recentOrders,
+    };
   }
 
   // ==================== Admin Methods ====================

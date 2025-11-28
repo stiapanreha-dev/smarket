@@ -34,7 +34,10 @@ import {
   useCheckoutSession,
   useCheckoutStore,
   useCheckoutLoading,
-  useCheckoutError,
+  useCheckoutErrorMessage,
+  useClearCheckoutError,
+  usePreviousStep,
+  useGoToStep,
   useClearCart,
 } from '@/store';
 import { CheckoutStep, DeliveryMethodType, formatAddress } from '@/types';
@@ -83,9 +86,12 @@ export function OrderReviewStep({ onBack }: OrderReviewStepProps) {
 
   // Checkout state
   const session = useCheckoutSession();
-  const { completeCheckout, previousStep, goToStep } = useCheckoutStore();
+  const { completeCheckout } = useCheckoutStore();
+  const previousStep = usePreviousStep();
+  const goToStep = useGoToStep();
   const isLoading = useCheckoutLoading();
-  const { error: checkoutError, clearError } = useCheckoutError();
+  const checkoutError = useCheckoutErrorMessage();
+  const clearError = useClearCheckoutError();
 
   // Cart actions
   const clearCart = useClearCart();

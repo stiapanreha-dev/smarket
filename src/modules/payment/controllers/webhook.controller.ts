@@ -9,8 +9,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiExcludeEndpoint } from '@nestjs/swagger';
+import { Public } from '@modules/auth/decorators/public.decorator';
 import { WebhookService } from '../services/webhook.service';
 
+@Public()
 @ApiTags('Webhooks')
 @Controller('webhooks')
 export class WebhookController {

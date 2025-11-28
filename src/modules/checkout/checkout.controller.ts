@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Headers,
   UseGuards,
   Request,
   HttpCode,
@@ -14,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 import { CheckoutService } from './checkout.service';
 import {
   CreateCheckoutSessionDto,
@@ -27,6 +29,7 @@ import {
 } from './dto';
 import { CheckoutSession, DeliveryOption } from '../../database/entities/checkout-session.entity';
 
+@Public()
 @Controller('checkout')
 export class CheckoutController {
   private readonly logger = new Logger(CheckoutController.name);
@@ -42,13 +45,20 @@ export class CheckoutController {
   @HttpCode(HttpStatus.CREATED)
   async createSession(
     @Request() req: any,
+    @Headers('x-session-id') sessionId: string,
     @Body() dto: CreateCheckoutSessionDto,
   ): Promise<CheckoutSession> {
     const userId = req.user?.userId;
 
     this.logger.log(`Creating checkout session for ${userId ? `user ${userId}` : 'guest'}`);
 
-    return await this.checkoutService.createSession(userId, dto);
+    // Pass session ID from header if not in body
+    const sessionIdToUse = dto.sessionId || sessionId;
+
+    return await this.checkoutService.createSession(userId, {
+      ...dto,
+      sessionId: sessionIdToUse,
+    });
   }
 
   /**

@@ -36,6 +36,7 @@ import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
 import { AddressResponseDto } from './dto/address-response.dto';
+import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -66,8 +67,32 @@ export class UserController {
     status: 404,
     description: 'User not found',
   })
-  async getProfile(@CurrentUser('sub') userId: string): Promise<UserProfileResponseDto> {
+  async getProfile(@CurrentUser('id') userId: string): Promise<UserProfileResponseDto> {
     return this.userService.getProfile(userId, true);
+  }
+
+  /**
+   * Get dashboard statistics for current user
+   */
+  @Get('me/dashboard-stats')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get dashboard statistics',
+    description:
+      'Returns dashboard statistics including total orders, amount spent, active orders, and recent orders.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard statistics retrieved successfully',
+    type: DashboardStatsDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing token',
+  })
+  async getDashboardStats(@CurrentUser('id') userId: string): Promise<DashboardStatsDto> {
+    return this.userService.getDashboardStats(userId);
   }
 
   /**
@@ -100,7 +125,7 @@ export class UserController {
     description: 'Conflict - Email or phone already in use',
   })
   async updateProfile(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() updateProfileDto: UpdateProfileDto,
     @Req() req: Request,
     @Ip() ip: string,
@@ -141,7 +166,7 @@ export class UserController {
     description: 'Unauthorized - Invalid current password or missing token',
   })
   async changePassword(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() changePasswordDto: ChangePasswordDto,
     @Req() req: Request,
     @Ip() ip: string,
@@ -289,7 +314,7 @@ export class UserController {
     status: 401,
     description: 'Unauthorized - Invalid or missing token',
   })
-  async getUserAddresses(@CurrentUser('sub') userId: string): Promise<AddressResponseDto[]> {
+  async getUserAddresses(@CurrentUser('id') userId: string): Promise<AddressResponseDto[]> {
     return this.userService.getUserAddresses(userId);
   }
 
@@ -318,7 +343,7 @@ export class UserController {
     description: 'Address not found',
   })
   async getUserAddress(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') addressId: string,
   ): Promise<AddressResponseDto> {
     return this.userService.getUserAddress(userId, addressId);
@@ -351,7 +376,7 @@ export class UserController {
     description: 'Unauthorized - Invalid or missing token',
   })
   async createAddress(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() createAddressDto: CreateAddressDto,
   ): Promise<AddressResponseDto> {
     return this.userService.createAddress(userId, createAddressDto);
@@ -387,7 +412,7 @@ export class UserController {
     description: 'Address not found',
   })
   async updateAddress(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') addressId: string,
     @Body() updateAddressDto: UpdateAddressDto,
   ): Promise<AddressResponseDto> {
@@ -425,7 +450,7 @@ export class UserController {
     description: 'Address not found',
   })
   async deleteAddress(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') addressId: string,
   ): Promise<{ message: string }> {
     return this.userService.deleteAddress(userId, addressId);
@@ -457,7 +482,7 @@ export class UserController {
     description: 'Address not found',
   })
   async setDefaultAddress(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser('id') userId: string,
     @Param('id') addressId: string,
   ): Promise<AddressResponseDto> {
     return this.userService.setDefaultAddress(userId, addressId);

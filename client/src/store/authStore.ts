@@ -20,6 +20,13 @@ import type {
   MeResponse,
   RefreshTokenResponse,
 } from '@/types';
+import { useWishlistStore } from './wishlistStore';
+import { useCartStore } from './cartStore';
+
+/**
+ * View mode type for buyer/seller switching
+ */
+export type ViewMode = 'buyer' | 'seller';
 
 /**
  * Auth Store State
@@ -31,6 +38,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  viewMode: ViewMode;
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
@@ -42,6 +50,7 @@ interface AuthState {
   setError: (error: string | null) => void;
   fetchCurrentUser: () => Promise<void>;
   clearError: () => void;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 /**
@@ -75,6 +84,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      viewMode: 'buyer',
 
       /**
        * Login user with email and password
@@ -164,6 +174,10 @@ export const useAuthStore = create<AuthState>()(
         // Clear tokens from localStorage via axios.config helper
         clearTokens();
 
+        // Clear wishlist and cart data from localStorage only (don't delete on server)
+        useWishlistStore.getState().reset();
+        useCartStore.getState().reset();
+
         set({
           user: null,
           token: null,
@@ -242,6 +256,13 @@ export const useAuthStore = create<AuthState>()(
       },
 
       /**
+       * Set view mode (buyer/seller)
+       */
+      setViewMode: (mode: ViewMode) => {
+        set({ viewMode: mode });
+      },
+
+      /**
        * Fetch current user profile from backend
        * Useful for refreshing user data after token refresh
        */
@@ -278,10 +299,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage', // localStorage key
       partialize: (state) => ({
-        // Only persist user and token, not loading/error states
+        // Only persist user, token, and viewMode - not loading/error states
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        viewMode: state.viewMode,
       }),
     }
   )
@@ -312,3 +334,6 @@ export const useAuthError = () => useAuthStore((state) => ({
   error: state.error,
   clearError: state.clearError,
 }));
+
+export const useViewMode = () => useAuthStore((state) => state.viewMode);
+export const useSetViewMode = () => useAuthStore((state) => state.setViewMode);

@@ -40,3 +40,67 @@ export interface DashboardStats {
   top_products: TopProductData[];
   recent_orders: RecentOrderData[];
 }
+
+/**
+ * Analytics Types
+ */
+
+export interface AnalyticsQueryParams {
+  startDate?: string;
+  endDate?: string;
+  compare?: boolean;
+}
+
+export interface KPIValue {
+  value: number;
+  change?: number;
+}
+
+export interface KPIData {
+  revenue: KPIValue;
+  orders: KPIValue;
+  avgOrderValue: KPIValue;
+}
+
+export interface RevenueByDay {
+  date: string;
+  revenue: number;
+  previousRevenue?: number;
+}
+
+export interface RevenueByProductType {
+  type: string;
+  revenue: number;
+  count: number;
+}
+
+export interface TopCategory {
+  category: string;
+  revenue: number;
+  count: number;
+}
+
+export interface OrdersByHour {
+  hour: number;
+  dayOfWeek: number;
+  count: number;
+}
+
+export interface OrderDetail {
+  date: string;
+  orderNumber: string;
+  customer: string;
+  total: number;
+  status: string;
+}
+
+export interface AnalyticsData {
+  kpi: KPIData;
+  revenueByDay: RevenueByDay[];
+  revenueByProductType: RevenueByProductType[];
+  topCategories: TopCategory[];
+  ordersByHour: OrdersByHour[];
+  ordersDetail: OrderDetail[];
+  periodStart: string;
+  periodEnd: string;
+}

@@ -12,6 +12,71 @@
   --bg-light: #F8FBFD;
   --white: #FFFFFF;
   --border-color: #D6E4EC;
+
+  /* Override Bootstrap primary color */
+  --bs-primary: #7FB3D5;
+  --bs-primary-rgb: 127, 179, 213;
+  --bs-link-color: #7FB3D5;
+  --bs-link-hover-color: #5A9AC4;
+  --bs-btn-bg: #7FB3D5;
+  --bs-btn-border-color: #7FB3D5;
+  --bs-btn-hover-bg: #5A9AC4;
+  --bs-btn-hover-border-color: #5A9AC4;
+  --bs-btn-active-bg: #4A8AB4;
+  --bs-btn-active-border-color: #4A8AB4;
+}
+
+/* Override Bootstrap .btn-primary */
+.btn-primary {
+  --bs-btn-bg: #7FB3D5;
+  --bs-btn-border-color: #7FB3D5;
+  --bs-btn-hover-bg: #5A9AC4;
+  --bs-btn-hover-border-color: #5A9AC4;
+  --bs-btn-active-bg: #4A8AB4;
+  --bs-btn-active-border-color: #4A8AB4;
+  --bs-btn-disabled-bg: #7FB3D5;
+  --bs-btn-disabled-border-color: #7FB3D5;
+}
+
+/* Override Bootstrap .btn-outline-primary */
+.btn-outline-primary {
+  --bs-btn-color: #7FB3D5;
+  --bs-btn-border-color: #7FB3D5;
+  --bs-btn-hover-bg: #7FB3D5;
+  --bs-btn-hover-border-color: #7FB3D5;
+  --bs-btn-active-bg: #5A9AC4;
+  --bs-btn-active-border-color: #5A9AC4;
+}
+
+/* Override Bootstrap link colors */
+a {
+  color: var(--bs-link-color);
+}
+
+a:hover {
+  color: var(--bs-link-hover-color);
+}
+
+/* Override Bootstrap badge primary */
+.badge.bg-primary {
+  background-color: #7FB3D5 !important;
+}
+
+/* Override form focus states */
+.form-control:focus,
+.form-select:focus {
+  border-color: #7FB3D5;
+  box-shadow: 0 0 0 0.25rem rgba(127, 179, 213, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: #7FB3D5;
+  border-color: #7FB3D5;
+}
+
+.form-check-input:focus {
+  border-color: #7FB3D5;
+  box-shadow: 0 0 0 0.25rem rgba(127, 179, 213, 0.25);
 }
 
 * {
@@ -576,6 +641,92 @@ body {
 .language-switcher button:hover {
   background-color: var(--main-color);
   color: var(--white);
+}
+
+/* Profile Avatar */
+.profile-avatar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-avatar-wrapper:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--main-color);
+}
+
+.profile-avatar-placeholder {
+  font-size: 36px;
+  color: var(--main-color);
+  transition: all 0.3s ease;
+}
+
+/* Logout Icon */
+.logout-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.3s ease;
+}
+
+.logout-icon-wrapper:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.logout-icon {
+  font-size: 20px;
+  color: var(--main-color);
+  transition: all 0.3s ease;
+  transform: rotate(-90deg);
+}
+
+.logout-icon-wrapper:hover .logout-icon {
+  color: #dc3545;
+}
+
+/* Mode Switcher (Buyer/Seller) */
+.mode-switcher {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background: rgba(127, 179, 213, 0.1);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.mode-switcher button {
+  background: transparent;
+  border: none;
+  color: var(--main-color);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.mode-switcher button.active {
+  background-color: var(--main-color);
+  color: var(--white);
+}
+
+.mode-switcher button:hover:not(.active) {
+  background-color: rgba(127, 179, 213, 0.2);
 }
 
 /* Animations */

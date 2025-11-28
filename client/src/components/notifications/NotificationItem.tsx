@@ -15,7 +15,7 @@ interface NotificationItemProps {
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case NotificationType.ORDER_UPDATE:
-      return <IoCart style={{ color: '#0d6efd' }} size={32} />;
+      return <IoCart style={{ color: '#7FB3D5' }} size={32} />;
     case NotificationType.PAYMENT_SUCCESS:
       return <IoCheckmarkCircle style={{ color: '#198754' }} size={32} />;
     case NotificationType.SHIPPING_UPDATE:

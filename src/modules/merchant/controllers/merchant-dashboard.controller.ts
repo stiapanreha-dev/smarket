@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards, Request, NotFoundException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, UseGuards, Request, NotFoundException, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -8,7 +8,9 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 import { UserRole } from '../../../database/entities/user.entity';
 import { Merchant } from '../../../database/entities/merchant.entity';
 import { MerchantDashboardService } from '../services/merchant-dashboard.service';
+import { MerchantAnalyticsService } from '../services/merchant-analytics.service';
 import { DashboardStatsDto } from '../dto/dashboard-stats.dto';
+import { AnalyticsQueryDto, AnalyticsDataDto } from '../dto/analytics.dto';
 import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-request.interface';
 
 @ApiTags('Merchant Dashboard')
@@ -19,6 +21,7 @@ import { AuthenticatedRequest } from '../../booking/interfaces/authenticated-req
 export class MerchantDashboardController {
   constructor(
     private readonly dashboardService: MerchantDashboardService,
+    private readonly analyticsService: MerchantAnalyticsService,
     @InjectRepository(Merchant)
     private readonly merchantRepository: Repository<Merchant>,
   ) {}
@@ -47,5 +50,36 @@ export class MerchantDashboardController {
     }
 
     return this.dashboardService.getDashboardStats(merchant.id);
+  }
+
+  @Get('analytics')
+  @ApiOperation({ summary: 'Get merchant analytics with date filters' })
+  @ApiQuery({ name: 'startDate', required: false, description: 'Start date (ISO format)' })
+  @ApiQuery({ name: 'endDate', required: false, description: 'End date (ISO format)' })
+  @ApiQuery({ name: 'compare', required: false, description: 'Compare with previous period' })
+  @ApiResponse({
+    status: 200,
+    description: 'Analytics data retrieved successfully',
+    type: AnalyticsDataDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Merchant profile not found',
+  })
+  async getAnalytics(
+    @Request() req: AuthenticatedRequest,
+    @Query() query: AnalyticsQueryDto,
+  ): Promise<AnalyticsDataDto> {
+    const merchant = await this.merchantRepository.findOne({
+      where: { owner_id: req.user.id },
+    });
+
+    if (!merchant) {
+      throw new NotFoundException(
+        'Merchant profile not found. Please complete merchant registration.',
+      );
+    }
+
+    return this.analyticsService.getAnalytics(merchant.id, query);
   }
 }

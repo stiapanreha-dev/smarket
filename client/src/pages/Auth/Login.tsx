@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi';
 
 import { useAuthStore } from '@/store/authStore';
+import { useWishlistStore } from '@/store/wishlistStore';
+import { useCartStore } from '@/store/cartStore';
 import { Button, Input, Alert } from '@/components/common';
 
 /**
@@ -87,6 +89,10 @@ const Login: React.FC = () => {
     try {
       clearError();
       await login(data.email, data.password);
+
+      // Load user's wishlist and cart from backend
+      useWishlistStore.getState().loadWishlist().catch(console.error);
+      useCartStore.getState().loadCart().catch(console.error);
 
       // If rememberMe is true, store preference (optional feature for future)
       if (data.rememberMe) {

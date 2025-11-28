@@ -111,7 +111,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
-    navigate(`/catalog/${product.id}`);
+    navigate(`/product/${product.id}`);
   }, [navigate, product.id]);
 
   // Handle add to cart / book now - memoized with useCallback
@@ -120,7 +120,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
 
     if (product.type === ProductType.SERVICE) {
       // For services, navigate to product page for booking
-      navigate(`/catalog/${product.id}`);
+      navigate(`/product/${product.id}`);
       return;
     }
 

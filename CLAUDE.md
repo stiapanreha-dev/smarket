@@ -29,6 +29,7 @@ SnailMarketplace is a modular monolith marketplace platform built with NestJS, P
 
 ## Critical Patterns (MUST READ)
 
+@./.claude/contexts/development/code-style.md
 @./.claude/contexts/modules/cart.md
 @./.claude/contexts/frontend/zustand-patterns.md
 @./.claude/contexts/production/migrations.md
@@ -96,3 +97,22 @@ When reviewing or writing code:
 - [ ] No sensitive data in logs
 - [ ] Migration reversible where possible
 - [ ] TypeScript strict mode compliance
+
+## Documentation Updates
+
+После значимых изменений кода обновляйте документацию в `.claude/contexts/`.
+
+**Когда обновлять:**
+- Новый модуль/эндпоинт добавлен
+- Критический паттерн изменен (FSM, Zustand, Cart sessions)
+- Изменения в production процедурах
+
+**Как обновить:**
+1. Используйте `/update-docs` для автоматического анализа
+2. Или вручную обновите файл в `.claude/contexts/`
+
+**Маппинг файлов кода → документации:**
+- `src/modules/{name}/` → `modules/{name}.md`
+- `client/src/store/` → `frontend/zustand-patterns.md`
+- `client/src/styles/` → `frontend/styling-layout.md`
+- `src/database/entities/` → `architecture/database.md`

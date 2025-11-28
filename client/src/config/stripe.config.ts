@@ -4,7 +4,8 @@
  * Configuration for Stripe integration
  */
 
-import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import type { Stripe } from '@stripe/stripe-js';
 
 /**
  * Get Stripe publishable key from environment variables

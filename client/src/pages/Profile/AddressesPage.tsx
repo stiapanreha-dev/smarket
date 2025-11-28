@@ -16,7 +16,7 @@ import { FaPlus, FaEdit, FaTrash, FaStar, FaRegStar, FaMapMarkerAlt } from 'reac
 import { AddressModal } from './components/AddressModal';
 import { DeleteConfirmationModal } from './components/DeleteConfirmationModal';
 import type { UserAddress } from '@/types/address';
-import { api } from '@/services/api';
+import { apiClient } from '@/api/axios.config';
 import './AddressesPage.css';
 
 export function AddressesPage() {
@@ -42,7 +42,7 @@ export function AddressesPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get<UserAddress[]>('/users/me/addresses');
+      const response = await apiClient.get<UserAddress[]>('/users/me/addresses');
       setAddresses(response.data);
     } catch (err: any) {
       console.error('Failed to load addresses:', err);
@@ -77,7 +77,7 @@ export function AddressesPage() {
 
     try {
       setActionLoading(`delete-${selectedAddress.id}`);
-      await api.delete(`/users/me/addresses/${selectedAddress.id}`);
+      await apiClient.delete(`/users/me/addresses/${selectedAddress.id}`);
       await loadAddresses();
       setShowDeleteModal(false);
       setSelectedAddress(null);
@@ -95,7 +95,7 @@ export function AddressesPage() {
 
     try {
       setActionLoading(`default-${address.id}`);
-      await api.post(`/users/me/addresses/${address.id}/set-default`);
+      await apiClient.post(`/users/me/addresses/${address.id}/set-default`);
       await loadAddresses();
     } catch (err: any) {
       console.error('Failed to set default address:', err);

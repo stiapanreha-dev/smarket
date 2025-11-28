@@ -173,7 +173,7 @@ export const ImagesTab = ({ control, errors, watch, setValue }: ImagesTabProps) 
                   className="image-card"
                   style={{
                     position: 'relative',
-                    border: primaryImage === url ? '3px solid #0d6efd' : '1px solid #dee2e6',
+                    border: primaryImage === url ? '3px solid #7FB3D5' : '1px solid #dee2e6',
                     borderRadius: '0.5rem',
                     overflow: 'hidden',
                   }}
@@ -196,7 +196,7 @@ export const ImagesTab = ({ control, errors, watch, setValue }: ImagesTabProps) 
                         position: 'absolute',
                         top: '0.5rem',
                         left: '0.5rem',
-                        backgroundColor: '#0d6efd',
+                        backgroundColor: '#7FB3D5',
                         color: 'white',
                         padding: '0.25rem 0.5rem',
                         borderRadius: '0.25rem',

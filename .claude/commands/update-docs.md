@@ -1,50 +1,68 @@
-Check all context files in `.claude/contexts/` for outdated information and suggest updates based on recent code changes.
+Проанализируй последние изменения кода и обнови документацию в `.claude/contexts/`.
 
-## Usage
+## Инструкции
+
+1. Проверь последние коммиты:
+   ```bash
+   git log --oneline -10
+   git diff --name-only HEAD~10 HEAD
+   ```
+
+2. Сопоставь измененные файлы с контекстами:
+   - `src/modules/{name}/` → `.claude/contexts/modules/{name}.md`
+   - `src/database/entities/` → `.claude/contexts/architecture/database.md`
+   - `src/modules/orders/*fsm*` → `.claude/contexts/architecture/fsm.md`
+   - `src/modules/cart/` → `.claude/contexts/modules/cart.md`
+   - `client/src/store/` → `.claude/contexts/frontend/zustand-patterns.md`
+   - `client/src/styles/` → `.claude/contexts/frontend/styling-layout.md`
+   - `docker-compose.yml` → `.claude/contexts/reference/infrastructure.md`
+   - `package.json` scripts → `.claude/contexts/development/commands.md`
+
+3. Прочитай затронутые контекстные файлы
+
+4. Предложи конкретные обновления в формате:
+   ```
+   ## Файл: .claude/contexts/modules/{name}.md
+
+   ### Секция для обновления: {section}
+
+   **Текущий текст:**
+   ...
+
+   **Предлагаемый текст:**
+   ...
+   ```
+
+5. Примени одобренные изменения
+
+## Приоритеты
+
+**HIGH (обновить немедленно):**
+- TypeORM entity loading patterns
+- Zustand selector patterns
+- Cart guest session management
+- FSM state transitions
+- Production migration procedures
+
+**MEDIUM:**
+- Новые эндпоинты API
+- Изменения в компонентах
+
+**LOW:**
+- Рефакторинг без изменения интерфейсов
+- Исправления опечаток
+
+## Использование
 
 ```
-/update-docs                  # Check all context files
-/update-docs cart             # Check cart module context
-/update-docs architecture     # Check architecture contexts
-/update-docs --help           # Show help
+/update-docs                  # Проверить все контексты
+/update-docs cart             # Проверить контекст cart модуля
+/update-docs architecture     # Проверить архитектурные контексты
 ```
 
-## What This Does
+## Когда использовать
 
-Invokes the @documentation-updater agent to:
-1. Analyze recent code changes (last 10 commits)
-2. Identify affected context files
-3. Compare current documentation with actual code
-4. Propose specific updates
-5. Apply approved updates
-
-## When to Use
-
-- After merging a feature branch
-- When adding new modules or endpoints
-- After refactoring that changes patterns
-- Before creating PR (ensure docs are current)
-- When onboarding new team members (verify docs are accurate)
-
-## Examples
-
-**Check all contexts after feature work:**
-```
-/update-docs
-```
-
-**Check specific module after changes:**
-```
-/update-docs cart
-```
-
-**Check architecture docs after refactoring:**
-```
-/update-docs architecture
-```
-
-## Related Commands
-
-- Use @documentation-updater directly for more control
-- Use @code-reviewer which will remind about doc updates
-- Check `.claude/contexts/README.md` for context file index
+- После мержа feature branch
+- При добавлении новых модулей или эндпоинтов
+- После рефакторинга паттернов
+- Перед созданием PR (убедиться что docs актуальны)

@@ -63,6 +63,86 @@ const CatalogPage = () => {
 }
 ```
 
+## Color Scheme
+
+The project uses a custom light blue color scheme instead of Bootstrap's default blue.
+
+### Color Palette
+
+| Variable | Hex | RGB | Usage |
+|----------|-----|-----|-------|
+| `--main-color` | `#7FB3D5` | `127, 179, 213` | Primary brand color |
+| `--main-dark` | `#5A9AC4` | `90, 154, 196` | Hover states, emphasis |
+| `--main-light` | `#A4C9E0` | `164, 201, 224` | Backgrounds, accents |
+| `--main-darker` | `#4A8AB4` | `74, 138, 180` | Active/pressed states |
+
+### Bootstrap Variable Overrides
+
+Bootstrap's primary color is overridden in `client/src/styles/custom.css`:
+
+```css
+:root {
+  /* Custom color palette */
+  --main-color: #7FB3D5;
+  --main-dark: #5A9AC4;
+  --main-light: #A4C9E0;
+
+  /* Override Bootstrap primary color */
+  --bs-primary: #7FB3D5;
+  --bs-primary-rgb: 127, 179, 213;
+  --bs-link-color: #7FB3D5;
+  --bs-link-hover-color: #5A9AC4;
+}
+
+/* Button overrides */
+.btn-primary {
+  --bs-btn-bg: #7FB3D5;
+  --bs-btn-border-color: #7FB3D5;
+  --bs-btn-hover-bg: #5A9AC4;
+  --bs-btn-hover-border-color: #5A9AC4;
+  --bs-btn-active-bg: #4A8AB4;
+  --bs-btn-active-border-color: #4A8AB4;
+}
+```
+
+### Usage Guidelines
+
+**Always use CSS variables or the brand hex values:**
+
+```css
+/* ✅ CORRECT - Use CSS variable */
+.my-element {
+  color: var(--main-color);
+  border-color: var(--main-dark);
+}
+
+/* ✅ CORRECT - Use brand hex when variable not available */
+.my-element {
+  color: #7FB3D5;
+}
+
+/* ❌ WRONG - Never use Bootstrap default blue */
+.my-element {
+  color: #0d6efd;  /* Bootstrap default - DON'T USE */
+}
+```
+
+**For React Bootstrap components:**
+
+```typescript
+// ✅ CORRECT - variant="primary" uses our overridden color
+<Button variant="primary">Submit</Button>
+<Badge bg="primary">New</Badge>
+
+// ✅ CORRECT - Inline style with brand color
+<div style={{ color: '#7FB3D5' }}>Accent text</div>
+```
+
+### Files with Color Overrides
+
+- `client/src/styles/custom.css` - Main Bootstrap overrides
+- Individual page CSS files use `#7FB3D5` for consistency
+
 ## Bootstrap 5 Integration
 
 Using React Bootstrap components:

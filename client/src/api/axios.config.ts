@@ -14,6 +14,7 @@ import axios, { AxiosError } from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ApiError, HttpStatus } from '@/types';
 import type { ApiErrorResponse, RefreshTokenResponse } from '@/types';
+import { clearAllStores } from '@/store/clearAllStores';
 
 // Storage keys for authentication tokens
 const ACCESS_TOKEN_KEY = 'access_token';
@@ -122,10 +123,17 @@ export const processOfflineQueue = async (instance: AxiosInstance) => {
 
 /**
  * Get access token from localStorage
- * First tries to get from Zustand auth-storage, falls back to direct access_token key
+ * Priority: direct access_token key (set by setTokens) > Zustand auth-storage
+ * This ensures freshly set tokens are used immediately after login
  */
 export const getAccessToken = (): string | null => {
-  // Try to get from Zustand persist storage first
+  // First try direct token key (set by setTokens, always up to date)
+  const directToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (directToken) {
+    return directToken;
+  }
+
+  // Fallback to Zustand persist storage (may be stale during login)
   try {
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
@@ -138,8 +146,7 @@ export const getAccessToken = (): string | null => {
     console.error('[getAccessToken] Failed to parse auth-storage:', e);
   }
 
-  // Fallback to direct token key
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return null;
 };
 
 /**
@@ -343,6 +350,7 @@ const createAxiosInstance = (): AxiosInstance => {
         if (!refreshToken) {
           // No refresh token available, redirect to login
           clearTokens();
+          clearAllStores(); // Clear all Zustand stores on session expiration
           processQueue(new Error('No refresh token available'), null);
           isRefreshing = false;
 
@@ -385,6 +393,7 @@ const createAxiosInstance = (): AxiosInstance => {
         } catch (refreshError) {
           // Refresh token failed, clear tokens and redirect to login
           clearTokens();
+          clearAllStores(); // Clear all Zustand stores on session expiration
           processQueue(refreshError as Error, null);
           isRefreshing = false;
 

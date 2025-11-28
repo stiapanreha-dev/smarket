@@ -71,7 +71,7 @@ export function WishlistCard({
       return;
     }
     if (product?.id) {
-      navigate(`/catalog/${product.id}`);
+      navigate(`/product/${product.id}`);
     }
   };
 

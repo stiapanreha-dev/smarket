@@ -1,0 +1,51 @@
+.kpi-card {
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+}
+
+.kpi-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.kpi-change {
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
+
+.kpi-icon.bg-primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.kpi-icon.bg-success {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.kpi-icon.bg-info {
+  background: linear-gradient(135deg, #00b894, #00a187);
+}

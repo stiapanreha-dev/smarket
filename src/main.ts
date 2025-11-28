@@ -8,7 +8,9 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true, // Enable raw body parsing for webhook signature verification
+  });
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);

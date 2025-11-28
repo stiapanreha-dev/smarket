@@ -333,7 +333,7 @@ export function ProductPage() {
 
   // Generate SEO data
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://snailmarketplace.com';
-  const productUrl = `${baseUrl}/catalog/${product.id}`;
+  const productUrl = `${baseUrl}/product/${product.id}`;
   const productImage = hasImages ? images[0] : `${baseUrl}/placeholder-product.svg`;
 
   // Create meta description from product description

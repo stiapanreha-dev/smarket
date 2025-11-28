@@ -13,6 +13,7 @@ import { MerchantProductController } from './controllers/merchant-product.contro
 import { MerchantApplicationController } from './controllers/merchant-application.controller';
 import { AdminMerchantApplicationController } from './controllers/admin-merchant-application.controller';
 import { MerchantDashboardService } from './services/merchant-dashboard.service';
+import { MerchantAnalyticsService } from './services/merchant-analytics.service';
 import { MerchantProductService } from './services/merchant-product.service';
 import { MerchantApplicationService } from './services/merchant-application.service';
 
@@ -35,7 +36,7 @@ import { MerchantApplicationService } from './services/merchant-application.serv
     MerchantApplicationController,
     AdminMerchantApplicationController,
   ],
-  providers: [MerchantDashboardService, MerchantProductService, MerchantApplicationService],
-  exports: [MerchantDashboardService, MerchantProductService, MerchantApplicationService],
+  providers: [MerchantDashboardService, MerchantAnalyticsService, MerchantProductService, MerchantApplicationService],
+  exports: [MerchantDashboardService, MerchantAnalyticsService, MerchantProductService, MerchantApplicationService],
 })
 export class MerchantModule {}

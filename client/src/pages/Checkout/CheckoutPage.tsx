@@ -18,7 +18,7 @@
  * - Real-time cart snapshot
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Alert, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +27,17 @@ import { Elements } from '@stripe/react-stripe-js';
 import {
   useCheckoutSession,
   useCheckoutStep,
-  useCheckoutActions,
+  useCreateSession,
+  useUpdateShippingAddress,
+  useNextStep,
+  usePreviousStep,
   useCheckoutLoading,
-  useCheckoutError,
+  useCheckoutErrorMessage,
+  useClearCheckoutError,
 } from '@/store';
+import { useAuthStore } from '@/store/authStore';
+import { apiClient } from '@/api/axios.config';
+import type { UserAddress } from '@/types/address';
 import {
   type ShippingAddressFormData,
   type Address,
@@ -60,19 +67,90 @@ export function CheckoutPage() {
   // Checkout state
   const session = useCheckoutSession();
   const currentStep = useCheckoutStep();
-  const {
-    createSession,
-    updateShippingAddress,
-    nextStep,
-    previousStep,
-  } = useCheckoutActions();
+  const createSession = useCreateSession();
+  const updateShippingAddress = useUpdateShippingAddress();
+  const nextStep = useNextStep();
+  const previousStep = usePreviousStep();
   const isLoading = useCheckoutLoading();
-  const { error, clearError } = useCheckoutError();
+  const error = useCheckoutErrorMessage();
+  const clearError = useClearCheckoutError();
 
-  // Local state
+  // Auth state
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+
+  // Local state - start with addressesLoading=true if authenticated to wait for addresses
   const [showAddressForm, setShowAddressForm] = useState(false);
-  const [savedAddresses] = useState<Address[]>([]); // TODO: Load from user profile
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [defaultAddressForForm, setDefaultAddressForForm] = useState<Address | null>(null);
+  const [addressesLoading, setAddressesLoading] = useState(isAuthenticated);
+  const [addressesLoadAttempted, setAddressesLoadAttempted] = useState(false);
+
+  // Convert UserAddress to Address format for SavedAddresses component
+  const convertUserAddressToAddress = useCallback((userAddr: UserAddress): Address => ({
+    first_name: userAddr.full_name.split(' ')[0] || '',
+    last_name: userAddr.full_name.split(' ').slice(1).join(' ') || '',
+    street: userAddr.address_line1,
+    street2: userAddr.address_line2 || undefined,
+    city: userAddr.city,
+    state: userAddr.state || undefined,
+    postal_code: userAddr.postal_code,
+    country: userAddr.country,
+    phone: userAddr.phone,
+  }), []);
+
+  // Convert Address to ShippingAddressFormData for form pre-fill
+  const convertAddressToShippingFormData = useCallback((addr: Address): Partial<ShippingAddressFormData> => ({
+    fullName: `${addr.first_name || ''} ${addr.last_name || ''}`.trim(),
+    phone: addr.phone || '',
+    addressLine1: addr.street || '',
+    addressLine2: addr.street2 || '',
+    city: addr.city || '',
+    state: addr.state || '',
+    postalCode: addr.postal_code || '',
+    country: addr.country || 'US',
+  }), []);
+
+  // Load saved addresses from user profile
+  useEffect(() => {
+    const loadSavedAddresses = async () => {
+      if (!isAuthenticated) {
+        setSavedAddresses([]);
+        setAddressesLoading(false);
+        setAddressesLoadAttempted(true);
+        return;
+      }
+
+      try {
+        setAddressesLoading(true);
+        const response = await apiClient.get<UserAddress[]>('/users/me/addresses');
+        const addresses = response.data.map(convertUserAddressToAddress);
+        setSavedAddresses(addresses);
+
+        // Auto-select default address if available
+        const defaultAddr = response.data.find(addr => addr.is_default);
+        if (defaultAddr) {
+          const converted = convertUserAddressToAddress(defaultAddr);
+          setSelectedAddress(converted);
+          setDefaultAddressForForm(converted);
+        } else if (response.data.length > 0) {
+          // Use first address as default for form pre-fill and selection
+          const firstAddress = convertUserAddressToAddress(response.data[0]);
+          setSelectedAddress(firstAddress);
+          setDefaultAddressForForm(firstAddress);
+        }
+      } catch (err) {
+        console.error('Failed to load saved addresses:', err);
+        setSavedAddresses([]);
+      } finally {
+        setAddressesLoading(false);
+        setAddressesLoadAttempted(true);
+      }
+    };
+
+    loadSavedAddresses();
+  }, [isAuthenticated, convertUserAddressToAddress]);
 
   // Initialize checkout session on mount
   useEffect(() => {
@@ -98,11 +176,12 @@ export function CheckoutPage() {
   }, [error, clearError]);
 
   // Determine if we should show saved addresses or form
+  // Only switch to "new address" mode if addresses were loaded and there are none
   useEffect(() => {
-    if (savedAddresses.length === 0) {
+    if (addressesLoadAttempted && savedAddresses.length === 0) {
       setShowAddressForm(true);
     }
-  }, [savedAddresses]);
+  }, [savedAddresses, addressesLoadAttempted]);
 
   // Handle back to cart
   const handleBackToCart = () => {
@@ -112,6 +191,7 @@ export function CheckoutPage() {
   // Handle saved address selection
   const handleAddressSelect = (address: Address) => {
     setSelectedAddress(address);
+    setShowAddressForm(false); // Switch to existing address mode
   };
 
   // Handle add new address
@@ -125,6 +205,28 @@ export function CheckoutPage() {
     try {
       const addressDto = convertFormDataToAddress(formData);
       await updateShippingAddress(addressDto);
+
+      // Save new address to profile if checkbox is checked and user is authenticated
+      if (formData.saveAddress && isAuthenticated && showAddressForm) {
+        try {
+          const createAddressDto = {
+            full_name: formData.fullName,
+            phone: formData.phone,
+            address_line1: formData.addressLine1,
+            address_line2: formData.addressLine2 || undefined,
+            city: formData.city,
+            state: formData.state || undefined,
+            postal_code: formData.postalCode,
+            country: formData.country,
+            is_default: savedAddresses.length === 0, // Make default if first address
+          };
+          await apiClient.post('/users/me/addresses', createAddressDto);
+        } catch (saveErr) {
+          console.error('Failed to save address to profile:', saveErr);
+          // Don't block checkout if address save fails
+        }
+      }
+
       nextStep();
     } catch (err) {
       console.error('Failed to update shipping address:', err);
@@ -228,56 +330,96 @@ export function CheckoutPage() {
               {currentStep === CheckoutStep.SHIPPING_ADDRESS && needsShipping && (
                 <div className="checkout-step">
                   <div className="step-header mb-4">
-                    <h2>{t('checkout.shipping.title', 'Shipping Address')}</h2>
+                    <h2>{t('checkout.shippingAddress.title', 'Shipping Address')}</h2>
                     <p className="text-muted">
-                      {t('checkout.shipping.subtitle', 'Where should we deliver your order?')}
+                      {t('checkout.shippingAddress.subtitle', 'Where should we deliver your order?')}
                     </p>
                   </div>
 
-                  {/* Saved Addresses */}
-                  {!showAddressForm && savedAddresses.length > 0 && (
-                    <>
-                      <SavedAddresses
-                        addresses={savedAddresses}
-                        onSelectAddress={handleAddressSelect}
-                        onAddNewAddress={handleAddNewAddress}
-                      />
-
-                      {selectedAddress && (
-                        <div className="d-flex justify-content-between align-items-center mt-3">
+                  {/* Address Selection - show if user has saved addresses */}
+                  {savedAddresses.length > 0 && !addressesLoading && (
+                    <Card className="mb-4">
+                      <Card.Body>
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                          <h6 className="mb-0">{t('checkout.shippingAddress.selectAddress', 'Select Address')}</h6>
                           <Button
-                            variant="outline-secondary"
-                            onClick={handleBackToCart}
-                            disabled={isLoading}
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={handleAddNewAddress}
                           >
-                            {isRTL ? <FaArrowLeft className="ms-2" /> : <FaArrowLeft className="me-2" />}
-                            {t('checkout.backToCart', 'Back to Cart')}
-                          </Button>
-                          <Button
-                            variant="primary"
-                            onClick={handleContinueWithSavedAddress}
-                            disabled={isLoading}
-                          >
-                            {t('checkout.continueToDelivery', 'Continue to Delivery')}
+                            {t('checkout.shippingAddress.newAddress', '+ New Address')}
                           </Button>
                         </div>
-                      )}
-                    </>
+                        <div className="d-flex flex-wrap gap-2">
+                          {savedAddresses.map((addr, index) => (
+                            <Button
+                              key={index}
+                              variant={selectedAddress === addr ? 'primary' : 'outline-secondary'}
+                              size="sm"
+                              onClick={() => handleAddressSelect(addr)}
+                              className="text-start"
+                            >
+                              <div className="fw-medium">{addr.first_name} {addr.last_name}</div>
+                              <small className="text-muted d-block">{addr.street}, {addr.city}</small>
+                            </Button>
+                          ))}
+                        </div>
+                      </Card.Body>
+                    </Card>
                   )}
 
-                  {/* Address Form */}
-                  {(showAddressForm || savedAddresses.length === 0) && (
-                    <ShippingAddressForm
-                      initialData={
-                        session.shipping_address
-                          ? convertAddressToFormData(session.shipping_address)
-                          : undefined
-                      }
-                      onSubmit={handleShippingSubmit}
-                      onBack={handleBackToCart}
-                      isLoading={isLoading}
-                    />
+                  {/* Show loading while addresses are being fetched */}
+                  {addressesLoading && (
+                    <div className="text-center py-4">
+                      <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">{t('common.loading', 'Loading...')}</span>
+                      </div>
+                    </div>
                   )}
+
+                  {/* Address Form - always show, pre-filled with selected address */}
+                  {!addressesLoading && addressesLoadAttempted && (() => {
+                    // Calculate form data and key outside JSX for clarity
+                    const formData = session.shipping_address
+                      ? convertAddressToFormData(session.shipping_address)
+                      : showAddressForm
+                        ? user
+                          ? {
+                              fullName: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+                              phone: user.phone || '',
+                              country: user.locale === 'ru' ? 'RU' : user.locale === 'ar' ? 'AE' : 'US',
+                            }
+                          : undefined
+                        : selectedAddress
+                          ? convertAddressToShippingFormData(selectedAddress)
+                          : defaultAddressForForm
+                            ? convertAddressToShippingFormData(defaultAddressForForm)
+                            : user
+                              ? {
+                                  fullName: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
+                                  phone: user.phone || '',
+                                  country: user.locale === 'ru' ? 'RU' : user.locale === 'ar' ? 'AE' : 'US',
+                                }
+                              : undefined;
+
+                    // Generate unique key based on actual form data to ensure re-render
+                    const formKey = showAddressForm
+                      ? 'new-address'
+                      : formData
+                        ? `addr-${formData.addressLine1 || ''}-${formData.city || ''}-${formData.postalCode || ''}`
+                        : 'empty';
+
+                    return (
+                      <ShippingAddressForm
+                        key={formKey}
+                        initialData={formData}
+                        onSubmit={handleShippingSubmit}
+                        onBack={handleBackToCart}
+                        isLoading={isLoading}
+                        isNewAddress={showAddressForm}
+                      />
+                    );
+                  })()}
                 </div>
               )}
 

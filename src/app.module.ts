@@ -21,9 +21,11 @@ import { CheckoutModule } from '@modules/checkout/checkout.module';
 import { PayoutModule } from '@modules/payout/payout.module';
 import { MerchantModule } from '@modules/merchant/merchant.module';
 import { WishlistModule } from '@modules/wishlist/wishlist.module';
+import { WebhooksModule } from '@modules/webhooks/webhooks.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
   User,
+  UserAddress,
   Merchant,
   Product,
   ProductVariant,
@@ -83,6 +85,7 @@ import {
         database: configService.get('DB_DATABASE', 'snailmarket'),
         entities: [
           User,
+          UserAddress,
           Merchant,
           Product,
           ProductVariant,
@@ -134,6 +137,7 @@ import {
     PayoutModule,
     MerchantModule,
     WishlistModule,
+    WebhooksModule,
     NotificationModule,
   ],
   controllers: [AppController, HealthController],

@@ -28,13 +28,13 @@
 }
 
 .search-page .nav-tabs .nav-link:hover {
-  color: #0d6efd;
+  color: #7FB3D5;
   border-bottom: 2px solid transparent;
 }
 
 .search-page .nav-tabs .nav-link.active {
-  color: #0d6efd;
-  border-bottom: 2px solid #0d6efd;
+  color: #7FB3D5;
+  border-bottom: 2px solid #7FB3D5;
   background: transparent;
   margin-bottom: -2px;
 }
@@ -73,7 +73,7 @@
 .category-result-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #0d6efd;
+  border-color: #7FB3D5;
 }
 
 .category-result-card .category-icon {
@@ -179,7 +179,7 @@
 }
 
 .search-page .nav-tabs .nav-link.active .badge {
-  background-color: #0d6efd;
+  background-color: #7FB3D5;
 }
 
 /* View all button */

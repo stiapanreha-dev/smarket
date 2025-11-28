@@ -48,7 +48,7 @@
 .order-card__total {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0d6efd;
+  color: #7FB3D5;
 }
 
 .order-card__thumbnails {
@@ -119,14 +119,14 @@
 }
 
 .orders-page .nav-tabs .nav-link:hover {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: #7FB3D5;
+  border-bottom-color: #7FB3D5;
   background-color: transparent;
 }
 
 .orders-page .nav-tabs .nav-link.active {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: #7FB3D5;
+  border-bottom-color: #7FB3D5;
   background-color: transparent;
 }
 
@@ -148,13 +148,13 @@
 }
 
 .pagination .page-link {
-  color: #0d6efd;
+  color: #7FB3D5;
   border: 1px solid #dee2e6;
 }
 
 .pagination .page-item.active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #7FB3D5;
+  border-color: #7FB3D5;
 }
 
 .pagination .page-link:hover {

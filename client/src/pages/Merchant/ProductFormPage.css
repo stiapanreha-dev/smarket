@@ -34,15 +34,15 @@
 }
 
 .ce-toolbar__plus {
-  color: #0d6efd;
+  color: #7FB3D5;
 }
 
 .ce-toolbar__settings-btn {
-  color: #0d6efd;
+  color: #7FB3D5;
 }
 
 .ce-inline-toolbar {
-  background-color: #0d6efd;
+  background-color: #7FB3D5;
   border: none;
 }
 
@@ -60,12 +60,12 @@
 }
 
 .dropzone:hover {
-  border-color: #0d6efd !important;
+  border-color: #7FB3D5 !important;
   background-color: #f8f9fa !important;
 }
 
 .dropzone.active {
-  border-color: #0d6efd !important;
+  border-color: #7FB3D5 !important;
   background-color: #e7f1ff !important;
 }
 
@@ -107,15 +107,15 @@
 }
 
 .nav-tabs .nav-link:hover {
-  color: #0d6efd;
+  color: #7FB3D5;
   border-color: transparent;
   background-color: transparent;
 }
 
 .nav-tabs .nav-link.active {
-  color: #0d6efd;
+  color: #7FB3D5;
   border-color: transparent;
-  border-bottom-color: #0d6efd;
+  border-bottom-color: #7FB3D5;
   background-color: transparent;
 }
 
@@ -127,8 +127,8 @@
 
 .form-control:focus,
 .form-select:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  border-color: #7FB3D5;
+  box-shadow: 0 0 0 0.2rem rgba(127, 179, 213, 0.15);
 }
 
 /* SEO Preview */

@@ -89,7 +89,7 @@
 /* Price */
 .wishlist-card-price {
   font-size: 1.25rem;
-  color: #0d6efd;
+  color: #7FB3D5;
 }
 
 /* Action Buttons */
@@ -145,9 +145,9 @@
 
 /* Hover Effects for Buttons */
 .wishlist-card .btn-outline-primary:hover {
-  background-color: #0d6efd;
+  background-color: #7FB3D5;
   color: white;
-  border-color: #0d6efd;
+  border-color: #7FB3D5;
 }
 
 .wishlist-card .btn-primary:hover {

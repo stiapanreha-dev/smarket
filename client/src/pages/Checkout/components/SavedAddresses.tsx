@@ -39,10 +39,10 @@ export function SavedAddresses({
     <div className="saved-addresses">
       <div className="saved-addresses-header">
         <h5 className="mb-3">
-          {t('checkout.shipping.savedAddresses', 'Your Saved Addresses')}
+          {t('checkout.shippingAddress.savedAddresses', 'Your Saved Addresses')}
         </h5>
         <p className="text-muted">
-          {t('checkout.shipping.selectOrAdd', 'Select an address or add a new one')}
+          {t('checkout.shippingAddress.selectOrAdd', 'Select an address or add a new one')}
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export function SavedAddresses({
           <Card.Body className="d-flex flex-column align-items-center justify-content-center">
             <FaPlus size={32} className="text-primary mb-2" />
             <div className="text-center">
-              <strong>{t('checkout.shipping.addNewAddress', 'Add New Address')}</strong>
+              <strong>{t('checkout.shippingAddress.addNewAddress', 'Add New Address')}</strong>
             </div>
           </Card.Body>
         </Card>

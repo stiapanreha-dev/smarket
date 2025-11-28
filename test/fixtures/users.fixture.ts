@@ -7,14 +7,14 @@ export const testUsers = {
     password: 'Test123!@#',
     locale: 'en',
     currency: 'USD',
-    role: 'user',
+    role: 'buyer',
   },
   merchant: {
     email: 'merchant@test.com',
     password: 'Test123!@#',
     locale: 'en',
     currency: 'USD',
-    role: 'user', // Will have merchant profile
+    role: 'merchant',
   },
   admin: {
     email: 'admin@test.com',
@@ -28,14 +28,14 @@ export const testUsers = {
     password: 'Test123!@#',
     locale: 'en',
     currency: 'USD',
-    role: 'user',
+    role: 'buyer',
   },
   merchantRub: {
     email: 'merchant.ru@test.com',
     password: 'Test123!@#',
     locale: 'ru',
     currency: 'RUB',
-    role: 'user',
+    role: 'merchant',
   },
 };
 

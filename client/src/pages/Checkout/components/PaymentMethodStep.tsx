@@ -27,7 +27,10 @@ import {
   useCheckoutSession,
   useCheckoutStore,
   useCheckoutLoading,
-  useCheckoutError,
+  useCheckoutErrorMessage,
+  useClearCheckoutError,
+  usePreviousStep,
+  useNextStep,
 } from '@/store';
 import { PaymentMethodType } from '@/types';
 import './PaymentMethodStep.css';
@@ -68,9 +71,12 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
 
   // Checkout state
   const session = useCheckoutSession();
-  const { updatePaymentMethod, previousStep, nextStep } = useCheckoutStore();
+  const { updatePaymentMethod } = useCheckoutStore();
+  const previousStep = usePreviousStep();
+  const nextStep = useNextStep();
   const isLoading = useCheckoutLoading();
-  const { error: checkoutError, clearError } = useCheckoutError();
+  const checkoutError = useCheckoutErrorMessage();
+  const clearError = useClearCheckoutError();
 
   // Local state
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethodType>(
@@ -120,7 +126,7 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
   // Handle continue button
   const handleContinue = async () => {
     if (!stripe || !elements) {
-      setCardError(t('checkout.payment.stripeNotLoaded', 'Payment system not ready. Please refresh the page.'));
+      setCardError(t('checkout.paymentMethod.stripeNotLoaded', 'Payment system not ready. Please refresh the page.'));
       return;
     }
 
@@ -193,9 +199,9 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
     <div className="payment-method-step">
       {/* Header */}
       <div className="step-header mb-4">
-        <h2>{t('checkout.payment.title', 'Payment Method')}</h2>
+        <h2>{t('checkout.paymentMethod.title', 'Payment Method')}</h2>
         <p className="text-muted">
-          {t('checkout.payment.subtitle', 'Choose how you want to pay')}
+          {t('checkout.paymentMethod.subtitle', 'Choose how you want to pay')}
         </p>
       </div>
 
@@ -217,7 +223,7 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
       {/* Payment Method Selection */}
       <Card className="payment-method-card mb-4">
         <Card.Body>
-          <h5 className="mb-3">{t('checkout.payment.selectMethod', 'Select Payment Method')}</h5>
+          <h5 className="mb-3">{t('checkout.paymentMethod.selectMethod', 'Select Payment Method')}</h5>
 
           {/* Credit/Debit Card */}
           <div
@@ -235,11 +241,11 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
                   <div className="payment-option-header">
                     <FaCreditCard className="payment-icon me-2" />
                     <span className="fw-medium">
-                      {t('checkout.payment.creditDebitCard', 'Credit / Debit Card')}
+                      {t('checkout.paymentMethod.creditDebitCard', 'Credit / Debit Card')}
                     </span>
                   </div>
                   <div className="payment-option-description text-muted small">
-                    {t('checkout.payment.cardDescription', 'Pay securely with your card via Stripe')}
+                    {t('checkout.paymentMethod.cardDescription', 'Pay securely with your card via Stripe')}
                   </div>
                 </div>
               }
@@ -258,14 +264,14 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
                   <div className="payment-option-header">
                     <FaCreditCard className="payment-icon me-2" />
                     <span className="fw-medium">
-                      {t('checkout.payment.paypal', 'PayPal')}
+                      {t('checkout.paymentMethod.paypal', 'PayPal')}
                     </span>
                     <span className="badge bg-secondary ms-2">
                       {t('common.comingSoon', 'Coming Soon')}
                     </span>
                   </div>
                   <div className="payment-option-description text-muted small">
-                    {t('checkout.payment.paypalDescription', 'Pay with your PayPal account')}
+                    {t('checkout.paymentMethod.paypalDescription', 'Pay with your PayPal account')}
                   </div>
                 </div>
               }
@@ -278,17 +284,17 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
       {selectedPaymentMethod === PaymentMethodType.CARD && (
         <Card className="card-form-card mb-4">
           <Card.Body>
-            <h5 className="mb-3">{t('checkout.payment.cardDetails', 'Card Details')}</h5>
+            <h5 className="mb-3">{t('checkout.paymentMethod.cardDetails', 'Card Details')}</h5>
 
             {/* Cardholder Name */}
             <Form.Group className="mb-3">
               <Form.Label>
-                {t('checkout.payment.cardholderName', 'Cardholder Name')}
+                {t('checkout.paymentMethod.cardholderName', 'Cardholder Name')}
                 <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
                 type="text"
-                placeholder={t('checkout.payment.cardholderNamePlaceholder', 'John Doe')}
+                placeholder={t('checkout.paymentMethod.cardholderNamePlaceholder', 'John Doe')}
                 value={cardholderName}
                 onChange={(e) => setCardholderName(e.target.value)}
                 required
@@ -299,7 +305,7 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
             {/* Card Element */}
             <Form.Group className="mb-3">
               <Form.Label>
-                {t('checkout.payment.cardInformation', 'Card Information')}
+                {t('checkout.paymentMethod.cardInformation', 'Card Information')}
                 <span className="text-danger">*</span>
               </Form.Label>
               <div className="card-element-wrapper">
@@ -320,7 +326,7 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
               <Form.Check
                 type="checkbox"
                 id="save-card"
-                label={t('checkout.payment.saveCard', 'Save card for future purchases')}
+                label={t('checkout.paymentMethod.saveCard', 'Save card for future purchases')}
                 checked={saveCard}
                 onChange={(e) => setSaveCard(e.target.checked)}
                 disabled={isProcessing}
@@ -332,15 +338,15 @@ export function PaymentMethodStep({ onBack, onContinue }: PaymentMethodStepProps
               <div className="d-flex align-items-center justify-content-center gap-3 text-muted small">
                 <div className="d-flex align-items-center">
                   <FaLock className="me-1" />
-                  <span>{t('checkout.payment.secureSSL', 'Secure SSL Encrypted')}</span>
+                  <span>{t('checkout.paymentMethod.secureSSL', 'Secure SSL Encrypted')}</span>
                 </div>
                 <div className="d-flex align-items-center">
                   <FaShieldAlt className="me-1" />
-                  <span>{t('checkout.payment.pciCompliant', 'PCI DSS Compliant')}</span>
+                  <span>{t('checkout.paymentMethod.pciCompliant', 'PCI DSS Compliant')}</span>
                 </div>
               </div>
               <p className="text-center text-muted small mt-2 mb-0">
-                {t('checkout.payment.securityInfo', 'Your payment information is encrypted and secure. We never store your full card details.')}
+                {t('checkout.paymentMethod.securityInfo', 'Your payment information is encrypted and secure. We never store your full card details.')}
               </p>
             </div>
           </Card.Body>

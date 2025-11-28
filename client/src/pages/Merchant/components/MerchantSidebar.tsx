@@ -12,7 +12,8 @@ import {
   FaShoppingCart,
   FaCog,
   FaDollarSign,
-  FaChartBar
+  FaChartBar,
+  FaStore
 } from 'react-icons/fa';
 import './MerchantSidebar.css';
 
@@ -78,6 +79,15 @@ export const MerchantSidebar = () => {
             </Nav.Link>
           );
         })}
+        <hr className="sidebar-divider" />
+        <Nav.Link
+          as={Link}
+          to="/"
+          className="sidebar-nav-link go-to-store"
+        >
+          <span className="sidebar-icon"><FaStore /></span>
+          <span className="sidebar-label">Go to Store</span>
+        </Nav.Link>
       </Nav>
     </div>
   );
