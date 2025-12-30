@@ -23,6 +23,31 @@ import './styles/custom.css';
 const Login = lazy(() => import('./pages/Auth/Login'));
 const Register = lazy(() => import('./pages/Auth/Register'));
 
+// ===== LAZY LOADING - STATIC PAGES =====
+const AboutPage = lazy(() =>
+  import('./pages/About').then((module) => ({ default: module.AboutPage }))
+);
+
+// ===== LAZY LOADING - DOCUMENTATION PAGES =====
+const DocsPage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.DocsPage }))
+);
+const GettingStartedPage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.GettingStartedPage }))
+);
+const BuyersGuidePage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.BuyersGuidePage }))
+);
+const SellersGuidePage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.SellersGuidePage }))
+);
+const ApiDocsPage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.ApiDocsPage }))
+);
+const FaqPage = lazy(() =>
+  import('./pages/Docs').then((module) => ({ default: module.FaqPage }))
+);
+
 // ===== LAZY LOADING - CATALOG PAGES =====
 const CatalogPage = lazy(() =>
   import('./pages/Catalog').then((module) => ({ default: module.CatalogPage }))
@@ -135,6 +160,66 @@ function App() {
               element={
                 <Suspense fallback={<PageLoader text="Loading registration..." />}>
                   <Register />
+                </Suspense>
+              }
+            />
+
+            {/* Static Pages */}
+            <Route
+              path="/about"
+              element={
+                <Suspense fallback={<PageLoader text="Loading..." />}>
+                  <AboutPage />
+                </Suspense>
+              }
+            />
+
+            {/* Documentation Routes */}
+            <Route
+              path="/docs"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <DocsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs/getting-started"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <GettingStartedPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs/buyers-guide"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <BuyersGuidePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs/sellers-guide"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <SellersGuidePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs/api"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <ApiDocsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/docs/faq"
+              element={
+                <Suspense fallback={<PageLoader text="Loading documentation..." />}>
+                  <FaqPage />
                 </Suspense>
               }
             />
