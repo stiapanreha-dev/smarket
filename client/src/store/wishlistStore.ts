@@ -249,15 +249,12 @@ export const useWishlistStore = create<WishlistState>()(
 
 /**
  * Selector hooks for better performance
- * Use these instead of destructuring the entire store
+ * IMPORTANT: Use atomic selectors - never return objects with state values!
+ * Returning objects causes infinite re-render loops.
  */
-export const useWishlist = () =>
-  useWishlistStore((state) => ({
-    wishlist: state.wishlist,
-    items: state.items,
-    itemCount: state.itemCount,
-  }));
 
+// State selectors (atomic - each returns a single value)
+export const useWishlistData = () => useWishlistStore((state) => state.wishlist);
 export const useWishlistItems = () => useWishlistStore((state) => state.items);
 
 export const useWishlistCount = () => useWishlistStore((state) => state.itemCount);

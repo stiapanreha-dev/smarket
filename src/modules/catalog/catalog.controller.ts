@@ -250,16 +250,21 @@ export class CatalogController {
   }
 
   @Public()
-  @Get(':id')
+  @Get(':idOrSlug')
   @ApiOperation({
-    summary: 'Get product by ID',
-    description: 'Retrieve a single product by its UUID',
+    summary: 'Get product by ID or slug',
+    description: 'Retrieve a single product by its UUID or URL slug',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Product UUID',
+    name: 'idOrSlug',
+    description: 'Product UUID or URL slug',
     type: 'string',
-    format: 'uuid',
+  })
+  @ApiQuery({
+    name: 'locale',
+    required: false,
+    description: 'Locale for slug lookup (en, ru, ar)',
+    example: 'en',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -269,8 +274,8 @@ export class CatalogController {
     status: HttpStatus.NOT_FOUND,
     description: 'Product not found',
   })
-  async getProduct(@Param('id', ParseUUIDPipe) id: string) {
-    return this.catalogService.findOneById(id);
+  async getProduct(@Param('idOrSlug') idOrSlug: string, @Query('locale') locale: string = 'en') {
+    return this.catalogService.findOneByIdOrSlug(idOrSlug, locale);
   }
 
   @Put(':id')

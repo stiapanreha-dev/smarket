@@ -109,14 +109,23 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
     return t('product.addToCart');
   };
 
+  // Get product URL - use slug if available, fallback to id
+  const productUrl = useMemo(() => {
+    // Try to get slug from translations for current locale, or first available
+    const translation = product.translations?.find(t => t.locale === i18n.language)
+      || product.translations?.[0];
+    const slug = translation?.slug || product.slug;
+    return `/product/${slug || product.id}`;
+  }, [product.translations, product.slug, product.id, i18n.language]);
+
   // Handle card click - navigate to product detail - memoized with useCallback
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     // Don't navigate if button was clicked
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
-    navigate(`/product/${product.id}`);
-  }, [navigate, product.id]);
+    navigate(productUrl);
+  }, [navigate, productUrl]);
 
   // Handle add to cart / book now - memoized with useCallback
   const handleAction = useCallback(async (e: React.MouseEvent) => {
@@ -124,7 +133,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
 
     if (product.type === ProductType.SERVICE) {
       // For services, navigate to product page for booking
-      navigate(`/product/${product.id}`);
+      navigate(productUrl);
       return;
     }
 
@@ -148,7 +157,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
     } finally {
       setIsAddingToCart(false);
     }
-  }, [product, addItem, navigate, t]);
+  }, [product, addItem, navigate, t, productUrl]);
 
   // Handle wishlist toggle - memoized with useCallback
   const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
@@ -157,7 +166,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Redirect to login with return URL to come back after login
-      const returnUrl = encodeURIComponent(`/product/${product.id}`);
+      const returnUrl = encodeURIComponent(productUrl);
       navigate(`/login?returnUrl=${returnUrl}`);
       return;
     }
@@ -177,7 +186,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
           : t('wishlist.error') || 'Failed to update wishlist'
       );
     }
-  }, [isAuthenticated, inWishlist, product.id, removeFromWishlist, addToWishlist, t, navigate]);
+  }, [isAuthenticated, inWishlist, product.id, removeFromWishlist, addToWishlist, t, navigate, productUrl]);
 
   // Calculate price and formatted price - memoized
   const price = useMemo(() => getProductPrice(product), [product]);

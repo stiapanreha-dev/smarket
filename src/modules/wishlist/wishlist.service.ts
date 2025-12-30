@@ -32,7 +32,7 @@ export class WishlistService {
   async getOrCreateWishlist(userId: string): Promise<Wishlist> {
     let wishlist = await this.wishlistRepository.findOne({
       where: { user_id: userId },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.product', 'items.product.translations'],
     });
 
     if (!wishlist) {
@@ -212,7 +212,7 @@ export class WishlistService {
   async getWishlistByShareToken(shareToken: string): Promise<WishlistResponseDto> {
     const wishlist = await this.wishlistRepository.findOne({
       where: { share_token: shareToken },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.product', 'items.product.translations'],
     });
 
     if (!wishlist) {
@@ -265,10 +265,15 @@ export class WishlistService {
 
     // Include product details if available
     if (item.product) {
+      // Get slug from translations (prefer English, fallback to first available)
+      const translation =
+        item.product.translations?.find((t) => t.locale === 'en') || item.product.translations?.[0];
+      const slug = translation?.slug || item.product.slug || '';
+
       dto.product = {
         id: item.product.id,
         title: item.product.title,
-        slug: item.product.slug ?? '',
+        slug,
         imageUrl: item.product.image_url,
         basePriceMinor: item.product.base_price_minor,
         currency: item.product.currency,

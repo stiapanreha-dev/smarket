@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CacheService } from '../../../common/services/cache.service';
+import { SettingsService } from '../../settings/settings.service';
 import {
   CartItemSnapshot,
   Address,
@@ -36,7 +37,10 @@ export class TotalsCalculationService {
   private readonly logger = new Logger(TotalsCalculationService.name);
   private readonly TAX_CACHE_TTL = 24 * 60 * 60; // 24 hours
 
-  constructor(private readonly cacheService: CacheService) {}
+  constructor(
+    private readonly cacheService: CacheService,
+    private readonly settingsService: SettingsService,
+  ) {}
 
   /**
    * Calculate complete checkout totals
@@ -50,21 +54,32 @@ export class TotalsCalculationService {
     // 1. Calculate subtotal
     const subtotal = this.calculateSubtotal(items);
 
-    // 2. Calculate tax based on shipping address
+    // 2. Get VAT settings
+    const vatSettings = await this.settingsService.getVatSettings();
+    const vatMode = vatSettings.mode;
+
+    // 3. Calculate tax based on shipping address and VAT mode
     const taxDetails = shippingAddress
-      ? await this.calculateTax(subtotal, shippingAddress, currency)
+      ? await this.calculateTax(subtotal, shippingAddress, currency, vatMode)
       : { rate: 0, amount: 0, jurisdiction: 'N/A' };
 
-    // 3. Calculate shipping cost
+    // 4. Calculate shipping cost
     const shippingAmount = shippingAddress
       ? await this.calculateShipping(items, shippingAddress, currency)
       : 0;
 
-    // 4. Calculate discounts from promo codes
+    // 5. Calculate discounts from promo codes
     const discountAmount = promoCodes ? this.calculateDiscount(subtotal, promoCodes) : 0;
 
-    // 5. Calculate total
-    const totalAmount = subtotal + taxDetails.amount + shippingAmount - discountAmount;
+    // 6. Calculate total based on VAT mode
+    let totalAmount: number;
+    if (vatMode === 'included') {
+      // VAT is already included in prices - don't add tax to total
+      totalAmount = subtotal + shippingAmount - discountAmount;
+    } else {
+      // VAT is added on top of prices
+      totalAmount = subtotal + taxDetails.amount + shippingAmount - discountAmount;
+    }
 
     return {
       subtotal,
@@ -86,76 +101,91 @@ export class TotalsCalculationService {
   }
 
   /**
-   * Calculate tax based on shipping address
+   * Calculate tax based on shipping address and VAT mode
    * Uses cached tax rates by region for performance
+   *
+   * @param subtotal - The order subtotal in minor units
+   * @param address - Shipping address for tax jurisdiction
+   * @param currency - Currency code
+   * @param vatMode - 'included' or 'on_top'
    */
   private async calculateTax(
     subtotal: number,
     address: Address,
     currency: string,
+    vatMode: 'included' | 'on_top' = 'on_top',
   ): Promise<{ rate: number; amount: number; jurisdiction: string }> {
     const cacheKey = `tax:rate:${address.country}:${address.state || 'N/A'}:${currency}`;
 
     // Try to get from cache
     const cachedRate = await this.cacheService.get<TaxRate>(cacheKey);
+    let taxRate: TaxRate;
+
     if (cachedRate) {
       this.logger.debug(`Tax rate cache hit for ${cacheKey}`);
-      return {
-        rate: cachedRate.rate,
-        amount: Math.round((subtotal * cachedRate.rate) / 100),
-        jurisdiction: cachedRate.jurisdiction,
-      };
+      taxRate = cachedRate;
+    } else {
+      // Calculate tax rate based on jurisdiction using settings
+      taxRate = await this.getTaxRate(address);
+
+      // Cache the rate
+      await this.cacheService.set(cacheKey, taxRate, this.TAX_CACHE_TTL);
     }
 
-    // Calculate tax rate based on jurisdiction
-    const taxRate = this.getTaxRate(address);
-
-    // Cache the rate
-    await this.cacheService.set(cacheKey, taxRate, this.TAX_CACHE_TTL);
+    // Calculate tax amount based on VAT mode
+    let taxAmount: number;
+    if (vatMode === 'included') {
+      // VAT is included in price: extract VAT from subtotal
+      // Formula: VAT = subtotal - subtotal / (1 + rate/100)
+      // Example: price 1220, rate 22% -> VAT = 1220 - 1220/1.22 = 1220 - 1000 = 220
+      taxAmount = Math.round(subtotal - subtotal / (1 + taxRate.rate / 100));
+    } else {
+      // VAT is on top: add VAT to subtotal
+      // Formula: VAT = subtotal * rate / 100
+      taxAmount = Math.round((subtotal * taxRate.rate) / 100);
+    }
 
     return {
       rate: taxRate.rate,
-      amount: Math.round((subtotal * taxRate.rate) / 100),
+      amount: taxAmount,
       jurisdiction: taxRate.jurisdiction,
     };
   }
 
   /**
-   * Get tax rate for a specific address
-   * In production, this would integrate with a tax service (Avalara, TaxJar, etc.)
+   * Get tax rate for a specific address using platform settings
+   * Falls back to hardcoded US state rates for sales tax support
    */
-  private getTaxRate(address: Address): TaxRate {
-    // Simplified tax calculation - in production, use tax service API
-    const taxRates: Record<string, Record<string, number>> = {
-      US: {
+  private async getTaxRate(address: Address): Promise<TaxRate> {
+    // Get VAT settings from database
+    const vatSettings = await this.settingsService.getVatSettings();
+
+    // Special handling for US - they have state-level sales tax
+    // which differs from VAT and is typically added on top
+    if (address.country === 'US') {
+      const usStateRates: Record<string, number> = {
         CA: 7.25, // California
         NY: 4.0, // New York
         TX: 6.25, // Texas
         FL: 6.0, // Florida
-        default: 5.0,
-      },
-      GB: {
-        default: 20.0, // VAT
-      },
-      DE: {
-        default: 19.0, // VAT
-      },
-      RU: {
-        default: 20.0, // НДС
-      },
-      AE: {
-        default: 5.0, // VAT
-      },
-    };
+      };
+      const rate = address.state
+        ? usStateRates[address.state] || vatSettings.country_rates['US'] || 0
+        : vatSettings.country_rates['US'] || 0;
 
-    const countryRates = taxRates[address.country] || { default: 0 };
-    const rate = address.state
-      ? countryRates[address.state] || countryRates.default || 0
-      : countryRates.default || 0;
+      return {
+        rate,
+        jurisdiction: address.state ? `${address.country}-${address.state}` : address.country,
+      };
+    }
+
+    // For other countries, use settings from database
+    const countryRate = vatSettings.country_rates[address.country];
+    const rate = countryRate !== undefined ? countryRate : vatSettings.default_rate;
 
     return {
       rate,
-      jurisdiction: address.state ? `${address.country}-${address.state}` : address.country,
+      jurisdiction: address.country,
     };
   }
 

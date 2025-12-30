@@ -8,6 +8,7 @@ import { ProductVariant, InventoryPolicy } from '../../database/entities/product
 import { Cart, CartSummary } from './interfaces/cart.interface';
 import { CartItem } from './interfaces/cart-item.interface';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { SettingsService } from '../settings/settings.service';
 
 const CART_MAX_ITEMS = 50;
 const CART_MAX_ITEM_QUANTITY = 99;
@@ -24,6 +25,7 @@ export class CartService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductVariant)
     private readonly variantRepository: Repository<ProductVariant>,
+    private readonly settingsService: SettingsService,
   ) {}
 
   /**
@@ -295,11 +297,17 @@ export class CartService {
       cart.items.map(async (item) => {
         const product = await this.productRepository.findOne({
           where: { id: item.productId },
+          relations: ['translations'],
         });
 
         const variant = await this.variantRepository.findOne({
           where: { id: item.variantId, product_id: item.productId },
         });
+
+        // Get slug from translations (prefer English, fallback to first available)
+        const translation =
+          product?.translations?.find((t) => t.locale === 'en') || product?.translations?.[0];
+        const slug = translation?.slug || product?.slug || null;
 
         return {
           ...item,
@@ -307,6 +315,7 @@ export class CartService {
             ? {
                 id: product.id,
                 title: product.title,
+                slug,
                 short_description: product.short_description,
                 description: product.description,
                 image_url: product.image_url,
@@ -370,14 +379,28 @@ export class CartService {
     // Calculate totals
     const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    // Tax calculation (simplified - 10% default)
-    const taxRate = 0.1;
-    const tax = Math.round(subtotal * taxRate);
+    // Get VAT settings from database
+    const vatSettings = await this.settingsService.getVatSettings();
+    const taxRate = vatSettings.default_rate / 100; // Convert percentage to decimal
+
+    // Calculate tax based on VAT mode
+    let tax: number;
+    let total: number;
+
+    if (vatSettings.mode === 'included') {
+      // VAT is already included in prices
+      // Extract VAT amount for display: VAT = subtotal - subtotal / (1 + rate)
+      tax = Math.round(subtotal - subtotal / (1 + taxRate));
+      // Total equals subtotal (VAT already included)
+      total = subtotal;
+    } else {
+      // VAT is added on top
+      tax = Math.round(subtotal * taxRate);
+      total = subtotal + tax;
+    }
 
     // Shipping will be calculated in checkout
     const shipping = 0;
-
-    const total = subtotal + tax + shipping;
 
     return {
       itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),

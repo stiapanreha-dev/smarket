@@ -73,7 +73,7 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
         <Row className="align-items-center g-3">
           {/* Product Image */}
           <Col xs={12} sm={3} md={2}>
-            <Link to={`/product/${item.productId}`} className="cart-item-image-link">
+            <Link to={`/product/${product?.slug || item.productId}`} className="cart-item-image-link">
               <Image
                 src={productImage}
                 alt={productName}
@@ -88,7 +88,7 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
           <Col xs={12} sm={9} md={4}>
             <div className="cart-item-info">
               <Link
-                to={`/product/${item.productId}`}
+                to={`/product/${product?.slug || item.productId}`}
                 className="cart-item-name text-decoration-none"
               >
                 <h6 className="mb-1">{productName}</h6>

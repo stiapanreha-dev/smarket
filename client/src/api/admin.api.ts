@@ -119,11 +119,51 @@ export const updateUserRole = async (
   return response.data;
 };
 
+// ============================================================================
+// VAT Settings Types
+// ============================================================================
+
+export type VatMode = 'included' | 'on_top';
+
+export interface VatSettings {
+  mode: VatMode;
+  default_rate: number;
+  country_rates: Record<string, number>;
+}
+
+export interface UpdateVatSettingsDto {
+  mode: VatMode;
+  default_rate: number;
+  country_rates: Record<string, number>;
+}
+
+// ============================================================================
+// VAT Settings API Methods
+// ============================================================================
+
+/**
+ * Get current VAT settings
+ */
+export const getVatSettings = async (): Promise<VatSettings> => {
+  const response = await apiClient.get<{ data: VatSettings }>('/admin/settings/vat');
+  return response.data.data;
+};
+
+/**
+ * Update VAT settings
+ */
+export const updateVatSettings = async (dto: UpdateVatSettingsDto): Promise<VatSettings> => {
+  const response = await apiClient.put<{ data: VatSettings }>('/admin/settings/vat', dto);
+  return response.data.data;
+};
+
 export const adminApi = {
   getDashboardStats,
   getUsers,
   getUserById,
   updateUserRole,
+  getVatSettings,
+  updateVatSettings,
 };
 
 export default adminApi;

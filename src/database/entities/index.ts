@@ -38,3 +38,9 @@ export { UserAddress } from './user-address.entity';
 export { Wishlist } from './wishlist.entity';
 export { WishlistItem } from './wishlist-item.entity';
 export { Notification, NotificationType } from './notification.entity';
+export {
+  PlatformSettings,
+  VatMode,
+  VatSettingsValue,
+  DEFAULT_VAT_SETTINGS,
+} from './platform-settings.entity';

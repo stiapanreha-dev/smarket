@@ -126,7 +126,7 @@ export const SearchBar = ({ onSearch, placeholder, className = '', defaultValue 
           const item = getItemByIndex(selectedIndex);
           if (item) {
             if (item.type === 'product' || item.type === 'service') {
-              navigate(`/products/${item.id}`);
+              navigate(`/product/${item.slug || item.id}`);
               setIsOpen(false);
             } else if (item.type === 'category') {
               handleSearch(item.value as string);
@@ -302,7 +302,7 @@ export const SearchBar = ({ onSearch, placeholder, className = '', defaultValue 
                     key={product.id}
                     className={`search-dropdown-item ${selectedIndex === itemIndex ? 'selected' : ''}`}
                     onClick={() => {
-                      navigate(`/products/${product.id}`);
+                      navigate(`/product/${product.slug || product.id}`);
                       setIsOpen(false);
                       addRecentSearch(query);
                     }}
@@ -332,7 +332,7 @@ export const SearchBar = ({ onSearch, placeholder, className = '', defaultValue 
                     key={service.id}
                     className={`search-dropdown-item ${selectedIndex === itemIndex ? 'selected' : ''}`}
                     onClick={() => {
-                      navigate(`/products/${service.id}`);
+                      navigate(`/product/${service.slug || service.id}`);
                       setIsOpen(false);
                       addRecentSearch(query);
                     }}

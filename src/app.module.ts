@@ -22,6 +22,7 @@ import { PayoutModule } from '@modules/payout/payout.module';
 import { MerchantModule } from '@modules/merchant/merchant.module';
 import { WishlistModule } from '@modules/wishlist/wishlist.module';
 import { WebhooksModule } from '@modules/webhooks/webhooks.module';
+import { SettingsModule } from '@modules/settings/settings.module';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
   User,
@@ -52,6 +53,7 @@ import {
   Wishlist,
   WishlistItem,
   Notification,
+  PlatformSettings,
 } from './database/entities';
 
 @Module({
@@ -112,6 +114,7 @@ import {
           Wishlist,
           WishlistItem,
           Notification,
+          PlatformSettings,
         ],
         // Disable synchronize to avoid duplicate index errors
         // Use migrations instead: npm run migration:run
@@ -139,6 +142,7 @@ import {
     WishlistModule,
     WebhooksModule,
     NotificationModule,
+    SettingsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [

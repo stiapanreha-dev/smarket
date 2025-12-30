@@ -50,7 +50,7 @@ export class UserService {
   ) {}
 
   /**
-   * Get user profile by ID
+   * Get a user profile by ID
    */
   async getProfile(
     userId: string,
@@ -834,7 +834,10 @@ export class UserService {
     const orderStats = await this.orderRepository
       .createQueryBuilder('order')
       .select('COUNT(*)', 'totalOrders')
-      .addSelect('SUM(CASE WHEN order.payment_status = :captured THEN order.total_amount ELSE 0 END)', 'totalRevenue')
+      .addSelect(
+        'SUM(CASE WHEN order.payment_status = :captured THEN order.total_amount ELSE 0 END)',
+        'totalRevenue',
+      )
       .addSelect('COUNT(CASE WHEN order.status = :pending THEN 1 END)', 'pendingOrders')
       .addSelect('COUNT(CASE WHEN order.status = :processing THEN 1 END)', 'processingOrders')
       .addSelect('COUNT(CASE WHEN order.status = :completed THEN 1 END)', 'completedOrders')

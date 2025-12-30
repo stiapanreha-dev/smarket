@@ -173,6 +173,23 @@ export class CatalogService {
   }
 
   /**
+   * Find product by ID or slug (flexible lookup)
+   * First tries to parse as UUID, if fails - treats as slug
+   */
+  async findOneByIdOrSlug(idOrSlug: string, locale: string = 'en'): Promise<Product> {
+    // Check if it's a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (uuidRegex.test(idOrSlug)) {
+      // It's a UUID - find by ID
+      return this.findOneById(idOrSlug);
+    }
+
+    // It's a slug - find by slug
+    return this.findOneBySlug(idOrSlug, locale);
+  }
+
+  /**
    * Update product
    */
   async updateProduct(

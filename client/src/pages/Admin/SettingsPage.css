@@ -1,0 +1,136 @@
+.admin-settings {
+  padding-top: 80px;
+  min-height: calc(100vh - 200px);
+}
+
+/* Current settings summary */
+.current-settings-alert {
+  background-color: #e8f4fd;
+  border: 1px solid #7FB3D5;
+  border-radius: 8px;
+}
+
+.current-settings-alert h5 {
+  color: #4A8AB4;
+  font-size: 1rem;
+}
+
+.admin-settings h1 {
+  color: #333;
+  font-weight: 600;
+}
+
+.settings-card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.settings-card .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+
+.vat-mode-selector {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.vat-mode-selector .form-check {
+  padding-left: 2rem;
+}
+
+.vat-mode-selector .form-check-input {
+  margin-top: 0.3rem;
+}
+
+.vat-mode-selector .form-check-input:checked {
+  background-color: #7FB3D5;
+  border-color: #7FB3D5;
+}
+
+.rate-input {
+  max-width: 120px;
+}
+
+.rate-input-small {
+  max-width: 80px;
+  display: inline-block;
+}
+
+.country-rates-table {
+  margin-bottom: 1rem;
+}
+
+.country-rates-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.country-rates-table td {
+  vertical-align: middle;
+}
+
+.add-country-form {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.add-country-form .form-label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Button styling to match brand */
+.admin-settings .btn-primary {
+  background-color: #7FB3D5;
+  border-color: #7FB3D5;
+}
+
+.admin-settings .btn-primary:hover:not(:disabled) {
+  background-color: #5A9AC4;
+  border-color: #5A9AC4;
+}
+
+.admin-settings .btn-primary:disabled {
+  background-color: #a4c9e0;
+  border-color: #a4c9e0;
+}
+
+.admin-settings .btn-outline-primary {
+  color: #7FB3D5;
+  border-color: #7FB3D5;
+}
+
+.admin-settings .btn-outline-primary:hover {
+  background-color: #7FB3D5;
+  border-color: #7FB3D5;
+  color: white;
+}
+
+/* Badge colors */
+.admin-settings .badge.bg-secondary {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rate-input {
+    max-width: 100%;
+  }
+
+  .rate-input-small {
+    max-width: 70px;
+  }
+
+  .add-country-form .row {
+    gap: 0.5rem;
+  }
+}

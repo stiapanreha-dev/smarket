@@ -118,6 +118,9 @@ const AdminDashboardPage = lazy(() =>
 const AdminUsersPage = lazy(() =>
   import('./pages/Admin/UsersPage').then((module) => ({ default: module.UsersPage }))
 );
+const AdminSettingsPage = lazy(() =>
+  import('./pages/Admin/SettingsPage').then((module) => ({ default: module.SettingsPage }))
+);
 
 function App() {
   // Initialize monitoring on mount
@@ -348,6 +351,14 @@ function App() {
                 element={
                   <Suspense fallback={<PageLoader text="Loading users..." />}>
                     <AdminUsersPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <Suspense fallback={<PageLoader text="Loading settings..." />}>
+                    <AdminSettingsPage />
                   </Suspense>
                 }
               />

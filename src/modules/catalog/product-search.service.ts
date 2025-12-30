@@ -609,6 +609,7 @@ export class ProductSearchService {
     const result = {
       products: products.map((p) => ({
         id: p.id,
+        slug: p.getTranslation(locale)?.slug || null,
         title: p.getTranslation(locale)?.title || '',
         image_url: p.image_url,
         price: p.variants?.[0]?.price_minor || p.base_price_minor,
@@ -617,6 +618,7 @@ export class ProductSearchService {
       })),
       services: services.map((s) => ({
         id: s.id,
+        slug: s.getTranslation(locale)?.slug || null,
         title: s.getTranslation(locale)?.title || '',
         image_url: s.image_url,
         price: s.variants?.[0]?.price_minor || s.base_price_minor,

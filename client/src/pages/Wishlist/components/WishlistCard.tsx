@@ -66,22 +66,22 @@ export function WishlistCard({
 
   const typeBadge = getProductTypeBadge();
 
-  // Format price
+  // Format price (convert from minor units to major units)
   const formattedPrice = product?.basePriceMinor !== null && product?.basePriceMinor !== undefined
     ? formatPrice(
-        product.basePriceMinor,
+        product.basePriceMinor / 100,
         product.currency,
         i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US'
       )
     : t('product.priceUnavailable', 'Price unavailable');
 
-  // Handle card click - navigate to product detail
+  // Handle card click - navigate to product detail (prefer slug over id)
   const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
-    if (product?.id) {
-      navigate(`/product/${product.id}`);
+    if (product?.slug || product?.id) {
+      navigate(`/product/${product.slug || product.id}`);
     }
   };
 

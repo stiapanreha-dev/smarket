@@ -10,6 +10,7 @@ import { CheckoutSession } from '../../database/entities/checkout-session.entity
 import { ProductVariant } from '../../database/entities/product-variant.entity';
 import { CartModule } from '../cart/cart.module';
 import { OrdersModule } from '../orders/orders.module';
+import { SettingsModule } from '../settings/settings.module';
 import { CacheService } from '../../common/services/cache.service';
 
 @Module({
@@ -18,6 +19,7 @@ import { CacheService } from '../../common/services/cache.service';
     ScheduleModule.forRoot(), // Enable cron jobs for cleanup
     CartModule, // Import CartModule to use CartService
     OrdersModule, // Import OrdersModule to use OrderService
+    SettingsModule, // Import SettingsModule to use VAT settings
   ],
   controllers: [CheckoutController],
   providers: [

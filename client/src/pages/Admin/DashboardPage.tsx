@@ -11,6 +11,7 @@ import {
   FaClock,
   FaCheckCircle,
   FaSpinner,
+  FaCog,
 } from 'react-icons/fa';
 import { getDashboardStats } from '@/api/admin.api';
 import { Navbar, Footer } from '@/components/layout';
@@ -243,6 +244,10 @@ export function DashboardPage() {
                   <Link to="/admin/users" className="btn btn-outline-primary">
                     <FaUsers className="me-2" />
                     Manage Users
+                  </Link>
+                  <Link to="/admin/settings" className="btn btn-outline-primary">
+                    <FaCog className="me-2" />
+                    Platform Settings
                   </Link>
                   {/* <Link to="/admin/merchant-applications" className="btn btn-outline-primary">
                     <FaUserTie className="me-2" />

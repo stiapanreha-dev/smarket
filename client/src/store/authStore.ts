@@ -311,29 +311,23 @@ export const useAuthStore = create<AuthState>()(
 
 /**
  * Selector hooks for better performance
- * Use these instead of destructuring the entire store
+ * IMPORTANT: Use atomic selectors - never return objects with state values!
+ * Returning objects causes infinite re-render loops.
  */
-export const useAuth = () => useAuthStore((state) => ({
-  user: state.user,
-  isAuthenticated: state.isAuthenticated,
-}));
 
+// State selectors (atomic - each returns a single value)
 export const useAuthUser = () => useAuthStore((state) => state.user);
-
-export const useAuthActions = () => useAuthStore((state) => ({
-  login: state.login,
-  register: state.register,
-  logout: state.logout,
-  refreshToken: state.refreshToken,
-  fetchCurrentUser: state.fetchCurrentUser,
-}));
-
+export const useAuthToken = () => useAuthStore((state) => state.token);
+export const useAuthIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
 export const useAuthLoading = () => useAuthStore((state) => state.isLoading);
-
-export const useAuthError = () => useAuthStore((state) => ({
-  error: state.error,
-  clearError: state.clearError,
-}));
-
+export const useAuthError = () => useAuthStore((state) => state.error);
 export const useViewMode = () => useAuthStore((state) => state.viewMode);
+
+// Action selectors (functions are stable references, safe to use)
+export const useAuthLogin = () => useAuthStore((state) => state.login);
+export const useAuthRegister = () => useAuthStore((state) => state.register);
+export const useAuthLogout = () => useAuthStore((state) => state.logout);
+export const useAuthRefreshToken = () => useAuthStore((state) => state.refreshToken);
+export const useAuthFetchCurrentUser = () => useAuthStore((state) => state.fetchCurrentUser);
+export const useAuthClearError = () => useAuthStore((state) => state.clearError);
 export const useSetViewMode = () => useAuthStore((state) => state.setViewMode);

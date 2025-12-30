@@ -307,7 +307,7 @@ export const ProductFormPage = () => {
 
   const handlePreview = () => {
     if (productId && productId !== 'new') {
-      window.open(`/product/${productId}`, '_blank');
+      window.open(`/product/${product?.slug || productId}`, '_blank');
     }
   };
 

@@ -138,6 +138,7 @@ export const getRelatedProducts = async (
  */
 export interface AutocompleteItem {
   id: string;
+  slug: string | null;
   title: string;
   image_url?: string;
   price: number;
