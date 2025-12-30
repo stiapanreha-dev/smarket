@@ -314,6 +314,11 @@ const resources = {
           stockExceeded: 'Cannot add more than {{stock}} items',
         },
       },
+      wishlist: {
+        addToWishlist: 'Add to Wishlist',
+        removeFromWishlist: 'Remove from Wishlist',
+        inWishlist: 'In Wishlist',
+      },
       catalog: {
         filters: {
           title: 'Filters',
@@ -930,6 +935,11 @@ const resources = {
           addToCartError: 'Не удалось добавить в корзину',
           stockExceeded: 'Нельзя добавить больше {{stock}} товаров',
         },
+      },
+      wishlist: {
+        addToWishlist: 'В избранное',
+        removeFromWishlist: 'Удалить из избранного',
+        inWishlist: 'В избранном',
       },
       catalog: {
         filters: {
@@ -1550,6 +1560,11 @@ const resources = {
           addToCartError: 'فشل في الإضافة إلى السلة',
           stockExceeded: 'لا يمكن إضافة أكثر من {{stock}} عناصر',
         },
+      },
+      wishlist: {
+        addToWishlist: 'أضف إلى المفضلة',
+        removeFromWishlist: 'إزالة من المفضلة',
+        inWishlist: 'في المفضلة',
       },
       catalog: {
         filters: {
