@@ -118,14 +118,9 @@ export class WebhooksController {
         payment_intent_id: paymentIntent.id,
       });
 
-      this.logger.log(
-        `Order created successfully for checkout session: ${checkoutSessionId}`,
-      );
+      this.logger.log(`Order created successfully for checkout session: ${checkoutSessionId}`);
     } catch (error) {
-      this.logger.error(
-        `Failed to complete checkout for session ${checkoutSessionId}:`,
-        error,
-      );
+      this.logger.error(`Failed to complete checkout for session ${checkoutSessionId}:`, error);
       throw error;
     }
   }

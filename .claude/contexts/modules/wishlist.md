@@ -37,7 +37,7 @@ WishlistItem {
 
 Users can share wishlists publicly:
 ```
-https://smarket.sh3.su/wishlist/share/{share_token}
+https://market.devloc.su/wishlist/share/{share_token}
 ```
 
 Public wishlists viewable without login.

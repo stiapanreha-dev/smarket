@@ -43,16 +43,16 @@ public async up(queryRunner: QueryRunner): Promise<void> {
 
 ```bash
 # Connect to production database (interactive)
-ssh Pi4-2 "docker exec -it smarket-postgres-prod psql -U snailmarket -d snailmarket"
+ssh SRV199 "docker exec -it smarket-postgres-prod psql -U snailmarket -d snailmarket"
 
 # Or execute SQL directly
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'YOUR SQL HERE'"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'YOUR SQL HERE'"
 ```
 
 ### Step 4: Execute Migration SQL
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 CREATE TABLE wishlists (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL,
@@ -67,16 +67,16 @@ CREATE TABLE wishlists (
 
 ```bash
 # Check table exists
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c '\dt wishlists'"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c '\dt wishlists'"
 
 # Check table structure
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c '\d wishlists'"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c '\d wishlists'"
 ```
 
 ## Example: Adding Notifications Table
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 CREATE TYPE notification_type_enum AS ENUM ('ORDER_UPDATE', 'PAYMENT_SUCCESS', 'SHIPPING_UPDATE', 'BOOKING_REMINDER', 'PROMO');
 
 CREATE TABLE notifications (
@@ -99,7 +99,7 @@ CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 ### Adding Column
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 ALTER TABLE products ADD COLUMN featured boolean DEFAULT false;
 \""
 ```
@@ -107,7 +107,7 @@ ALTER TABLE products ADD COLUMN featured boolean DEFAULT false;
 ### Adding Index
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 CREATE INDEX idx_products_merchant_id ON products(merchant_id);
 \""
 ```
@@ -115,7 +115,7 @@ CREATE INDEX idx_products_merchant_id ON products(merchant_id);
 ### Adding Foreign Key
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 ALTER TABLE wishlists
 ADD CONSTRAINT fk_wishlist_user
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
@@ -135,7 +135,7 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 If migration fails, execute the `down()` method SQL:
 
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 DROP TABLE wishlists;
 \""
 ```

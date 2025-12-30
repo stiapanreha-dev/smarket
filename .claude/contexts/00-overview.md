@@ -77,7 +77,7 @@ A marketplace platform supporting **three product types**:
 - LocalStack for S3 emulation
 
 **Production:**
-- Pi4-2 (Raspberry Pi) server
+- SRV199 (Raspberry Pi) server
 - Docker Compose production config
 - Nginx reverse proxy
 - Let's Encrypt SSL
@@ -85,7 +85,7 @@ A marketplace platform supporting **three product types**:
 
 ## Domain
 
-Production: https://smarket.sh3.su
+Production: https://market.devloc.su
 
 ## Core Patterns
 

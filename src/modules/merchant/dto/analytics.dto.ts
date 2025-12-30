@@ -109,7 +109,10 @@ export class AnalyticsDataDto {
   @ApiProperty({ description: 'Revenue by day for chart', type: [RevenueByDayDto] })
   revenueByDay: RevenueByDayDto[];
 
-  @ApiProperty({ description: 'Revenue breakdown by product type', type: [RevenueByProductTypeDto] })
+  @ApiProperty({
+    description: 'Revenue breakdown by product type',
+    type: [RevenueByProductTypeDto],
+  })
   revenueByProductType: RevenueByProductTypeDto[];
 
   @ApiProperty({ description: 'Top categories by revenue', type: [TopCategoryDto] })

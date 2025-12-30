@@ -35,6 +35,26 @@ services:
       timeout: 3s
       retries: 5
 
+  # MinIO S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: smarket-minio-prod
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - '127.0.0.1:9000:9000'   # API
+      - '127.0.0.1:9001:9001'   # Console
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # NestJS Backend
   backend:
     build:
@@ -59,10 +79,17 @@ services:
       - REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-me-in-production}
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin123}
+      - S3_BUCKET=smarket-uploads
+      - S3_REGION=us-east-1
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
@@ -76,3 +103,5 @@ volumes:
     name: smarket-postgres-data-prod
   redis-data:
     name: smarket-redis-data-prod
+  minio-data:
+    name: smarket-minio-data-prod

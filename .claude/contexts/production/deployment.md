@@ -1,12 +1,12 @@
 # Production Deployment
 
-Deployment procedures for Pi4-2 production server.
+Deployment procedures for SRV199 production server.
 
 ## Server Information
 
-- **Server**: Pi4-2 (Raspberry Pi)
+- **Server**: SRV199 (Raspberry Pi)
 - **Location**: `/home/lexun/apps/smarket`
-- **Domain**: https://smarket.sh3.su
+- **Domain**: https://market.devloc.su
 - **Backend Port**: 3003 (Docker container)
 - **Frontend**: Static files served by nginx
 
@@ -23,7 +23,7 @@ git push origin master
 ### Step 2: Pull on Server
 
 ```bash
-ssh Pi4-2 "cd /home/lexun/apps/smarket && git pull origin master"
+ssh SRV199 "cd /home/lexun/apps/smarket && git pull origin master"
 ```
 
 ### Step 3: Build Frontend
@@ -37,19 +37,19 @@ npm run build
 ### Step 4: Sync Frontend to Server
 
 ```bash
-rsync -avz client/dist/ Pi4-2:/home/lexun/apps/smarket.backup/frontend/
+rsync -avz client/dist/ SRV199:/home/lexun/apps/smarket.backup/frontend/
 ```
 
 ### Step 5: Rebuild Backend Containers
 
 ```bash
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
 ```
 
 ### Step 6: Reload Nginx
 
 ```bash
-ssh Pi4-2 "sudo systemctl reload nginx"
+ssh SRV199 "sudo systemctl reload nginx"
 ```
 
 ## Production Docker Containers
@@ -64,22 +64,22 @@ Managed via `docker-compose.prod.yml`:
 
 ```bash
 # View logs
-ssh Pi4-2 "docker logs smarket-backend-prod --tail 50"
+ssh SRV199 "docker logs smarket-backend-prod --tail 50"
 
 # Follow logs in real-time
-ssh Pi4-2 "docker logs smarket-backend-prod -f"
+ssh SRV199 "docker logs smarket-backend-prod -f"
 
 # Restart container
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
 
 # Stop all containers
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml down"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml down"
 
 # Start all containers
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d"
 
 # Check container status
-ssh Pi4-2 "docker ps | grep smarket"
+ssh SRV199 "docker ps | grep smarket"
 ```
 
 ## Environment Variables
@@ -92,10 +92,10 @@ Production environment variables stored in:
 
 ```bash
 # Manual backup
-ssh Pi4-2 "docker exec smarket-postgres-prod pg_dump -U snailmarket snailmarket > /backups/smarket_$(date +%Y%m%d).sql"
+ssh SRV199 "docker exec smarket-postgres-prod pg_dump -U snailmarket snailmarket > /backups/smarket_$(date +%Y%m%d).sql"
 
 # Restore from backup
-ssh Pi4-2 "docker exec -i smarket-postgres-prod psql -U snailmarket -d snailmarket < /backups/smarket_20250121.sql"
+ssh SRV199 "docker exec -i smarket-postgres-prod psql -U snailmarket -d snailmarket < /backups/smarket_20250121.sql"
 ```
 
 ## Deployment Checklist
@@ -121,20 +121,20 @@ git revert HEAD
 git push origin master
 
 # 2. Pull on server
-ssh Pi4-2 "cd /home/lexun/apps/smarket && git pull origin master"
+ssh SRV199 "cd /home/lexun/apps/smarket && git pull origin master"
 
 # 3. Rebuild and restart
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
 ```
 
 ## Health Checks
 
 ```bash
 # Check API health
-curl https://smarket.sh3.su/api/health
+curl https://market.devloc.su/api/health
 
 # Check specific module
-curl https://smarket.sh3.su/api/v1/catalog/info
+curl https://market.devloc.su/api/v1/catalog/info
 ```
 
 ## Related

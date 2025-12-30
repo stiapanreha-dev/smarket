@@ -108,10 +108,7 @@ export class MerchantProductController {
     status: 404,
     description: 'Product not found or does not belong to merchant',
   })
-  async getProduct(
-    @Request() req: AuthenticatedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async getProduct(@Request() req: AuthenticatedRequest, @Param('id', ParseUUIDPipe) id: string) {
     // Get merchant profile for the authenticated user
     const merchant = await this.merchantRepository.findOne({
       where: { owner_id: req.user.id },
@@ -158,11 +155,7 @@ export class MerchantProductController {
       );
     }
 
-    return this.merchantProductService.createProduct(
-      merchant.id,
-      req.user.id,
-      createProductDto,
-    );
+    return this.merchantProductService.createProduct(merchant.id, req.user.id, createProductDto);
   }
 
   /**

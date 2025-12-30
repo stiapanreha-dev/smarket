@@ -751,12 +751,7 @@ export class UserService {
   /**
    * Get all users with filters (Admin only)
    */
-  async getAllUsers(filters: {
-    role?: UserRole;
-    search?: string;
-    page?: number;
-    limit?: number;
-  }) {
+  async getAllUsers(filters: { role?: UserRole; search?: string; page?: number; limit?: number }) {
     const { role, search, page = 1, limit = 20 } = filters;
     const skip = (page - 1) * limit;
 

@@ -19,7 +19,7 @@ Run migration SQL manually on production database.
 
 ```bash
 # Example: Create notifications table
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 CREATE TYPE notification_type_enum AS ENUM ('ORDER_UPDATE', 'PAYMENT_SUCCESS', 'SHIPPING_UPDATE', 'BOOKING_REMINDER', 'PROMO');
 CREATE TABLE notifications (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -52,9 +52,9 @@ This updates database URLs from localhost to production domain.
 
 **Manual fix:**
 ```bash
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 UPDATE products
-SET images = REPLACE(images::text, 'http://localhost:3000', 'https://smarket.sh3.su')::jsonb
+SET images = REPLACE(images::text, 'http://localhost:3000', 'https://market.devloc.su')::jsonb
 WHERE images::text LIKE '%localhost%';
 \""
 ```
@@ -67,19 +67,19 @@ WHERE images::text LIKE '%localhost%';
 
 **Check:**
 ```bash
-ssh Pi4-2 "docker ps | grep smarket"
+ssh SRV199 "docker ps | grep smarket"
 ```
 
 **Solution:**
 ```bash
 # Check logs for errors
-ssh Pi4-2 "docker logs smarket-backend-prod --tail 50"
+ssh SRV199 "docker logs smarket-backend-prod --tail 50"
 
 # Restart container
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-backend-prod"
 
 # If still failing, rebuild
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
 ```
 
 ## 4. Node Not Available on Server
@@ -94,7 +94,7 @@ Run import scripts **locally** with production API:
 
 ```bash
 # From local machine
-API_BASE="https://smarket.sh3.su/api/v1" ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+API_BASE="https://market.devloc.su/api/v1" ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
 ```
 
 Scripts use local Node.js to parse products, then upload to production API.
@@ -108,16 +108,16 @@ Scripts use local Node.js to parse products, then upload to production API.
 **Check:**
 ```bash
 # Check PostgreSQL container
-ssh Pi4-2 "docker ps | grep postgres"
+ssh SRV199 "docker ps | grep postgres"
 
 # Check connection
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'SELECT 1;'"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c 'SELECT 1;'"
 ```
 
 **Solution:**
 ```bash
 # Restart PostgreSQL container
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-postgres-prod"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-postgres-prod"
 ```
 
 ## 6. Redis Connection Issues
@@ -128,12 +128,12 @@ ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docke
 
 **Check:**
 ```bash
-ssh Pi4-2 "docker exec smarket-redis-prod redis-cli ping"
+ssh SRV199 "docker exec smarket-redis-prod redis-cli ping"
 ```
 
 **Solution:**
 ```bash
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-redis-prod"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart smarket-redis-prod"
 ```
 
 ## 7. Frontend Not Updating
@@ -149,7 +149,7 @@ cd client
 npm run build
 
 # Sync to server
-rsync -avz client/dist/ Pi4-2:/home/lexun/apps/smarket.backup/frontend/
+rsync -avz client/dist/ SRV199:/home/lexun/apps/smarket.backup/frontend/
 
 # Clear browser cache
 # Or hard refresh: Ctrl+Shift+R
@@ -163,29 +163,29 @@ rsync -avz client/dist/ Pi4-2:/home/lexun/apps/smarket.backup/frontend/
 
 **Check:**
 ```bash
-ssh Pi4-2 "sudo certbot certificates"
+ssh SRV199 "sudo certbot certificates"
 ```
 
 **Solution:**
 ```bash
 # Renew certificates
-ssh Pi4-2 "sudo certbot renew"
+ssh SRV199 "sudo certbot renew"
 
 # Reload nginx
-ssh Pi4-2 "sudo systemctl reload nginx"
+ssh SRV199 "sudo systemctl reload nginx"
 ```
 
 ## 9. High Memory Usage
 
 **Check:**
 ```bash
-ssh Pi4-2 "docker stats --no-stream"
+ssh SRV199 "docker stats --no-stream"
 ```
 
 **Solution:**
 ```bash
 # Restart containers to free memory
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml restart"
 
 # Or increase container memory limits in docker-compose.prod.yml
 ```
@@ -194,35 +194,35 @@ ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docke
 
 **Check:**
 ```bash
-ssh Pi4-2 "df -h"
+ssh SRV199 "df -h"
 ```
 
 **Solution:**
 ```bash
 # Clean Docker images
-ssh Pi4-2 "docker system prune -a"
+ssh SRV199 "docker system prune -a"
 
 # Clean logs
-ssh Pi4-2 "sudo journalctl --vacuum-time=7d"
+ssh SRV199 "sudo journalctl --vacuum-time=7d"
 
 # Remove old database backups
-ssh Pi4-2 "find /backups -mtime +30 -delete"
+ssh SRV199 "find /backups -mtime +30 -delete"
 ```
 
 ## Monitoring Commands
 
 ```bash
 # Check all container status
-ssh Pi4-2 "docker ps"
+ssh SRV199 "docker ps"
 
 # Check container logs
-ssh Pi4-2 "docker logs smarket-backend-prod --tail 100"
+ssh SRV199 "docker logs smarket-backend-prod --tail 100"
 
 # Check nginx logs
-ssh Pi4-2 "sudo tail -f /var/log/nginx/error.log"
+ssh SRV199 "sudo tail -f /var/log/nginx/error.log"
 
 # Check system resources
-ssh Pi4-2 "htop"
+ssh SRV199 "htop"
 ```
 
 ## Emergency Rollback
@@ -235,8 +235,8 @@ git revert HEAD
 git push origin master
 
 # 2. Redeploy
-ssh Pi4-2 "cd /home/lexun/apps/smarket && git pull origin master"
-ssh Pi4-2 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
+ssh SRV199 "cd /home/lexun/apps/smarket && git pull origin master"
+ssh SRV199 "cd /home/lexun/apps/smarket.backup/backend && docker compose -f docker-compose.prod.yml up -d --build"
 ```
 
 ## Related

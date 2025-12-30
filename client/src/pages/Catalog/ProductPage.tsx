@@ -41,6 +41,7 @@ import {
 } from '@/types/catalog';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
+import { useAuthStore } from '@/store/authStore';
 import { Navbar, Footer } from '@/components/layout';
 import { ProductCard } from '@/components/features';
 import { SEO } from '@/components/SEO';
@@ -75,6 +76,9 @@ export function ProductPage() {
 
   // Cart store
   const { addItem } = useCartStore();
+
+  // Auth store
+  const { isAuthenticated } = useAuthStore();
 
   // Wishlist store
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
@@ -305,6 +309,14 @@ export function ProductPage() {
   // Handle wishlist toggle
   const handleWishlistToggle = async () => {
     if (!id) return;
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Redirect to login with return URL to come back after login
+      const returnUrl = encodeURIComponent(`/product/${id}`);
+      navigate(`/login?returnUrl=${returnUrl}`);
+      return;
+    }
 
     try {
       if (inWishlist) {

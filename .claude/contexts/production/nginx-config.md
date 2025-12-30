@@ -1,10 +1,10 @@
 # Nginx Configuration
 
-Production nginx configuration for smarket.sh3.su.
+Production nginx configuration for market.devloc.su.
 
 ## Config Location
 
-`/etc/nginx/sites-available/smarket.sh3.su`
+`/etc/nginx/sites-available/market.devloc.su`
 
 ## Configuration Structure
 
@@ -12,7 +12,7 @@ Production nginx configuration for smarket.sh3.su.
 server {
     listen 80;
     listen [::]:80;
-    server_name smarket.sh3.su;
+    server_name market.devloc.su;
 
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
@@ -21,11 +21,11 @@ server {
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
-    server_name smarket.sh3.su;
+    server_name market.devloc.su;
 
     # SSL certificates
-    ssl_certificate /etc/letsencrypt/live/smarket.sh3.su/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/smarket.sh3.su/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/market.devloc.su/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/market.devloc.su/privkey.pem;
 
     # Backend API
     location /api/ {
@@ -144,7 +144,7 @@ After product import, image URLs may need fixing:
 ./scripts/fix-image-urls.sh
 ```
 
-This updates database URLs from `http://localhost:3000` to `https://smarket.sh3.su`.
+This updates database URLs from `http://localhost:3000` to `https://market.devloc.su`.
 
 ## Performance Optimization
 

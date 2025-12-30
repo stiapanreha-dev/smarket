@@ -1,9 +1,10 @@
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaTimes, FaShoppingCart, FaExchangeAlt } from 'react-icons/fa';
+import { FaShoppingCart } from 'react-icons/fa';
+import { AiFillHeart } from 'react-icons/ai';
 import type { WishlistItem } from '@/types/wishlist';
-import { formatPrice } from '@/types/catalog';
+import { formatPrice, ProductType } from '@/types/catalog';
 import './WishlistCard.css';
 
 interface WishlistCardProps {
@@ -20,18 +21,12 @@ interface WishlistCardProps {
 /**
  * Wishlist Card Component
  *
- * Displays a product card in the wishlist with:
- * - Product image, title, and price
- * - Remove from wishlist button (X)
- * - Add to Cart button
- * - Move to Cart button (add to cart + remove from wishlist)
- * - Product type badge
+ * Displays a product card in the wishlist matching the catalog ProductCard style
  */
 export function WishlistCard({
   item,
   onRemove,
   onAddToCart,
-  onMoveToCart,
   isAddingToCart = false,
   isMovingToCart = false,
   disabled = false,
@@ -46,7 +41,7 @@ export function WishlistCard({
   // Get product image with fallback
   const getProductImage = (): string => {
     if (product?.imageUrl) return product.imageUrl;
-    return '/placeholder-product.svg'; // Fallback image
+    return '/placeholder-product.svg';
   };
 
   // Truncate long product names
@@ -55,10 +50,26 @@ export function WishlistCard({
     return title.substring(0, maxLength) + '...';
   };
 
-  // Format price (convert minor units to major units first)
+  // Get product type badge
+  const getProductTypeBadge = () => {
+    switch (product?.type) {
+      case ProductType.PHYSICAL:
+        return { variant: 'primary', text: t('product.type.physical') };
+      case ProductType.SERVICE:
+        return { variant: 'success', text: t('product.type.service') };
+      case ProductType.COURSE:
+        return { variant: 'info', text: t('product.type.course') };
+      default:
+        return null;
+    }
+  };
+
+  const typeBadge = getProductTypeBadge();
+
+  // Format price
   const formattedPrice = product?.basePriceMinor !== null && product?.basePriceMinor !== undefined
     ? formatPrice(
-        product.basePriceMinor / 100,
+        product.basePriceMinor,
         product.currency,
         i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US'
       )
@@ -66,7 +77,6 @@ export function WishlistCard({
 
   // Handle card click - navigate to product detail
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't navigate if button was clicked
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -77,24 +87,25 @@ export function WishlistCard({
 
   return (
     <Card
-      className={`wishlist-card cursor-pointer h-100 ${isRTL ? 'rtl' : ''}`}
+      className={`product-card product-card-grid cursor-pointer h-100 ${isRTL ? 'rtl' : ''}`}
       onClick={handleCardClick}
     >
-      <div className="wishlist-card-image-wrapper">
+      <div className="product-card-image-wrapper">
         <Card.Img
           variant="top"
           src={getProductImage()}
           alt={product?.title || 'Product'}
-          className="wishlist-card-image"
+          className="product-card-image"
           onError={(e) => {
             (e.target as HTMLImageElement).src = '/placeholder-product.svg';
           }}
         />
+        {/* Wishlist button (heart) - shown as filled since item is in wishlist */}
         {!isShared && onRemove && (
           <Button
             variant="light"
             size="sm"
-            className="remove-btn position-absolute top-0 m-2 rounded-circle p-2"
+            className="position-absolute top-0 m-2 rounded-circle p-2 wishlist-btn"
             style={{ [isRTL ? 'right' : 'left']: '8px' }}
             onClick={(e) => {
               e.stopPropagation();
@@ -103,94 +114,58 @@ export function WishlistCard({
             disabled={disabled}
             aria-label="Remove from wishlist"
           >
-            <FaTimes size={16} className="text-danger" />
+            <AiFillHeart size={20} className="text-danger" />
           </Button>
+        )}
+        {/* Product type badge */}
+        {typeBadge && (
+          <Badge
+            bg={typeBadge.variant}
+            className="position-absolute top-0 m-2"
+            style={{ [isRTL ? 'left' : 'right']: '8px' }}
+          >
+            {typeBadge.text}
+          </Badge>
         )}
       </div>
 
       <Card.Body className="d-flex flex-column">
-        <Card.Title className="wishlist-card-title mb-2">
+        <Card.Title className="product-card-title mb-2">
           {truncateTitle(product?.title || 'Unknown Product')}
         </Card.Title>
 
-        <div className="wishlist-card-price mb-3 fw-bold text-primary">
+        <div className="product-card-price mb-3">
           {formattedPrice}
         </div>
 
-        {/* Added date */}
-        <div className="text-muted small mb-3">
-          {t('wishlist.addedOn', 'Added on')}{' '}
-          {new Date(item.createdAt).toLocaleDateString(
-            i18n.language === 'ar' ? 'ar-SA' : i18n.language === 'ru' ? 'ru-RU' : 'en-US',
-            {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            }
-          )}
-        </div>
-
-        {/* Action buttons - only show if not shared */}
-        {!isShared && (
-          <div className="mt-auto d-flex flex-column gap-2">
-            {/* Add to Cart button */}
-            {onAddToCart && (
-              <Button
-                variant="outline-primary"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddToCart();
-                }}
-                disabled={disabled || isAddingToCart || isMovingToCart}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    {t('cart.adding', 'Adding...')}
-                  </>
-                ) : (
-                  <>
-                    <FaShoppingCart className={isRTL ? 'ms-2' : 'me-2'} />
-                    {t('wishlist.addToCart', 'Add to Cart')}
-                  </>
-                )}
-              </Button>
+        {/* Add to Cart button */}
+        {!isShared && onAddToCart && (
+          <Button
+            variant="primary"
+            className="mt-auto w-100"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart();
+            }}
+            disabled={disabled || isAddingToCart || isMovingToCart}
+          >
+            {isAddingToCart ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                {t('product.adding') || 'Adding...'}
+              </>
+            ) : (
+              <>
+                <FaShoppingCart className={isRTL ? 'ms-2' : 'me-2'} />
+                {t('product.addToCart')}
+              </>
             )}
-
-            {/* Move to Cart button */}
-            {onMoveToCart && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMoveToCart();
-                }}
-                disabled={disabled || isAddingToCart || isMovingToCart}
-              >
-                {isMovingToCart ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    {t('wishlist.moving', 'Moving...')}
-                  </>
-                ) : (
-                  <>
-                    <FaExchangeAlt className={isRTL ? 'ms-2' : 'me-2'} />
-                    {t('wishlist.moveToCart', 'Move to Cart')}
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+          </Button>
         )}
       </Card.Body>
     </Card>

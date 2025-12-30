@@ -491,10 +491,7 @@ export class CheckoutService {
         // Extract payment intent ID from payment_details if available
         const paymentIntentId = session.payment_details?.paymentIntentId;
 
-        order = await this.orderService.createOrderFromCheckout(
-          session.id,
-          paymentIntentId,
-        );
+        order = await this.orderService.createOrderFromCheckout(session.id, paymentIntentId);
         session.order_id = order.id;
         session.order_number = order.order_number;
         this.logger.log(`Order ${order.order_number} created for session ${session.id}`);

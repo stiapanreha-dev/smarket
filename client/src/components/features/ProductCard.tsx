@@ -9,6 +9,7 @@ import type { Product } from '@/types/catalog';
 import { ProductType, formatPrice, getProductPrice } from '@/types/catalog';
 import { useWishlistStore } from '@/store/wishlistStore';
 import { useCartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
 import { usePrefetchProduct } from '@/hooks/useCatalog';
 import { extractTextFromEditorJS } from '@/utils/editorjs';
 import './ProductCard.css';
@@ -31,6 +32,9 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
 
   // Local state for loading
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  // Auth check
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // Wishlist functionality
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore();
@@ -150,6 +154,14 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
   const handleWishlistToggle = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Redirect to login with return URL to come back after login
+      const returnUrl = encodeURIComponent(`/product/${product.id}`);
+      navigate(`/login?returnUrl=${returnUrl}`);
+      return;
+    }
+
     try {
       if (inWishlist) {
         await removeFromWishlist(product.id);
@@ -165,7 +177,7 @@ function ProductCardComponent({ product, variant = 'grid' }: ProductCardProps) {
           : t('wishlist.error') || 'Failed to update wishlist'
       );
     }
-  }, [inWishlist, product.id, removeFromWishlist, addToWishlist, t]);
+  }, [isAuthenticated, inWishlist, product.id, removeFromWishlist, addToWishlist, t, navigate]);
 
   // Calculate price and formatted price - memoized
   const price = useMemo(() => getProductPrice(product), [product]);

@@ -206,7 +206,7 @@ stripe trigger charge.refunded
 ### Stripe Dashboard Configuration
 
 1. Go to https://dashboard.stripe.com/webhooks
-2. Add endpoint: `https://smarket.sh3.su/api/v1/webhooks/stripe`
+2. Add endpoint: `https://market.devloc.su/api/v1/webhooks/stripe`
 3. Select events to listen for
 4. Copy signing secret to production `.env`
 

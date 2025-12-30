@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 SnailMarketplace is a modular monolith marketplace platform built with NestJS, PostgreSQL, Redis, and S3. It supports three product types: physical goods, digital products, and services. The platform features multi-language support (EN/RU/AR), FSM-based order management, and event-driven architecture with the Outbox pattern.
 
-**Domain**: https://smarket.sh3.su
+**Domain**: https://market.devloc.su
 
 ---
 
@@ -82,7 +82,7 @@ SnailMarketplace is a modular monolith marketplace platform built with NestJS, P
 
 - Health check: `GET /health`
 - API base: `http://localhost:3000/api/v1`
-- Production: `https://smarket.sh3.su/api/v1`
+- Production: `https://market.devloc.su/api/v1`
 - Module info endpoints: `GET /api/v1/{module}/info`
 
 ## Code Review Checklist

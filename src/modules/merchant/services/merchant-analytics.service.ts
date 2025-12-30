@@ -28,10 +28,7 @@ export class MerchantAnalyticsService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async getAnalytics(
-    merchantId: string,
-    query: AnalyticsQueryDto,
-  ): Promise<AnalyticsDataDto> {
+  async getAnalytics(merchantId: string, query: AnalyticsQueryDto): Promise<AnalyticsDataDto> {
     // Parse dates or use defaults (last 7 days)
     const endDate = query.endDate ? new Date(query.endDate) : new Date();
     endDate.setHours(23, 59, 59, 999);
@@ -48,21 +45,27 @@ export class MerchantAnalyticsService {
     const previousStartDate = new Date(previousEndDate.getTime() - periodLength);
     previousStartDate.setHours(0, 0, 0, 0);
 
-    const [
-      kpi,
-      revenueByDay,
-      revenueByProductType,
-      topCategories,
-      ordersByHour,
-      ordersDetail,
-    ] = await Promise.all([
-      this.getKPIData(merchantId, startDate, endDate, query.compare ? previousStartDate : undefined, query.compare ? previousEndDate : undefined),
-      this.getRevenueByDay(merchantId, startDate, endDate, query.compare ? previousStartDate : undefined, query.compare ? previousEndDate : undefined),
-      this.getRevenueByProductType(merchantId, startDate, endDate),
-      this.getTopCategories(merchantId, startDate, endDate),
-      this.getOrdersByHour(merchantId, startDate, endDate),
-      this.getOrdersDetail(merchantId, startDate, endDate),
-    ]);
+    const [kpi, revenueByDay, revenueByProductType, topCategories, ordersByHour, ordersDetail] =
+      await Promise.all([
+        this.getKPIData(
+          merchantId,
+          startDate,
+          endDate,
+          query.compare ? previousStartDate : undefined,
+          query.compare ? previousEndDate : undefined,
+        ),
+        this.getRevenueByDay(
+          merchantId,
+          startDate,
+          endDate,
+          query.compare ? previousStartDate : undefined,
+          query.compare ? previousEndDate : undefined,
+        ),
+        this.getRevenueByProductType(merchantId, startDate, endDate),
+        this.getTopCategories(merchantId, startDate, endDate),
+        this.getOrdersByHour(merchantId, startDate, endDate),
+        this.getOrdersDetail(merchantId, startDate, endDate),
+      ]);
 
     return {
       kpi,
@@ -93,28 +96,30 @@ export class MerchantAnalyticsService {
     }
 
     const currentAOV = currentStats.orders > 0 ? currentStats.revenue / currentStats.orders : 0;
-    const previousAOV = previousStats && previousStats.orders > 0
-      ? previousStats.revenue / previousStats.orders
-      : 0;
+    const previousAOV =
+      previousStats && previousStats.orders > 0 ? previousStats.revenue / previousStats.orders : 0;
 
     return {
       revenue: {
         value: currentStats.revenue,
-        change: previousStats && previousStats.revenue > 0
-          ? ((currentStats.revenue - previousStats.revenue) / previousStats.revenue) * 100
-          : undefined,
+        change:
+          previousStats && previousStats.revenue > 0
+            ? ((currentStats.revenue - previousStats.revenue) / previousStats.revenue) * 100
+            : undefined,
       },
       orders: {
         value: currentStats.orders,
-        change: previousStats && previousStats.orders > 0
-          ? ((currentStats.orders - previousStats.orders) / previousStats.orders) * 100
-          : undefined,
+        change:
+          previousStats && previousStats.orders > 0
+            ? ((currentStats.orders - previousStats.orders) / previousStats.orders) * 100
+            : undefined,
       },
       avgOrderValue: {
         value: currentAOV,
-        change: previousStats && previousAOV > 0
-          ? ((currentAOV - previousAOV) / previousAOV) * 100
-          : undefined,
+        change:
+          previousStats && previousAOV > 0
+            ? ((currentAOV - previousAOV) / previousAOV) * 100
+            : undefined,
       },
     };
   }

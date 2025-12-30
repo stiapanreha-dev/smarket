@@ -729,9 +729,7 @@ describe('CheckoutService', () => {
 
       mockCheckoutSessionRepository.findOne.mockResolvedValue(session);
       mockOrderService.createOrderFromCheckout.mockResolvedValue(createdOrder);
-      mockInventoryService.commitReservation.mockRejectedValue(
-        new Error('Stock level changed'),
-      );
+      mockInventoryService.commitReservation.mockRejectedValue(new Error('Stock level changed'));
       mockInventoryService.releaseReservation.mockResolvedValue(undefined);
       mockCheckoutSessionRepository.save.mockResolvedValue({
         ...session,

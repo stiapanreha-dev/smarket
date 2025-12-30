@@ -407,7 +407,7 @@ Your card was declined
 2. Click **Add endpoint**
 3. Enter production URL:
    ```
-   https://smarket.sh3.su/api/v1/webhooks/stripe
+   https://market.devloc.su/api/v1/webhooks/stripe
    ```
 4. Select events to listen to:
    - `payment_intent.succeeded`
@@ -441,7 +441,7 @@ Use Stripe CLI to test production webhooks:
 
 ```bash
 # Forward events to production endpoint
-stripe listen --forward-to https://smarket.sh3.su/api/v1/webhooks/stripe --api-key sk_live_...
+stripe listen --forward-to https://market.devloc.su/api/v1/webhooks/stripe --api-key sk_live_...
 
 # Trigger test event
 stripe trigger payment_intent.succeeded --api-key sk_live_...

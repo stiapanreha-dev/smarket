@@ -11,7 +11,27 @@ Get SnailMarketplace running locally in 5 minutes.
 
 ## Step-by-Step Setup
 
-### 1. Clone and Install
+### Quick Start (Using Makefile)
+
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd smarket
+make install
+
+# 2. Start everything (Terminal 1)
+make dev          # Starts containers + backend
+
+# 3. Start frontend (Terminal 2)
+make dev-front    # Starts frontend at http://localhost:5173
+
+# 4. Stop when done
+make stop         # Stops everything
+```
+
+### Manual Setup (Using npm)
+
+#### 1. Clone and Install
 
 ```bash
 git clone <repo-url>
@@ -19,17 +39,17 @@ cd smarket
 npm install
 ```
 
-### 2. Start Infrastructure
+#### 2. Start Infrastructure
 
 ```bash
 # Start Docker services (PostgreSQL, Redis, LocalStack, Adminer)
-docker-compose up -d
+docker compose up -d
 
 # Verify containers are running
-docker-compose ps
+docker compose ps
 ```
 
-### 3. Setup Database
+#### 3. Setup Database
 
 ```bash
 # Run migrations
@@ -39,7 +59,7 @@ npm run migration:run
 npm run seed
 ```
 
-### 4. Start Backend
+#### 4. Start Backend
 
 ```bash
 # Start development server with hot reload
@@ -48,7 +68,7 @@ npm run start:dev
 # Backend will be available at: http://localhost:3000
 ```
 
-### 5. Start Frontend
+#### 5. Start Frontend
 
 ```bash
 # In a new terminal
@@ -160,6 +180,20 @@ After seeding, you'll have:
 
 ## Common Commands
 
+### Using Makefile (Recommended)
+
+```bash
+make help         # Show all commands
+make dev          # Start dev environment
+make stop         # Stop everything
+make test         # Run tests
+make lint         # Lint code
+make db-migrate   # Run migrations
+make db-reset     # Reset database
+```
+
+### Using npm
+
 ```bash
 # Run tests
 npm test
@@ -174,7 +208,7 @@ npm run lint
 npm run migration:generate -- src/database/migrations/YourMigration
 
 # Stop infrastructure
-docker-compose down
+docker compose down
 
 # Stripe webhook listener (if Stripe CLI installed)
 stripe listen --forward-to localhost:3000/api/v1/webhooks/stripe

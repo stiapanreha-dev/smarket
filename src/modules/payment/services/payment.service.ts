@@ -395,7 +395,13 @@ export class PaymentService {
   async getUserPayments(
     userId: string,
     options: { page?: number; limit?: number } = {},
-  ): Promise<{ payments: Payment[]; total: number; page: number; limit: number; totalPages: number }> {
+  ): Promise<{
+    payments: Payment[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const page = options.page || 1;
     const limit = Math.min(options.limit || 20, 100);
     const skip = (page - 1) * limit;

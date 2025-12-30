@@ -138,9 +138,7 @@ describe('StripePaymentService', () => {
       const error = new Error('Invalid amount');
       mockPaymentIntents.create.mockRejectedValue(error);
 
-      await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(BadRequestException);
       await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(
         'Failed to create payment intent: Invalid amount',
       );
@@ -149,9 +147,7 @@ describe('StripePaymentService', () => {
     it('should handle unknown error type', async () => {
       mockPaymentIntents.create.mockRejectedValue('Unknown error string');
 
-      await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(BadRequestException);
       await expect(service.createPaymentIntent(1000, 'usd')).rejects.toThrow(
         'Failed to create payment intent: Unknown error',
       );
@@ -228,9 +224,7 @@ describe('StripePaymentService', () => {
       const error = new Error('Cannot update payment intent');
       mockPaymentIntents.update.mockRejectedValue(error);
 
-      await expect(service.updatePaymentIntent('pi_123', {})).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.updatePaymentIntent('pi_123', {})).rejects.toThrow(BadRequestException);
       await expect(service.updatePaymentIntent('pi_123', {})).rejects.toThrow(
         'Failed to update payment intent: Cannot update payment intent',
       );
@@ -526,9 +520,7 @@ describe('StripePaymentService', () => {
         throw error;
       });
 
-      expect(() => service.verifyWebhookSignature(payload, signature)).toThrow(
-        BadRequestException,
-      );
+      expect(() => service.verifyWebhookSignature(payload, signature)).toThrow(BadRequestException);
       expect(() => service.verifyWebhookSignature(payload, signature)).toThrow(
         'Webhook signature verification failed: Invalid signature',
       );

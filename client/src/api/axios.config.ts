@@ -348,20 +348,28 @@ const createAxiosInstance = (): AxiosInstance => {
         const refreshToken = getRefreshToken();
 
         if (!refreshToken) {
-          // No refresh token available, redirect to login
-          clearTokens();
-          clearAllStores(); // Clear all Zustand stores on session expiration
+          // Check if user was ever logged in (had access token in request)
+          const hadAccessToken = originalRequest.headers?.Authorization;
+
+          if (hadAccessToken) {
+            // User was logged in but session expired
+            clearTokens();
+            clearAllStores(); // Clear all Zustand stores on session expiration
+            console.error('[Axios] Session expired - no refresh token');
+          }
+
           processQueue(new Error('No refresh token available'), null);
           isRefreshing = false;
 
-          // Redirect to login page
-          console.error('[Axios] Redirecting to login - no refresh token');
-          // window.location.href = '/login';
+          // Different message for never-logged-in vs session-expired
+          const errorMessage = hadAccessToken
+            ? 'Session expired. Please login again.'
+            : 'Please login to continue.';
 
           return Promise.reject(
             new ApiError(
               HttpStatus.UNAUTHORIZED,
-              'Session expired. Please login again.',
+              errorMessage,
               data
             )
           );

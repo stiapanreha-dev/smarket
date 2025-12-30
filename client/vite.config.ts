@@ -65,4 +65,14 @@ export default defineConfig({
       '@tanstack/react-query',
     ],
   },
+
+  // Proxy API requests to backend
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

@@ -368,10 +368,8 @@ export function WishlistPage() {
                     item={item}
                     onRemove={() => setItemToRemove(item.productId)}
                     onAddToCart={() => handleAddToCart(item.productId)}
-                    onMoveToCart={() => handleMoveToCart(item.productId)}
                     isAddingToCart={isAddingToCart === item.productId}
-                    isMovingToCart={isMovingToCart === item.productId}
-                    disabled={isLoading || !!isAddingToCart || !!isMovingToCart}
+                    disabled={isLoading || !!isAddingToCart}
                   />
                 </Col>
               ))}

@@ -62,10 +62,7 @@ export class AdminUserController {
   @ApiResponse({ status: 200, description: 'User role updated' })
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 400, description: 'Invalid role' })
-  async updateUserRole(
-    @Param('id', ParseUUIDPipe) userId: string,
-    @Body() dto: UpdateUserRoleDto,
-  ) {
+  async updateUserRole(@Param('id', ParseUUIDPipe) userId: string, @Body() dto: UpdateUserRoleDto) {
     return this.userService.updateUserRole(userId, dto.role);
   }
 }

@@ -36,7 +36,17 @@ import { MerchantApplicationService } from './services/merchant-application.serv
     MerchantApplicationController,
     AdminMerchantApplicationController,
   ],
-  providers: [MerchantDashboardService, MerchantAnalyticsService, MerchantProductService, MerchantApplicationService],
-  exports: [MerchantDashboardService, MerchantAnalyticsService, MerchantProductService, MerchantApplicationService],
+  providers: [
+    MerchantDashboardService,
+    MerchantAnalyticsService,
+    MerchantProductService,
+    MerchantApplicationService,
+  ],
+  exports: [
+    MerchantDashboardService,
+    MerchantAnalyticsService,
+    MerchantProductService,
+    MerchantApplicationService,
+  ],
 })
 export class MerchantModule {}

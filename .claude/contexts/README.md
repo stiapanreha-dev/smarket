@@ -47,7 +47,7 @@ Modular context system for SnailMarketplace project documentation.
 - [development/local-api-testing.md](development/local-api-testing.md) - Local API testing with curl
 
 ### 🚀 Production
-- [production/deployment.md](production/deployment.md) - Pi4-2 deployment process
+- [production/deployment.md](production/deployment.md) - SRV199 deployment process
 - [production/migrations.md](production/migrations.md) - Manual migration process (CRITICAL)
 - [production/nginx-config.md](production/nginx-config.md) - Nginx configuration
 - [production/troubleshooting.md](production/troubleshooting.md) - Common issues

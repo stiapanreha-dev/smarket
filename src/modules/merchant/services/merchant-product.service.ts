@@ -1,11 +1,19 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Product, ProductStatus } from '../../../database/entities/product.entity';
-import { ProductTranslation, TranslationLocale } from '../../../database/entities/product-translation.entity';
+import {
+  ProductTranslation,
+  TranslationLocale,
+} from '../../../database/entities/product-translation.entity';
 import { ProductVariant } from '../../../database/entities/product-variant.entity';
 import { MerchantProductFiltersDto } from '../dto/merchant-product-filters.dto';
 import { CreateMerchantProductDto } from '../dto/create-merchant-product.dto';
@@ -212,7 +220,10 @@ export class MerchantProductService {
         if (dto.title && dto.slug) {
           translation.slug = dto.slug;
         } else if (dto.title) {
-          translation.slug = await this.generateUniqueSlug(this.slugify(dto.title), translation.locale);
+          translation.slug = await this.generateUniqueSlug(
+            this.slugify(dto.title),
+            translation.locale,
+          );
         }
 
         await this.translationRepository.save(translation);
@@ -229,7 +240,8 @@ export class MerchantProductService {
         // Update variant fields
         if (variantDto.sku !== undefined) existingVariant.sku = variantDto.sku;
         if (variantDto.title !== undefined) existingVariant.title = variantDto.title;
-        if (variantDto.price_minor !== undefined) existingVariant.price_minor = variantDto.price_minor;
+        if (variantDto.price_minor !== undefined)
+          existingVariant.price_minor = variantDto.price_minor;
         if (variantDto.currency !== undefined) existingVariant.currency = variantDto.currency;
         if (variantDto.compare_at_price_minor !== undefined) {
           existingVariant.compare_at_price_minor = variantDto.compare_at_price_minor;
@@ -286,7 +298,9 @@ export class MerchantProductService {
     let slug = baseSlug;
     let counter = 0;
 
-    const repo = queryRunner ? queryRunner.manager.getRepository(ProductTranslation) : this.translationRepository;
+    const repo = queryRunner
+      ? queryRunner.manager.getRepository(ProductTranslation)
+      : this.translationRepository;
 
     while (
       await repo.findOne({

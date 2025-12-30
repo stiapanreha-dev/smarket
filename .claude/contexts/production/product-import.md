@@ -16,7 +16,7 @@ nano scripts/.env
 ```bash
 MERCHANT_EMAIL=merchant@example.com
 MERCHANT_PASSWORD=secure_password
-API_BASE=https://smarket.sh3.su/api/v1
+API_BASE=https://market.devloc.su/api/v1
 ```
 
 ## Import to Production
@@ -63,7 +63,7 @@ UPDATE products SET images = REPLACE(images, 'localhost', 'production')
 If Node.js not available on server:
 
 ```bash
-API_BASE="https://smarket.sh3.su/api/v1" ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
+API_BASE="https://market.devloc.su/api/v1" ./scripts/import-to-prod.sh "https://american-creator.ru/catalog/must_have/199/"
 ```
 
 This runs the script **locally** but creates products on **production**.
@@ -81,7 +81,7 @@ Outputs JSON with product data.
 ### 2. Create Product via API
 
 ```bash
-curl -X POST https://smarket.sh3.su/api/v1/catalog/products \
+curl -X POST https://market.devloc.su/api/v1/catalog/products \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,9 +127,9 @@ curl -X POST https://smarket.sh3.su/api/v1/catalog/products \
 #!/bin/bash
 # scripts/fix-image-urls.sh
 
-ssh Pi4-2 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
+ssh SRV199 "docker exec smarket-postgres-prod psql -U snailmarket -d snailmarket -c \"
 UPDATE products
-SET images = REPLACE(images::text, 'http://localhost:3000', 'https://smarket.sh3.su')::jsonb
+SET images = REPLACE(images::text, 'http://localhost:3000', 'https://market.devloc.su')::jsonb
 WHERE images::text LIKE '%localhost%';
 \""
 ```

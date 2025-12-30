@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Container, Row, Col, Form, Card } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi';
@@ -38,7 +38,11 @@ interface LoginFormData {
 const Login: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, isLoading, error, isAuthenticated, clearError } = useAuthStore();
+
+  // Get return URL from query params (for redirect after login)
+  const returnUrl = searchParams.get('returnUrl');
 
   // Validation schema
   const loginSchema = yup.object().shape({
@@ -71,9 +75,11 @@ const Login: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/catalog');
+      // Redirect to returnUrl if provided, otherwise to catalog
+      const redirectTo = returnUrl ? decodeURIComponent(returnUrl) : '/catalog';
+      navigate(redirectTo);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, returnUrl]);
 
   // Clear error when component unmounts
   useEffect(() => {
@@ -99,8 +105,9 @@ const Login: React.FC = () => {
         localStorage.setItem('rememberMe', 'true');
       }
 
-      // Redirect to catalog on success
-      navigate('/catalog');
+      // Redirect to returnUrl if provided, otherwise to catalog
+      const redirectTo = returnUrl ? decodeURIComponent(returnUrl) : '/catalog';
+      navigate(redirectTo);
     } catch (err) {
       // Error is already set in the store, but we can add form-specific errors
       const error = err as { response?: { status?: number } };

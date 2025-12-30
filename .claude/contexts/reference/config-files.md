@@ -150,7 +150,7 @@ export default defineConfig({
 Production environment variables:
 
 ```bash
-VITE_API_BASE_URL=https://smarket.sh3.su/api/v1
+VITE_API_BASE_URL=https://market.devloc.su/api/v1
 ```
 
 ## Testing Configuration

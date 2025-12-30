@@ -1,7 +1,7 @@
 # Makefile for SnailMarketplace CI/CD operations
 # Run 'make help' to see all available commands
 
-.PHONY: help install lint typecheck test test-cov test-e2e docker-build docker-run docker-test ci-local clean
+.PHONY: help install lint typecheck test test-cov test-e2e docker-build docker-run docker-test ci-local clean dev dev-back dev-front up down stop logs db-migrate db-seed
 
 # Colors for output
 BLUE := \033[0;34m
@@ -14,6 +14,69 @@ help: ## Show this help message
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
 	@echo ""
+
+# ===========================================
+# Development Commands
+# ===========================================
+
+up: ## Start Docker containers (PostgreSQL, Redis, LocalStack)
+	@echo "$(BLUE)Starting Docker containers...$(NC)"
+	docker compose up -d
+	@echo "$(GREEN)✓ Containers started$(NC)"
+	@echo "  PostgreSQL: localhost:5433"
+	@echo "  Redis: localhost:6380"
+	@echo "  Adminer: http://localhost:9090"
+
+down: ## Stop Docker containers
+	@echo "$(BLUE)Stopping Docker containers...$(NC)"
+	docker compose down
+	@echo "$(GREEN)✓ Containers stopped$(NC)"
+
+stop: ## Stop everything (kill node processes + containers)
+	@echo "$(BLUE)Stopping everything...$(NC)"
+	-pkill -f "node.*nest" 2>/dev/null || true
+	-pkill -f "node.*vite" 2>/dev/null || true
+	docker compose down
+	@echo "$(GREEN)✓ All stopped$(NC)"
+
+logs: ## View Docker container logs
+	docker compose logs -f
+
+dev-back: ## Start backend dev server
+	@echo "$(BLUE)Starting backend...$(NC)"
+	npm run start:dev
+
+dev-front: ## Start frontend dev server
+	@echo "$(BLUE)Starting frontend...$(NC)"
+	cd client && npm run dev
+
+dev: up ## Start full dev environment (containers + backend)
+	@echo "$(BLUE)Starting development environment...$(NC)"
+	@sleep 2
+	npm run start:dev
+
+db-migrate: ## Run database migrations
+	@echo "$(BLUE)Running migrations...$(NC)"
+	npm run migration:run
+	@echo "$(GREEN)✓ Migrations completed$(NC)"
+
+db-seed: ## Seed database with test data
+	@echo "$(BLUE)Seeding database...$(NC)"
+	npm run seed
+	@echo "$(GREEN)✓ Database seeded$(NC)"
+
+db-reset: down ## Reset database (stop, remove volume, start, migrate, seed)
+	@echo "$(RED)Resetting database...$(NC)"
+	docker volume rm smarket_postgres-data 2>/dev/null || true
+	docker compose up -d
+	@sleep 3
+	npm run migration:run
+	npm run seed
+	@echo "$(GREEN)✓ Database reset completed$(NC)"
+
+# ===========================================
+# Installation & Setup
+# ===========================================
 
 install: ## Install dependencies
 	@echo "$(BLUE)Installing dependencies...$(NC)"

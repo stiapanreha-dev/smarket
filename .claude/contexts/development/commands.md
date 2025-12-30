@@ -2,14 +2,58 @@
 
 Daily commands for development workflow.
 
-## Setup and Running
+## Makefile Commands (Recommended)
+
+Use `make help` to see all available commands.
+
+### Quick Start
+
+```bash
+make dev        # Start everything (containers + backend)
+make dev-front  # In another terminal - start frontend
+```
+
+### Development
+
+| Command | Description |
+|---------|-------------|
+| `make up` | Start Docker containers |
+| `make down` | Stop Docker containers |
+| `make stop` | Stop everything (node + containers) |
+| `make dev` | Start full dev environment |
+| `make dev-back` | Start backend only |
+| `make dev-front` | Start frontend only |
+| `make logs` | View container logs |
+
+### Database
+
+| Command | Description |
+|---------|-------------|
+| `make db-migrate` | Run migrations |
+| `make db-seed` | Seed test data |
+| `make db-reset` | Reset database completely |
+
+### CI/CD
+
+| Command | Description |
+|---------|-------------|
+| `make install` | Install dependencies |
+| `make lint` | Run ESLint |
+| `make typecheck` | TypeScript check |
+| `make test` | Run unit tests |
+| `make test-cov` | Tests with coverage |
+| `make ci-local` | Full CI pipeline locally |
+
+## npm Commands
+
+### Setup and Running
 
 ```bash
 # Install dependencies
 npm install
 
 # Start infrastructure (PostgreSQL, Redis, LocalStack, Adminer)
-docker-compose up -d
+docker compose up -d
 
 # Run database migrations
 npm run migration:run
@@ -27,7 +71,7 @@ npm run build
 npm run start:prod
 ```
 
-## Database Operations
+### Database Operations
 
 ```bash
 # Generate new migration
@@ -46,7 +90,7 @@ npm run migration:show
 npm run seed
 ```
 
-## Testing
+### Testing
 
 ```bash
 # Run unit tests
@@ -71,7 +115,7 @@ npm test -- --testPathPattern=payment
 npm run test:debug
 ```
 
-## Code Quality
+### Code Quality
 
 ```bash
 # Lint and auto-fix
@@ -107,22 +151,42 @@ npm run lint
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Stop all services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f [service-name]
+docker compose logs -f [service-name]
 
 # Restart specific service
-docker-compose restart postgres
+docker compose restart postgres
 
 # Rebuild containers
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## Quick Start for New Developers
+
+### Using Makefile (Recommended)
+
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd smarket
+make install
+
+# 2. Start everything
+make dev          # Terminal 1: containers + backend
+
+# 3. Start frontend
+make dev-front    # Terminal 2: frontend
+
+# 4. Stop when done
+make stop
+```
+
+### Using npm
 
 ```bash
 # 1. Clone and install
@@ -131,7 +195,7 @@ cd smarket
 npm install
 
 # 2. Start infrastructure
-docker-compose up -d
+docker compose up -d
 
 # 3. Setup database
 npm run migration:run

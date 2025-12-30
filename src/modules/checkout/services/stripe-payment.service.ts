@@ -49,9 +49,7 @@ export class StripePaymentService {
     metadata: Record<string, string> = {},
   ): Promise<Stripe.PaymentIntent> {
     if (!stripeConfig.secretKey) {
-      throw new BadRequestException(
-        'Stripe is not configured. Please contact support.',
-      );
+      throw new BadRequestException('Stripe is not configured. Please contact support.');
     }
 
     try {

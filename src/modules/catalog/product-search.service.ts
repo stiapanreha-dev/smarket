@@ -566,7 +566,9 @@ export class ProductSearchService {
       .andWhere(`(translation.title ILIKE :query OR translation.description ILIKE :query)`, {
         query: `%${query}%`,
       })
-      .andWhere('product.type IN (:...types)', { types: [ProductType.PHYSICAL, ProductType.COURSE] })
+      .andWhere('product.type IN (:...types)', {
+        types: [ProductType.PHYSICAL, ProductType.COURSE],
+      })
       .orderBy('product.sales_count', 'DESC')
       .addOrderBy('product.view_count', 'DESC')
       .take(5)

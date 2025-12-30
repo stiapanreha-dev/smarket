@@ -22,9 +22,11 @@ async function bootstrap() {
   });
 
   // Security: Helmet middleware
-  app.use(helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
 
   // Global validation pipe
   app.useGlobalPipes(
