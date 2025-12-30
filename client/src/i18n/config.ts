@@ -152,6 +152,7 @@ const resources = {
         myAccount: 'My Account',
         buyerMode: 'Buyer',
         sellerMode: 'Seller',
+        admin: 'Admin',
       },
       orderStatus: {
         pending: 'Pending',
@@ -774,6 +775,7 @@ const resources = {
         myAccount: 'Мой кабинет',
         buyerMode: 'Покупатель',
         sellerMode: 'Продавец',
+        admin: 'Админ',
       },
       orderStatus: {
         pending: 'Ожидает',
@@ -1399,6 +1401,7 @@ const resources = {
         myAccount: 'حسابي',
         buyerMode: 'المشتري',
         sellerMode: 'البائع',
+        admin: 'المسؤول',
       },
       orderStatus: {
         pending: 'قيد الانتظار',
