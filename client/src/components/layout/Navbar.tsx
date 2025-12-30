@@ -52,8 +52,13 @@ const Navbar = () => {
       return '/login';
     }
 
-    // For merchants/admins - link based on current view mode
-    if (user?.role === 'merchant' || user?.role === 'admin') {
+    // Admins always go to admin dashboard
+    if (user?.role === 'admin') {
+      return '/admin';
+    }
+
+    // For merchants - link based on current view mode
+    if (user?.role === 'merchant') {
       return viewMode === 'seller' ? '/merchant/dashboard' : '/dashboard';
     }
 
@@ -94,7 +99,7 @@ const Navbar = () => {
           <BootstrapNavbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
               {user?.role === 'admin' && (
-                <Nav.Link href="/admin/users">{t('nav.users') || 'Users'}</Nav.Link>
+                <Nav.Link href="/admin">{t('nav.admin') || 'Admin'}</Nav.Link>
               )}
 
               {/* Mode Switcher - Only for merchants and admins */}

@@ -24,14 +24,21 @@ import { UserService } from './user.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @ApiTags('Admin - Users')
-@Controller('admin/users')
+@Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 @ApiBearerAuth()
 export class AdminUserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get admin dashboard statistics' })
+  @ApiResponse({ status: 200, description: 'Dashboard statistics retrieved' })
+  async getDashboardStats() {
+    return this.userService.getAdminDashboardStats();
+  }
+
+  @Get('users')
   @ApiOperation({ summary: 'Get all users with filters' })
   @ApiQuery({ name: 'role', enum: UserRole, required: false })
   @ApiQuery({ name: 'search', required: false, description: 'Search by email or name' })

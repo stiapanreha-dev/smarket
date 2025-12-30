@@ -1,0 +1,159 @@
+.admin-dashboard {
+  padding-top: 80px;
+  min-height: calc(100vh - 200px);
+}
+
+/* Stat Cards */
+.stat-card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-label {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.25rem;
+}
+
+.stat-subtitle {
+  color: #28a745;
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.stat-icon.users {
+  background: linear-gradient(135deg, #7FB3D5 0%, #5A9AC4 100%);
+}
+
+.stat-icon.orders {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+}
+
+.stat-icon.revenue {
+  background: linear-gradient(135deg, #28a745 0%, #20903b 100%);
+}
+
+.stat-icon.applications {
+  background: linear-gradient(135deg, #fd7e14 0%, #e06b10 100%);
+}
+
+/* Role Stats */
+.role-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.role-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.role-stat:last-child {
+  border-bottom: none;
+}
+
+.role-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.role-count {
+  font-size: 0.9rem;
+  padding: 0.35em 0.75em;
+}
+
+/* Order Stats */
+.order-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.order-stat {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-stat:last-child {
+  border-bottom: none;
+}
+
+.order-label {
+  flex: 1;
+  font-weight: 500;
+  color: #495057;
+}
+
+.order-count {
+  font-size: 0.9rem;
+  padding: 0.35em 0.75em;
+}
+
+/* Card Headers */
+.card-header {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+/* Quick Actions */
+.quick-actions .btn {
+  text-align: left;
+}
+
+/* Table Links */
+.admin-dashboard table a {
+  color: #7FB3D5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-dashboard table a:hover {
+  color: #5A9AC4;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+}

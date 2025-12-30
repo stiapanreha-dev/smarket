@@ -40,9 +40,52 @@ export interface UpdateUserRoleDto {
   role: UserRole;
 }
 
+export interface AdminDashboardStats {
+  users: {
+    total: number;
+    byRole: Record<string, number>;
+    newToday: number;
+    newThisWeek: number;
+  };
+  orders: {
+    total: number;
+    pending: number;
+    processing: number;
+    completed: number;
+    today: number;
+  };
+  revenue: {
+    total: number;
+    currency: string;
+  };
+  pendingMerchantApplications: number;
+  recentOrders: Array<{
+    id: string;
+    order_number: string;
+    status: string;
+    payment_status: string;
+    total_amount: number;
+    currency: string;
+    created_at: string;
+    customer: {
+      id: string;
+      email: string;
+      name: string;
+    } | null;
+  }>;
+}
+
 // ============================================================================
 // API Methods
 // ============================================================================
+
+/**
+ * Get admin dashboard statistics
+ */
+export const getDashboardStats = async (): Promise<AdminDashboardStats> => {
+  const response = await apiClient.get<AdminDashboardStats>('/admin/dashboard');
+  return response.data;
+};
 
 /**
  * Get all users with filters
@@ -77,6 +120,7 @@ export const updateUserRole = async (
 };
 
 export const adminApi = {
+  getDashboardStats,
   getUsers,
   getUserById,
   updateUserRole,

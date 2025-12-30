@@ -112,6 +112,9 @@ const AnalyticsPage = lazy(() =>
 );
 
 // ===== LAZY LOADING - ADMIN PAGES =====
+const AdminDashboardPage = lazy(() =>
+  import('./pages/Admin/DashboardPage').then((module) => ({ default: module.DashboardPage }))
+);
 const AdminUsersPage = lazy(() =>
   import('./pages/Admin/UsersPage').then((module) => ({ default: module.UsersPage }))
 );
@@ -332,6 +335,14 @@ function App() {
 
             {/* Admin Routes - Protected */}
             <Route element={<ProtectedRoute requiredRole="admin" />}>
+              <Route
+                path="/admin"
+                element={
+                  <Suspense fallback={<PageLoader text="Loading admin..." />}>
+                    <AdminDashboardPage />
+                  </Suspense>
+                }
+              />
               <Route
                 path="/admin/users"
                 element={

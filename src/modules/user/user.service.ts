@@ -796,6 +796,110 @@ export class UserService {
   }
 
   /**
+   * Get platform-wide statistics (Admin only)
+   */
+  async getAdminDashboardStats() {
+    // Get user counts by role
+    const userCounts = await this.userRepository
+      .createQueryBuilder('user')
+      .select('user.role', 'role')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('user.role')
+      .getRawMany();
+
+    const totalUsers = userCounts.reduce((sum, r) => sum + parseInt(r.count), 0);
+    const usersByRole = userCounts.reduce(
+      (acc, r) => {
+        acc[r.role] = parseInt(r.count);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    // Get users registered today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const newUsersToday = await this.userRepository.count({
+      where: { created_at: MoreThan(today) },
+    });
+
+    // Get users registered this week
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const newUsersThisWeek = await this.userRepository.count({
+      where: { created_at: MoreThan(weekAgo) },
+    });
+
+    // Get order statistics
+    const orderStats = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('COUNT(*)', 'totalOrders')
+      .addSelect('SUM(CASE WHEN order.payment_status = :captured THEN order.total_amount ELSE 0 END)', 'totalRevenue')
+      .addSelect('COUNT(CASE WHEN order.status = :pending THEN 1 END)', 'pendingOrders')
+      .addSelect('COUNT(CASE WHEN order.status = :processing THEN 1 END)', 'processingOrders')
+      .addSelect('COUNT(CASE WHEN order.status = :completed THEN 1 END)', 'completedOrders')
+      .setParameter('captured', PaymentStatus.CAPTURED)
+      .setParameter('pending', OrderStatus.PENDING)
+      .setParameter('processing', OrderStatus.PROCESSING)
+      .setParameter('completed', OrderStatus.COMPLETED)
+      .getRawOne();
+
+    // Get orders today
+    const ordersToday = await this.orderRepository.count({
+      where: { created_at: MoreThan(today) },
+    });
+
+    // Get pending merchant applications count
+    const pendingMerchantApplications = await this.merchantRepository.count({
+      where: { kyc_status: 'pending' as any },
+    });
+
+    // Get recent orders (last 10)
+    const recentOrders = await this.orderRepository.find({
+      order: { created_at: 'DESC' },
+      take: 10,
+      relations: ['user'],
+    });
+
+    return {
+      users: {
+        total: totalUsers,
+        byRole: usersByRole,
+        newToday: newUsersToday,
+        newThisWeek: newUsersThisWeek,
+      },
+      orders: {
+        total: parseInt(orderStats?.totalOrders || '0'),
+        pending: parseInt(orderStats?.pendingOrders || '0'),
+        processing: parseInt(orderStats?.processingOrders || '0'),
+        completed: parseInt(orderStats?.completedOrders || '0'),
+        today: ordersToday,
+      },
+      revenue: {
+        total: parseFloat(orderStats?.totalRevenue || '0'),
+        currency: 'USD',
+      },
+      pendingMerchantApplications,
+      recentOrders: recentOrders.map((order) => ({
+        id: order.id,
+        order_number: order.order_number,
+        status: order.status,
+        payment_status: order.payment_status,
+        total_amount: order.total_amount,
+        currency: order.currency,
+        created_at: order.created_at,
+        customer: order.user
+          ? {
+              id: order.user.id,
+              email: order.user.email,
+              name: `${order.user.first_name || ''} ${order.user.last_name || ''}`.trim(),
+            }
+          : null,
+      })),
+    };
+  }
+
+  /**
    * Update user role (Admin only)
    */
   async updateUserRole(userId: string, newRole: UserRole) {
