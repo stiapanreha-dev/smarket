@@ -17,3 +17,6 @@ export { RevenueByProductTypeChart } from './RevenueByProductTypeChart';
 export { TopCategoriesChart } from './TopCategoriesChart';
 export { PeakHoursHeatmap } from './PeakHoursHeatmap';
 export { ExportButtons } from './ExportButtons';
+
+// Import/Export components
+export { ImportWizard } from './ImportWizard';

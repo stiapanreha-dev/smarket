@@ -26,12 +26,18 @@ import {
   Modal,
   Pagination,
   Dropdown,
+  ButtonGroup,
 } from 'react-bootstrap';
-import { MerchantSidebar } from './components';
+import { MerchantSidebar, ImportWizard } from './components';
 import { useMerchantProducts, useDeleteProduct, useToggleProductStatus } from '@/hooks';
 import { ProductStatus } from '@/types/catalog';
 import type { Product } from '@/types/catalog';
 import { extractTextFromEditorJS } from '@/utils/editorjs';
+import {
+  useOpenImportModal,
+  useExportProducts,
+  useImportIsExporting,
+} from '@/store/importStore';
 import './ProductsPage.css';
 
 export const ProductsPage = () => {
@@ -62,6 +68,11 @@ export const ProductsPage = () => {
   // Mutations
   const deleteProductMutation = useDeleteProduct();
   const toggleStatusMutation = useToggleProductStatus();
+
+  // Import/Export
+  const openImportModal = useOpenImportModal();
+  const exportProducts = useExportProducts();
+  const isExporting = useImportIsExporting();
 
   // Handlers
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,6 +160,14 @@ export const ProductsPage = () => {
 
     setShowBulkDeleteModal(false);
     setSelectedProducts(new Set());
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportProducts();
+    } catch (err) {
+      console.error('Failed to export products:', err);
+    }
   };
 
   // Utility functions
@@ -261,9 +280,32 @@ export const ProductsPage = () => {
                     Manage your product catalog
                   </p>
                 </div>
-                <Button variant="primary" href="/merchant/products/new">
-                  Add New Product
-                </Button>
+                <div className="d-flex gap-2">
+                  <ButtonGroup>
+                    <Button
+                      variant="outline-secondary"
+                      onClick={handleExport}
+                      disabled={isExporting}
+                    >
+                      {isExporting ? (
+                        <Spinner as="span" animation="border" size="sm" />
+                      ) : (
+                        <i className="bi bi-download me-1"></i>
+                      )}
+                      Export
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      onClick={openImportModal}
+                    >
+                      <i className="bi bi-upload me-1"></i>
+                      Import
+                    </Button>
+                  </ButtonGroup>
+                  <Button variant="primary" href="/merchant/products/new">
+                    Add New Product
+                  </Button>
+                </div>
               </div>
 
               {/* Filters */}
@@ -601,6 +643,9 @@ export const ProductsPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Import Wizard */}
+      <ImportWizard />
     </div>
   );
 };

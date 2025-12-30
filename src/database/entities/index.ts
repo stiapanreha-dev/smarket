@@ -44,3 +44,20 @@ export {
   VatSettingsValue,
   DEFAULT_VAT_SETTINGS,
 } from './platform-settings.entity';
+export {
+  ImportSession,
+  ImportSessionStatus,
+  ImportFileFormat,
+  ColumnMapping,
+  AnalysisResult,
+} from './import-session.entity';
+export {
+  ImportItem,
+  ImportItemStatus,
+  ImportItemAction,
+  MatchMethod,
+  FieldChange,
+  MappedProductData,
+  MappedVariantData,
+  MappedData,
+} from './import-item.entity';

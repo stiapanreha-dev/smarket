@@ -40,96 +40,74 @@ export interface OrderStatusBadgeProps {
 /**
  * Status color mapping based on requirements
  * Maps status to Bootstrap badge variants
+ * Note: Using string values directly to avoid duplicate keys from enums
  */
 const STATUS_VARIANT_MAP: Record<string, 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info'> = {
+  // Common statuses (shared across types)
+  pending: 'warning',
+  payment_confirmed: 'info',
+  cancelled: 'secondary',
+  refund_requested: 'warning',
+  refunded: 'secondary',
+
   // Main order statuses
-  [OrderStatus.PENDING]: 'warning',
-  [OrderStatus.CONFIRMED]: 'info',
-  [OrderStatus.PROCESSING]: 'primary',
-  [OrderStatus.COMPLETED]: 'success',
-  [OrderStatus.CANCELLED]: 'secondary',
-  [OrderStatus.REFUNDED]: 'secondary',
-  [OrderStatus.PARTIALLY_REFUNDED]: 'secondary',
+  confirmed: 'info',
+  processing: 'primary',
+  completed: 'success',
+  partially_refunded: 'secondary',
 
   // Physical item statuses
-  [PhysicalItemStatus.PENDING]: 'warning',
-  [PhysicalItemStatus.PAYMENT_CONFIRMED]: 'info',
-  [PhysicalItemStatus.PREPARING]: 'primary',
-  [PhysicalItemStatus.READY_TO_SHIP]: 'info',
-  [PhysicalItemStatus.SHIPPED]: 'info',
-  [PhysicalItemStatus.OUT_FOR_DELIVERY]: 'info',
-  [PhysicalItemStatus.DELIVERED]: 'success',
-  [PhysicalItemStatus.CANCELLED]: 'secondary',
-  [PhysicalItemStatus.REFUND_REQUESTED]: 'warning',
-  [PhysicalItemStatus.REFUNDED]: 'secondary',
+  preparing: 'primary',
+  ready_to_ship: 'info',
+  shipped: 'info',
+  out_for_delivery: 'info',
+  delivered: 'success',
 
   // Digital item statuses
-  [DigitalItemStatus.PENDING]: 'warning',
-  [DigitalItemStatus.PAYMENT_CONFIRMED]: 'info',
-  [DigitalItemStatus.ACCESS_GRANTED]: 'success',
-  [DigitalItemStatus.DOWNLOADED]: 'success',
-  [DigitalItemStatus.CANCELLED]: 'secondary',
-  [DigitalItemStatus.REFUND_REQUESTED]: 'warning',
-  [DigitalItemStatus.REFUNDED]: 'secondary',
+  access_granted: 'success',
+  downloaded: 'success',
 
   // Service item statuses
-  [ServiceItemStatus.PENDING]: 'warning',
-  [ServiceItemStatus.PAYMENT_CONFIRMED]: 'info',
-  [ServiceItemStatus.BOOKING_CONFIRMED]: 'info',
-  [ServiceItemStatus.REMINDER_SENT]: 'info',
-  [ServiceItemStatus.IN_PROGRESS]: 'primary',
-  [ServiceItemStatus.COMPLETED]: 'success',
-  [ServiceItemStatus.NO_SHOW]: 'danger',
-  [ServiceItemStatus.CANCELLED]: 'secondary',
-  [ServiceItemStatus.REFUND_REQUESTED]: 'warning',
-  [ServiceItemStatus.REFUNDED]: 'secondary',
+  booking_confirmed: 'info',
+  reminder_sent: 'info',
+  in_progress: 'primary',
+  no_show: 'danger',
 };
 
 /**
  * Status icon mapping (optional)
+ * Note: Using string values directly to avoid duplicate keys from enums
  */
 const STATUS_ICON_MAP: Record<string, string> = {
+  // Common statuses
+  pending: '⏳',
+  payment_confirmed: '💳',
+  cancelled: '✕',
+  refund_requested: '↩️',
+  refunded: '↩️',
+
   // Main order statuses
-  [OrderStatus.PENDING]: '⏳',
-  [OrderStatus.CONFIRMED]: '✓',
-  [OrderStatus.PROCESSING]: '⚙️',
-  [OrderStatus.COMPLETED]: '✅',
-  [OrderStatus.CANCELLED]: '✕',
-  [OrderStatus.REFUNDED]: '↩️',
-  [OrderStatus.PARTIALLY_REFUNDED]: '↩️',
+  confirmed: '✓',
+  processing: '⚙️',
+  completed: '✅',
+  partially_refunded: '↩️',
 
   // Physical item statuses
-  [PhysicalItemStatus.PENDING]: '⏳',
-  [PhysicalItemStatus.PAYMENT_CONFIRMED]: '💳',
-  [PhysicalItemStatus.PREPARING]: '📦',
-  [PhysicalItemStatus.READY_TO_SHIP]: '📋',
-  [PhysicalItemStatus.SHIPPED]: '🚚',
-  [PhysicalItemStatus.OUT_FOR_DELIVERY]: '🚚',
-  [PhysicalItemStatus.DELIVERED]: '✅',
-  [PhysicalItemStatus.CANCELLED]: '✕',
-  [PhysicalItemStatus.REFUND_REQUESTED]: '↩️',
-  [PhysicalItemStatus.REFUNDED]: '↩️',
+  preparing: '📦',
+  ready_to_ship: '📋',
+  shipped: '🚚',
+  out_for_delivery: '🚚',
+  delivered: '✅',
 
   // Digital item statuses
-  [DigitalItemStatus.PENDING]: '⏳',
-  [DigitalItemStatus.PAYMENT_CONFIRMED]: '💳',
-  [DigitalItemStatus.ACCESS_GRANTED]: '🔓',
-  [DigitalItemStatus.DOWNLOADED]: '⬇️',
-  [DigitalItemStatus.CANCELLED]: '✕',
-  [DigitalItemStatus.REFUND_REQUESTED]: '↩️',
-  [DigitalItemStatus.REFUNDED]: '↩️',
+  access_granted: '🔓',
+  downloaded: '⬇️',
 
   // Service item statuses
-  [ServiceItemStatus.PENDING]: '⏳',
-  [ServiceItemStatus.PAYMENT_CONFIRMED]: '💳',
-  [ServiceItemStatus.BOOKING_CONFIRMED]: '📅',
-  [ServiceItemStatus.REMINDER_SENT]: '🔔',
-  [ServiceItemStatus.IN_PROGRESS]: '⚙️',
-  [ServiceItemStatus.COMPLETED]: '✅',
-  [ServiceItemStatus.NO_SHOW]: '❌',
-  [ServiceItemStatus.CANCELLED]: '✕',
-  [ServiceItemStatus.REFUND_REQUESTED]: '↩️',
-  [ServiceItemStatus.REFUNDED]: '↩️',
+  booking_confirmed: '📅',
+  reminder_sent: '🔔',
+  in_progress: '⚙️',
+  no_show: '❌',
 };
 
 /**

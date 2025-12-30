@@ -11,6 +11,7 @@ import { useWishlistStore } from './wishlistStore';
 import { useCartStore } from './cartStore';
 import { useNotificationStore } from './notificationStore';
 import { useCheckoutStore } from './checkoutStore';
+import { useImportStore } from './importStore';
 
 /**
  * Clear all persisted store state on session expiration
@@ -33,4 +34,5 @@ export const clearAllStores = (): void => {
   useCartStore.getState().reset();
   useNotificationStore.getState().reset();
   useCheckoutStore.getState().reset();
+  useImportStore.getState().reset();
 };

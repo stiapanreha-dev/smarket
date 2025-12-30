@@ -1,0 +1,449 @@
+/**
+ * Import Wizard Styles
+ */
+
+.import-wizard-modal .modal-dialog {
+  max-width: 900px;
+}
+
+.import-wizard-modal .modal-body {
+  min-height: 400px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Progress Bar */
+.import-wizard-progress {
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.import-wizard-progress .progress {
+  height: 4px;
+  margin-bottom: 1rem;
+}
+
+.import-wizard-steps {
+  display: flex;
+  justify-content: space-between;
+}
+
+.import-wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.import-wizard-step .step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #dee2e6;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.import-wizard-step .step-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.import-wizard-step.active .step-number {
+  background-color: #7fb3d5;
+  color: white;
+}
+
+.import-wizard-step.active .step-label {
+  color: #7fb3d5;
+  font-weight: 600;
+}
+
+.import-wizard-step.completed .step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.import-wizard-step.completed .step-label {
+  color: #28a745;
+}
+
+/* Upload Step */
+.upload-dropzone {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8f9fa;
+}
+
+.upload-dropzone:hover {
+  border-color: #7fb3d5;
+  background-color: #f0f7fb;
+}
+
+.upload-dropzone.dragging {
+  border-color: #7fb3d5;
+  background-color: #e3f2fd;
+}
+
+.upload-dropzone.has-file {
+  border-color: #28a745;
+  background-color: #e8f5e9;
+}
+
+.upload-dropzone .upload-icon {
+  font-size: 3rem;
+  color: #7fb3d5;
+  margin-bottom: 1rem;
+}
+
+.upload-dropzone .upload-text {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.upload-dropzone .upload-hint {
+  font-size: 0.875rem;
+  color: #adb5bd;
+}
+
+.selected-file {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.selected-file .file-icon {
+  font-size: 2rem;
+  color: #28a745;
+  margin-right: 1rem;
+}
+
+.selected-file .file-info {
+  flex: 1;
+}
+
+.selected-file .file-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.selected-file .file-size {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Analyzing Step */
+.analyzing-step {
+  text-align: center;
+  padding: 2rem;
+}
+
+.analyzing-step .analyzing-icon {
+  font-size: 4rem;
+  color: #7fb3d5;
+  margin-bottom: 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.analyzing-step h4 {
+  margin-bottom: 0.5rem;
+}
+
+.analyzing-step p {
+  color: #6c757d;
+}
+
+/* Mapping Step */
+.mapping-step .mapping-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mapping-table th {
+  background-color: #f8f9fa;
+}
+
+.mapping-confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mapping-confidence .badge {
+  font-size: 0.7rem;
+}
+
+.sample-data {
+  font-size: 0.75rem;
+  color: #6c757d;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Reconciliation Step */
+.reconciliation-step .stats-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.reconciliation-step .stat-card {
+  flex: 1;
+  min-width: 100px;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+.reconciliation-step .stat-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.reconciliation-step .stat-card .stat-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.reconciliation-step .stat-card.success {
+  background-color: #d4edda;
+}
+
+.reconciliation-step .stat-card.success .stat-value {
+  color: #28a745;
+}
+
+.reconciliation-step .stat-card.warning {
+  background-color: #fff3cd;
+}
+
+.reconciliation-step .stat-card.warning .stat-value {
+  color: #ffc107;
+}
+
+.reconciliation-step .stat-card.danger {
+  background-color: #f8d7da;
+}
+
+.reconciliation-step .stat-card.danger .stat-value {
+  color: #dc3545;
+}
+
+.reconciliation-step .stat-card.info {
+  background-color: #d1ecf1;
+}
+
+.reconciliation-step .stat-card.info .stat-value {
+  color: #17a2b8;
+}
+
+.items-table {
+  font-size: 0.875rem;
+}
+
+.items-table td {
+  vertical-align: middle;
+}
+
+.item-status-badge {
+  font-size: 0.7rem;
+}
+
+.item-changes {
+  font-size: 0.75rem;
+}
+
+.item-changes .change-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.item-changes .old-value {
+  text-decoration: line-through;
+  color: #dc3545;
+}
+
+.item-changes .new-value {
+  color: #28a745;
+}
+
+/* Executing Step */
+.executing-step {
+  text-align: center;
+  padding: 2rem;
+}
+
+.executing-step .progress {
+  height: 20px;
+  margin: 2rem 0;
+}
+
+.executing-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.executing-stats .stat {
+  text-align: center;
+}
+
+.executing-stats .stat .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.executing-stats .stat .label {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Results Step */
+.results-step {
+  padding: 1rem;
+}
+
+.results-step .results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.results-step .results-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.results-step .results-icon.success {
+  color: #28a745;
+}
+
+.results-step .results-icon.warning {
+  color: #ffc107;
+}
+
+.results-step .results-icon.error {
+  color: #dc3545;
+}
+
+.results-summary {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.results-summary .summary-card {
+  min-width: 120px;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+.results-summary .summary-card .value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.results-summary .summary-card .label {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.results-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Filter buttons */
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-buttons .btn {
+  font-size: 0.875rem;
+}
+
+/* Actions bar */
+.reconciliation-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.reconciliation-actions .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .import-wizard-modal .modal-body {
+    min-height: 300px;
+  }
+
+  .import-wizard-steps {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .import-wizard-step .step-label {
+    display: none;
+  }
+
+  .upload-dropzone {
+    padding: 2rem 1rem;
+  }
+
+  .reconciliation-step .stats-row {
+    flex-direction: column;
+  }
+
+  .reconciliation-step .stat-card {
+    min-width: auto;
+  }
+}
