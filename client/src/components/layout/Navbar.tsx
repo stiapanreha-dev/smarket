@@ -33,8 +33,8 @@ const Navbar = () => {
   const setViewMode = useSetViewMode();
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
-  // Check if user can switch modes (merchants and admins only)
-  const canSwitchMode = isAuthenticated && (user?.role === 'merchant' || user?.role === 'admin');
+  // Check if user can switch modes (merchants only)
+  const canSwitchMode = isAuthenticated && user?.role === 'merchant';
 
   // Handle mode change
   const handleModeChange = (mode: ViewMode) => {

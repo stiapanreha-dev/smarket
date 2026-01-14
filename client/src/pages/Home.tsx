@@ -19,8 +19,10 @@ export default function Home() {
       navigate('/login', { replace: true });
     } else {
       // Logged in - redirect based on role
-      if (user?.role === 'merchant' || user?.role === 'admin') {
+      if (user?.role === 'merchant') {
         navigate('/merchant/dashboard', { replace: true });
+      } else if (user?.role === 'admin') {
+        navigate('/admin', { replace: true });
       } else {
         // Buyer role - redirect to catalog
         navigate('/catalog', { replace: true });

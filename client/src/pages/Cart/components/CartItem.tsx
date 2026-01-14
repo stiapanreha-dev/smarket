@@ -69,7 +69,18 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
 
   return (
     <Card className={`cart-item mb-3 ${disabled || isUpdating ? 'loading' : ''}`}>
-      <Card.Body>
+      <Card.Body className="position-relative">
+        {/* Remove Button - Top Right Corner */}
+        <Button
+          variant="link"
+          onClick={onRemove}
+          disabled={disabled || isUpdating}
+          className="cart-item-remove-btn"
+          title={t('cart.remove', 'Remove')}
+        >
+          <FaTrash />
+        </Button>
+
         <Row className="align-items-center g-3">
           {/* Product Image */}
           <Col xs={12} sm={3} md={2}>
@@ -171,28 +182,13 @@ export function CartItem({ item, onQuantityChange, onRemove, disabled = false }:
             </div>
           </Col>
 
-          {/* Subtotal & Remove */}
+          {/* Subtotal */}
           <Col xs={12} md={2} className="text-end">
-            <div className="cart-item-actions">
-              {/* Subtotal */}
-              <div className="cart-item-subtotal mb-2">
-                <p className="text-muted small mb-0">{t('cart.subtotal', 'Subtotal')}</p>
-                <p className="fw-bold mb-0 fs-5">
-                  {formatCartPrice(item.totalPrice, item.currency)}
-                </p>
-              </div>
-
-              {/* Remove Button */}
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={onRemove}
-                disabled={disabled || isUpdating}
-                className="w-100"
-              >
-                <FaTrash className={isRTL ? 'ms-2' : 'me-2'} />
-                {t('cart.remove', 'Remove')}
-              </Button>
+            <div className="cart-item-subtotal">
+              <p className="text-muted small mb-0">{t('cart.subtotal', 'Subtotal')}</p>
+              <p className="fw-bold mb-0 fs-5">
+                {formatCartPrice(item.totalPrice, item.currency)}
+              </p>
             </div>
           </Col>
         </Row>

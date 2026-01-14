@@ -260,6 +260,24 @@ body {
   transform: translateY(-2px);
 }
 
+/* InputGroup button override - fix Bootstrap default blue border */
+.input-group .btn-outline-primary {
+  border-color: var(--main-color);
+  color: var(--main-color);
+}
+
+.input-group .btn-outline-primary:hover,
+.input-group .btn-outline-primary:focus {
+  background-color: var(--main-color);
+  border-color: var(--main-color);
+  color: var(--white);
+}
+
+.input-group .btn-outline-primary:active {
+  background-color: var(--main-dark);
+  border-color: var(--main-dark);
+}
+
 /* Section Styling */
 .section {
   padding: 80px 0;
