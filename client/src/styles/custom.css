@@ -62,6 +62,26 @@ a:hover {
   background-color: #7FB3D5 !important;
 }
 
+/* Override Bootstrap text-primary */
+.text-primary {
+  color: #7FB3D5 !important;
+}
+
+/* Override Bootstrap border-primary */
+.border-primary {
+  border-color: #7FB3D5 !important;
+}
+
+/* Override Bootstrap spinner primary */
+.spinner-border.text-primary {
+  color: #7FB3D5 !important;
+}
+
+/* Override Bootstrap progress bar */
+.progress-bar {
+  background-color: #7FB3D5;
+}
+
 /* Override form focus states */
 .form-control:focus,
 .form-select:focus {
